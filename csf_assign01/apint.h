@@ -18,7 +18,7 @@ extern "C" {
  */
 typedef struct {
 	uint32_t len; //number of elements the data array has
-	uint32_t flags; //sign of the value
+	uint32_t flags; //sign of the value (0 represents +; 1 represents -)
 	uint64_t *data; //dynamically allocated array of uint64_t elements
 } ApInt;
 

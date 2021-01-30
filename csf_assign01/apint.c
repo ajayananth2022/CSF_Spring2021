@@ -12,7 +12,12 @@
 ApInt *apint_create_from_u64(uint64_t val) {
 	/* TODO: implement */
 	assert(0);
-	return NULL;
+	ApInt *ap;
+	ap->flags = 0;
+	ap->len = 1;
+	ap->data = malloc(ap->len * sizeof(uint64_t));
+	ap->data[0] = val;
+	return ap;
 }
 
 ApInt *apint_create_from_hex(const char *hex) {
@@ -23,7 +28,8 @@ ApInt *apint_create_from_hex(const char *hex) {
 
 void apint_destroy(ApInt *ap) {
 	/* TODO: implement */
-	assert(0);
+	assert(ap->data != NULL);
+	free(ap->data);
 }
 
 int apint_is_zero(const ApInt *ap) {
