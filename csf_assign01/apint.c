@@ -10,7 +10,6 @@
 #include "apint.h"
 
 ApInt *apint_create_from_u64(uint64_t val) {
-	/* TODO: implement */
 	ApInt *ap = malloc(sizeof(ApInt));
 	ap->flags = 0; //val is always positive
 	ap->len = 1; //only on element needed for the array
@@ -26,26 +25,26 @@ ApInt *apint_create_from_hex(const char *hex) {
 }
 
 void apint_destroy(ApInt *ap) {
-	/* TODO: implement */
-	//assert(ap->data != NULL);
+	assert(ap); //make sure ap isn't pointing to NULL
+	assert(ap->data);
 	free(ap->data);
 	free(ap);
 }
 
 int apint_is_zero(const ApInt *ap) {
-	/* TODO: implement */
-	assert(0);
+	assert(ap);
+	assert(ap->data);
+	if (ap->data[0] == 0) return 1;
 	return 0;
 }
 
 int apint_is_negative(const ApInt *ap) {
-	/* TODO: implement */
-	assert(0);
+	assert(ap);
+	if (ap->flags == 1) return 1;
 	return 0;
 }
 
 uint64_t apint_get_bits(const ApInt *ap, unsigned n) {
-	/* TODO: implement */
 	assert(n < ap->len);
 	return ap->data[n];
 }

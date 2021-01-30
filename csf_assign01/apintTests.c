@@ -30,6 +30,7 @@ TestObjs *setup(void);
 void cleanup(TestObjs *objs);
 
 void testCreateFromU64(TestObjs *objs);
+void testIsZero(TestObjs *objs);
 void testHighestBitSet(TestObjs *objs);
 void testCompare(TestObjs *objs);
 void testFormatAsHex(TestObjs *objs);
@@ -49,6 +50,7 @@ int main(int argc, char **argv) {
 	}
 
 	TEST(testCreateFromU64);
+	TEST(testIsZero);
 	//TEST(testHighestBitSet);
 	//TEST(testCompare);
 	//TEST(testFormatAsHex);
@@ -87,6 +89,13 @@ void testCreateFromU64(TestObjs *objs) {
 	ASSERT(1UL == apint_get_bits(objs->ap1, 0));
     ASSERT(110660361UL == apint_get_bits(objs->ap110660361, 0));
 	ASSERT(0xFFFFFFFFFFFFFFFFUL == apint_get_bits(objs->max1, 0));
+}
+
+void testIsZero(TestObjs *objs) {
+    ASSERT(apint_is_zero(objs->ap0) == 1);
+	ASSERT(apint_is_zero(objs->ap1) == 0);
+	ASSERT(apint_is_zero(objs->ap110660361) == 0);
+	ASSERT(apint_is_zero(objs->max1) == 0);
 }
 
 void testHighestBitSet(TestObjs *objs) {
