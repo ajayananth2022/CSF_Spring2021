@@ -11,10 +11,9 @@
 
 ApInt *apint_create_from_u64(uint64_t val) {
 	/* TODO: implement */
-	assert(0);
-	ApInt *ap;
-	ap->flags = 0;
-	ap->len = 1;
+	ApInt *ap = malloc(sizeof(ApInt));
+	ap->flags = 0; //val is always positive
+	ap->len = 1; //only on element needed for the array
 	ap->data = malloc(ap->len * sizeof(uint64_t));
 	ap->data[0] = val;
 	return ap;
@@ -28,8 +27,9 @@ ApInt *apint_create_from_hex(const char *hex) {
 
 void apint_destroy(ApInt *ap) {
 	/* TODO: implement */
-	assert(ap->data != NULL);
+	//assert(ap->data != NULL);
 	free(ap->data);
+	free(ap);
 }
 
 int apint_is_zero(const ApInt *ap) {
@@ -46,8 +46,8 @@ int apint_is_negative(const ApInt *ap) {
 
 uint64_t apint_get_bits(const ApInt *ap, unsigned n) {
 	/* TODO: implement */
-	assert(0);
-	return 0UL;
+	assert(n < ap->len);
+	return ap->data[n];
 }
 
 int apint_highest_bit_set(const ApInt *ap) {
