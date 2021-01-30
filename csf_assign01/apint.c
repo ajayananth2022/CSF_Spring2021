@@ -63,13 +63,13 @@ char *apint_format_as_hex(const ApInt *ap) {
 
 ApInt *apint_negate(const ApInt *ap) {
 	assert(ap);
-	ApInt *neg = malloc(sizeof(ApInt));
+	ApInt *neg = malloc(sizeof(ApInt)); //declare a new instance of ApInt
 	neg->len = ap->len;
 	neg->data = malloc(neg->len * sizeof(uint64_t));
-	for (int i = 0; i < ap->len; i++) {
+	for (int i = 0; i < ap->len; i++) { //deep copy of ap's data
 		neg->data[i] = ap->data[i];
 	}
-	if (apint_is_zero(ap)) {
+	if (apint_is_zero(ap)) { //neg's sign is the same as ap if it's 0
 		neg->flags = ap->flags;
 	} else if (apint_is_negative(ap)) {
 		neg->flags = 0;
