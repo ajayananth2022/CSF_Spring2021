@@ -17,7 +17,9 @@ extern "C" {
  * data[0] is bits 0..63, data[1] is bits 64..127, etc.
  */
 typedef struct {
-	/* TODO: add fields */
+	uint32_t len; //number of elements the data array has
+	uint32_t flags; //sign of the value
+	uint64_t *data; //dynamically allocated array of uint64_t elements
 } ApInt;
 
 /* Constructors and destructors */
