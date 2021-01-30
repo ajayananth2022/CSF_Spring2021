@@ -62,9 +62,21 @@ char *apint_format_as_hex(const ApInt *ap) {
 }
 
 ApInt *apint_negate(const ApInt *ap) {
-	/* TODO: implement */
-	assert(0);
-	return NULL;
+	assert(ap);
+	ApInt *neg = malloc(sizeof(ApInt));
+	neg->len = ap->len;
+	neg->data = malloc(neg->len * sizeof(uint64_t));
+	for (int i = 0; i < ap->len; i++) {
+		neg->data[i] = ap->data[i];
+	}
+	if (apint_is_zero(ap)) {
+		neg->flags = ap->flags;
+	} else if (apint_is_negative(ap)) {
+		neg->flags = 0;
+	} else {
+		neg->flags = 1;
+	}
+	return neg;
 }
 
 ApInt *apint_add(const ApInt *a, const ApInt *b) {
