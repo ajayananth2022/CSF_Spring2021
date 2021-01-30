@@ -87,7 +87,6 @@ void testCreateFromU64(TestObjs *objs) {
 	ASSERT(1UL == apint_get_bits(objs->ap1, 0));
     ASSERT(110660361UL == apint_get_bits(objs->ap110660361, 0));
 	ASSERT(0xFFFFFFFFFFFFFFFFUL == apint_get_bits(objs->max1, 0));
-	//printf("All tests for create_from_u64 passed!\n");
 }
 
 void testHighestBitSet(TestObjs *objs) {
