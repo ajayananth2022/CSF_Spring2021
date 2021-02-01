@@ -24,6 +24,7 @@ typedef struct {
 	ApInt *max1;
 	ApInt *minus1;
 	ApInt *ap100000000;
+	ApInt *ap0xbc848afUL;
 	/* TODO: add additional fields of test fixture */
 } TestObjs;
 
@@ -70,6 +71,7 @@ TestObjs *setup(void) {
 	objs->ap1 = apint_create_from_u64(1UL);
 	objs->ap110660361 = apint_create_from_u64(110660361UL);
 	objs->ap100000000 = apint_create_from_u64(100000000UL);
+	objs->ap0xbc848afUL = apint_create_from_u64(0xbc848afUL);
 	objs->max1 = apint_create_from_u64(0xFFFFFFFFFFFFFFFFUL);
 	objs->minus1 = apint_negate(objs->ap1);
 	/* TODO: initialize additional members of test fixture */
@@ -84,6 +86,7 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->max1);
 	apint_destroy(objs->minus1);
 	apint_destroy(objs->ap100000000);
+	apint_destroy(objs->ap0xbc848afUL);
 	/* TODO: destroy additional members of test fixture */
 
 	free(objs);
@@ -94,6 +97,7 @@ void testCreateFromU64(TestObjs *objs) {
 	ASSERT(1UL == apint_get_bits(objs->ap1, 0));
     ASSERT(110660361UL == apint_get_bits(objs->ap110660361, 0));
 	ASSERT(0xFFFFFFFFFFFFFFFFUL == apint_get_bits(objs->max1, 0));
+	ASSERT(0xbc848afUL == apint_get_bits(objs->ap0xbc848afUL, 0));
 }
 
 void testIsZero(TestObjs *objs) {
@@ -177,6 +181,20 @@ void testAdd(TestObjs *objs) {
 	/* 110660361 + 1 = 110660362 */
 	sum = apint_add(objs->ap110660361, objs->ap1);
 	ASSERT(110660362UL == apint_get_bits(sum, 0));
+	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
+	/* 197675183 + 1 = 197675184 */
+	sum = apint_add(objs->ap0xbc848afUL, objs->ap1);
+	ASSERT(197675184UL == apint_get_bits(sum, 0));
+	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
+	/* 197675183 + 0 = 197675183 */
+	sum = apint_add(objs->ap0xbc848afUL, objs->ap0);
+	ASSERT(0xbc848afUL == apint_get_bits(sum, 0));
 	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
