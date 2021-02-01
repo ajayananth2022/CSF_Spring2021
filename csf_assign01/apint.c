@@ -91,15 +91,12 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 	sum->len = 1; //only for Milestone 1, data will have only 1 element
 	sum->data = malloc(sizeof(uint64_t));
 
-	if (a->flags == 0 && b->flags == 0) { //both numbers are positive
+	if (a->flags == b->flags) { //signs are the same
 		sum->data[0] = add(a->data[0], b->data[0]);
-		sum->flags = 0;  
-	} else if (a->flags == 1 && b->flags == 1) { //both numbers are negative
-		sum->data[0] = add(a->data[0], b->data[0]);
-		sum->flags = 1;
+		sum->flags = a->flags;
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
-		if (a->data[0] < b->data[0]) {
+		if (a->data[0] < b->data[0]) { 
 			sum->flags = 0;  
 		} else {
 			sum->flags = 1; 
@@ -125,8 +122,7 @@ int add(uint64_t val1, uint64_t val2) {
 int subtract(uint64_t val1, uint64_t val2) {
 	if (val1 > val2) {
 		return val1 - val2; 
-	}
-	else {
+	} else {
 		return val2 - val1; 
 	}
 }

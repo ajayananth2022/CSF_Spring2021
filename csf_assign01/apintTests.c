@@ -23,6 +23,7 @@ typedef struct {
 	ApInt *ap110660361;
 	ApInt *max1;
 	ApInt *minus1;
+	ApInt *ap100000000;
 	/* TODO: add additional fields of test fixture */
 } TestObjs;
 
@@ -68,6 +69,7 @@ TestObjs *setup(void) {
 	objs->ap0 = apint_create_from_u64(0UL);
 	objs->ap1 = apint_create_from_u64(1UL);
 	objs->ap110660361 = apint_create_from_u64(110660361UL);
+	objs->ap100000000 = apint_create_from_u64(100000000UL);
 	objs->max1 = apint_create_from_u64(0xFFFFFFFFFFFFFFFFUL);
 	objs->minus1 = apint_negate(objs->ap1);
 	/* TODO: initialize additional members of test fixture */
@@ -81,6 +83,7 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->ap110660361);
 	apint_destroy(objs->max1);
 	apint_destroy(objs->minus1);
+	apint_destroy(objs->ap100000000);
 	/* TODO: destroy additional members of test fixture */
 
 	free(objs);
@@ -178,9 +181,39 @@ void testAdd(TestObjs *objs) {
 	apint_destroy(sum);
 	//free(s);
 
+	/* 110660361 + 100000000 = 210660361 */
+	sum = apint_add(objs->ap110660361, objs->ap100000000);
+	ASSERT(210660361UL == apint_get_bits(sum, 0));
+	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
+	/* 0 + -1 = -1 */
+	sum = apint_add(objs->ap0, objs->minus1);
+	ASSERT(1UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->minus1));
+	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
+	/* -1 + 0 = -1 */
+	sum = apint_add(objs->minus1, objs->ap0);
+	ASSERT(1UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->minus1));
+	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
 	/* 1 + -1 = 0 */
 	sum = apint_add(objs->ap1, objs->minus1);
 	ASSERT(0UL == apint_get_bits(sum, 0));
+	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
+    /* -1 + -1 = -2 */
+	sum = apint_add(objs->minus1, objs->minus1);
+	ASSERT(2UL == apint_get_bits(sum, 0));
 	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
