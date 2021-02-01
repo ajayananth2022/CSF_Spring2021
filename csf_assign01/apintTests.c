@@ -178,6 +178,13 @@ void testAdd(TestObjs *objs) {
 	apint_destroy(sum);
 	//free(s);
 
+	/* 1 + -1 = 0 */
+	sum = apint_add(objs->ap1, objs->minus1);
+	ASSERT(0UL == apint_get_bits(sum, 0));
+	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
 	/* FFFFFFFFFFFFFFFF + 1 = 10000000000000000 */
 	sum = apint_add(objs->max1, objs->ap1);
 	//ASSERT(10000000000000000 == apint_get_bits(sum, 0));
@@ -218,6 +225,14 @@ void testSub(TestObjs *objs) {
 	ASSERT(1UL == apint_get_bits(diff, 0));
 	//ASSERT(0 == (strcmp("-1", (s = apint_format_as_hex(diff)))));
 	ASSERT(0 == apint_compare(diff, objs->minus1));
+	apint_destroy(diff);
+	//free(s);
+
+	/* subtracting 1 from -1 is -2 */
+	diff = apint_sub(objs->minus1, objs->ap1);
+	ASSERT(2UL == apint_get_bits(diff, 0));
+	//ASSERT(0 == (strcmp("-1", (s = apint_format_as_hex(diff)))));
+	//ASSERT(0 == apint_compare(diff, objs->minus1));
 	apint_destroy(diff);
 	//free(s);
 
