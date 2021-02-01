@@ -45,22 +45,17 @@ int apint_is_negative(const ApInt *ap) {
 }
 
 uint64_t apint_get_bits(const ApInt *ap, unsigned n) {
-	assert(n < ap->len);
+	if (n >= ap->len) return 0;
 	return ap->data[n];
 }
 
 int apint_highest_bit_set(const ApInt *ap) {
-	/* TODO: implement */
-	
-	//question: what is the point of doing assert()? 
-	int highest_bit = 0; 
-
-	//this is a deep copy, right??
+	int highest_bit = -1; 
 	//not sure if uint64_t is the best choice here
 
 	//for milestone 1
 	uint64_t dataVal= ap->data[0]; 
-
+    
 	while (dataVal > 0) {
 		dataVal = dataVal >> 1; 
 		highest_bit++; 

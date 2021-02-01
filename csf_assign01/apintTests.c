@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 	TEST(testCreateFromU64);
 	TEST(testIsZero);
 	TEST(testIsNegative);
-	//TEST(testHighestBitSet);
+	TEST(testHighestBitSet);
 	//TEST(testCompare);
 	//TEST(testFormatAsHex);
 	//TEST(testAdd);
