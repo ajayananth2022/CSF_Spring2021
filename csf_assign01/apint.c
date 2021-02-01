@@ -51,13 +51,12 @@ uint64_t apint_get_bits(const ApInt *ap, unsigned n) {
 
 int apint_highest_bit_set(const ApInt *ap) {
 	int highest_bit = -1; 
-	//not sure if uint64_t is the best choice here
 
 	//for milestone 1
 	uint64_t dataVal= ap->data[0]; 
     
 	while (dataVal > 0) {
-		dataVal = dataVal >> 1; 
+		dataVal = dataVal >> 1; //move to the left bit
 		highest_bit++; 
 	}
 	return highest_bit;
@@ -88,49 +87,35 @@ ApInt *apint_negate(const ApInt *ap) {
 }
 
 ApInt *apint_add(const ApInt *a, const ApInt *b) {
-	/* TODO: implement */
-	assert(0);
- 
 	ApInt *sum = malloc(sizeof(ApInt)); //new instance of ApInt representing sum
 	sum->len = 1; //only for Milestone 1, data will have only 1 element
 	sum->data = malloc(sizeof(uint64_t));
 
-	//both numbers are positive
-	if (a->flags == 0 && b->flags == 0) {
+	if (a->flags == 0 && b->flags == 0) { //both numbers are positive
 		sum->data[0] = add(a->data[0], b->data[0]);
 		sum->flags = 0;  
-	}
-
-	//both numbers are negative
-	else if (a->flags == 1 && b->flags == 1) {
+	} else if (a->flags == 1 && b->flags == 1) { //both numbers are negative
 		sum->data[0] = add(a->data[0], b->data[0]);
 		sum->flags = 1;
-	}
-
-	//a is negative and b is positive
-	else if (a->flags == 1 && b->flags == 0 ) {
+	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
 		if (a->data[0] < b->data[0]) {
 			sum->flags = 0;  
-		}
-		else {
+		} else {
 			sum->flags = 1; 
 		}
-	}
-
-	//a is positive and b is negative
-	else {
+	} else { //a is positive and b is negative
 		sum->data[0] = subtract(a->data[0], b->data[0]); 
 		if (a->data[0] < b->data[0]) {
 			sum->flags = 1; 
-		}
-		else {
+		} else {
 			sum->flags = 0; 
 		}
 	}
 	return sum;
 }
 
+//helper function of adding unsigned int
 int add(uint64_t val1, uint64_t val2) {
 	return val1 + val2; 
 }
@@ -147,45 +132,28 @@ int subtract(uint64_t val1, uint64_t val2) {
 }
 
 ApInt *apint_sub(const ApInt *a, const ApInt *b) {
-	/* TODO: implement */
-	assert(0);
-
 	return apint_add(a, apint_negate(b));
-
 }
 
 int apint_compare(const ApInt *left, const ApInt *right) {
-	/* TODO: implement */
-	assert(0);
-
 	//both equal
 	if (left->data[0] == right->data[0] && left->flags == right->flags) {
 		return 0; 
 	}
+
 	//both negative
-	if (left->flags ==1 && right->flags ==1) {
-		if (left->data[0] > right->data[0]) {
-			return -1; 
-		}
-		else {
-			return 1; 
-		}
-	}
-	//both positive
-	if (left->flags ==0 && right->flags ==0) {
-		if (left->data[0] > right->data[0]) {
-			return 1; 
-		}
-		else {
-			return -1; 
-		}
-	}
-	//left is positive and right is negative
-	if (left->flags == 0 && right->flags ==1) {
+	if (left->flags == 1 && right->flags == 1) {
+		if (left->data[0] > right->data[0]) return -1; 
 		return 1; 
 	}
-	//vice versa
-	else {
+
+	//both positive
+	if (left->flags == 0 && right->flags == 0) {
+		if (left->data[0] > right->data[0]) return 1; 
 		return -1; 
 	}
+	//left is positive and right is negative
+	if (left->flags == 0 && right->flags ==1) return 1; 
+	//vice versa
+	return -1; 
 }
