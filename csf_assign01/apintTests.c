@@ -23,8 +23,11 @@ typedef struct {
 	ApInt *ap110660361;
 	ApInt *max1;
 	ApInt *minus1;
+	ApInt *minusMax;
 	ApInt *ap100000000;
 	ApInt *ap0xbc848afUL;
+	ApInt *ap2;
+	ApInt *minus2;
 	/* TODO: add additional fields of test fixture */
 } TestObjs;
 
@@ -74,6 +77,9 @@ TestObjs *setup(void) {
 	objs->ap0xbc848afUL = apint_create_from_u64(0xbc848afUL);
 	objs->max1 = apint_create_from_u64(0xFFFFFFFFFFFFFFFFUL);
 	objs->minus1 = apint_negate(objs->ap1);
+	objs->minusMax = apint_negate(objs->max1);
+	objs->ap2 = apint_create_from_u64(2UL);
+	objs->minus2 = apint_negate(objs->ap2);
 	/* TODO: initialize additional members of test fixture */
 
 	return objs;
@@ -87,6 +93,9 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->minus1);
 	apint_destroy(objs->ap100000000);
 	apint_destroy(objs->ap0xbc848afUL);
+	apint_destroy(objs->minusMax);
+	apint_destroy(objs->ap2);
+	apint_destroy(objs->minus2);
 	/* TODO: destroy additional members of test fixture */
 
 	free(objs);
@@ -160,6 +169,7 @@ void testAdd(TestObjs *objs) {
 	/* 0 + 0 = 0 */
 	sum = apint_add(objs->ap0, objs->ap0);
 	ASSERT(0UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->ap0));
 	//ASSERT(0 == strcmp("0", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
@@ -167,6 +177,7 @@ void testAdd(TestObjs *objs) {
 	/* 1 + 0 = 1 */
 	sum = apint_add(objs->ap1, objs->ap0);
 	ASSERT(1UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->ap1));
 	//ASSERT(0 == strcmp("1", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
@@ -174,6 +185,7 @@ void testAdd(TestObjs *objs) {
 	/* 1 + 1 = 2 */
 	sum = apint_add(objs->ap1, objs->ap1);
 	ASSERT(2UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->ap2));
 	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
@@ -225,6 +237,15 @@ void testAdd(TestObjs *objs) {
 	/* 1 + -1 = 0 */
 	sum = apint_add(objs->ap1, objs->minus1);
 	ASSERT(0UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->ap0));
+	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	//free(s);
+
+	/* -1 + 1 = 0 */
+	sum = apint_add(objs->minus1, objs->ap1);
+	ASSERT(0UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->ap0));
 	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
@@ -232,6 +253,7 @@ void testAdd(TestObjs *objs) {
     /* -1 + -1 = -2 */
 	sum = apint_add(objs->minus1, objs->minus1);
 	ASSERT(2UL == apint_get_bits(sum, 0));
+	ASSERT(0 == apint_compare(sum, objs->minus2));
 	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	//free(s);
@@ -245,7 +267,8 @@ void testAdd(TestObjs *objs) {
 }
 
 void testSub(TestObjs *objs) {
-	ApInt *a, *b, *diff;
+	//ApInt *a, *b;
+	ApInt *diff;
 	//char *s;
 
 	/* subtracting 1 from ffffffffffffffff is fffffffffffffffe */

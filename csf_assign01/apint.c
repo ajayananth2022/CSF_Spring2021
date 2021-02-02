@@ -73,7 +73,7 @@ ApInt *apint_negate(const ApInt *ap) {
 	ApInt *neg = malloc(sizeof(ApInt)); //declare a new instance of ApInt
 	neg->len = ap->len;
 	neg->data = malloc(neg->len * sizeof(uint64_t));
-	for (int i = 0; i < ap->len; i++) { //deep copy of ap's data
+	for (uint32_t i = 0; i < ap->len; i++) { //deep copy of ap's data
 		neg->data[i] = ap->data[i];
 	}
 	if (apint_is_zero(ap)) { //neg's sign is the same as ap if it's 0
@@ -96,7 +96,7 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 		sum->flags = a->flags;
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
-		if (a->data[0] < b->data[0]) { 
+		if (a->data[0] <= b->data[0]) { 
 			sum->flags = 0;  
 		} else {
 			sum->flags = 1; 
@@ -113,13 +113,13 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 }
 
 //helper function of adding unsigned int
-int add(uint64_t val1, uint64_t val2) {
+uint64_t add(uint64_t val1, uint64_t val2) {
 	return val1 + val2; 
 }
 
 //val1 must be larger then val2
 //uint64_t
-int subtract(uint64_t val1, uint64_t val2) {
+uint64_t subtract(uint64_t val1, uint64_t val2) {
 	if (val1 > val2) {
 		return val1 - val2; 
 	} else {

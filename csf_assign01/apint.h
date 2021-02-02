@@ -38,6 +38,9 @@ ApInt *apint_add(const ApInt *a, const ApInt *b);
 ApInt *apint_sub(const ApInt *a, const ApInt *b);
 int apint_compare(const ApInt *left, const ApInt *right);
 
+//helper functions
+uint64_t add(uint64_t val1, uint64_t val2);
+uint64_t subtract(uint64_t val1, uint64_t val2);
 #ifdef __cplusplus
 }
 #endif
