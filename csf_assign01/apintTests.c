@@ -9,6 +9,8 @@
  * - adding/subtracting/comparing values with different lengths
  * - special cases (carries when adding, borrows when subtracting, etc.)
  * - etc.
+ * Lucy Zhang, Ajay Ananthakrishnan
+ * wzhang99@jhu.edu, ajayananth@jhu.edu
  */
 
 #include <stdio.h>

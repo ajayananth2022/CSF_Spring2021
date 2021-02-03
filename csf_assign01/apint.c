@@ -2,6 +2,8 @@
  * CSF Assignment 1
  * Arbitrary-precision integer data type
  * Function implementations
+ * Lucy Zhang, Ajay Ananthakrishnan
+ * wzhang99@jhu.edu, ajayananth@jhu.edu
  */
 
 #include <stdlib.h>
