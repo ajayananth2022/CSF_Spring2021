@@ -89,7 +89,7 @@ int apint_highest_bit_set(const ApInt *ap);
  * hexadecimal digits.
  *
  * @param ap pointer of an ApInt instance
- * @return a pointer to a char array of hexadecimal digits
+ * @return a pointer to a dynamically allocated char array of hexadecimal digits
  */
 char *apint_format_as_hex(const ApInt *ap);
 
@@ -146,6 +146,9 @@ uint64_t add(uint64_t val1, uint64_t val2);
  * @return the absolute value of the difference between the two values
  */
 uint64_t subtract(uint64_t val1, uint64_t val2);
+
+char int_to_hex(const uint8_t num);
+
 #ifdef __cplusplus
 }
 #endif

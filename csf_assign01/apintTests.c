@@ -30,6 +30,10 @@ typedef struct {
 	ApInt *ap0xbc848afUL;
 	ApInt *ap2;
 	ApInt *minus2;
+	ApInt *ap7;
+	ApInt *ap8;
+	ApInt *ap15;
+	ApInt *ap16;
 	/* TODO: add additional fields of test fixture */
 } TestObjs;
 
@@ -62,7 +66,7 @@ int main(int argc, char **argv) {
 	TEST(testIsNegative);
 	TEST(testHighestBitSet);
 	TEST(testCompare);
-	//TEST(testFormatAsHex);
+	TEST(testFormatAsHex);
 	TEST(testAdd);
 	TEST(testSub);
 	/* TODO: use TEST macro to execute more test functions */
@@ -82,6 +86,10 @@ TestObjs *setup(void) {
 	objs->minusMax = apint_negate(objs->max1);
 	objs->ap2 = apint_create_from_u64(2UL);
 	objs->minus2 = apint_negate(objs->ap2);
+	objs->ap8 = apint_create_from_u64(8UL);
+	objs->ap7 = apint_create_from_u64(7UL);
+	objs->ap15 = apint_create_from_u64(15UL);
+	objs->ap16 = apint_create_from_u64(16UL);
 	/* TODO: initialize additional members of test fixture */
 
 	return objs;
@@ -98,6 +106,11 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->minusMax);
 	apint_destroy(objs->ap2);
 	apint_destroy(objs->minus2);
+	apint_destroy(objs->ap8);
+	apint_destroy(objs->ap7);
+	apint_destroy(objs->ap15);
+	apint_destroy(objs->ap16);
+	
 	/* TODO: destroy additional members of test fixture */
 
 	free(objs);
@@ -155,6 +168,21 @@ void testFormatAsHex(TestObjs *objs) {
 	free(s);
 
 	ASSERT(0 == strcmp("1", (s = apint_format_as_hex(objs->ap1))));
+	free(s);
+
+	ASSERT(0 == strcmp("2", (s = apint_format_as_hex(objs->ap2))));
+	free(s);
+
+	ASSERT(0 == strcmp("7", (s = apint_format_as_hex(objs->ap7))));
+	free(s);
+
+	ASSERT(0 == strcmp("8", (s = apint_format_as_hex(objs->ap8))));
+	free(s);
+
+	ASSERT(0 == strcmp("f", (s = apint_format_as_hex(objs->ap15))));
+	free(s);
+
+	ASSERT(0 == strcmp("10", (s = apint_format_as_hex(objs->ap16))));
 	free(s);
 
 	ASSERT(0 == strcmp("6988b09", (s = apint_format_as_hex(objs->ap110660361))));
