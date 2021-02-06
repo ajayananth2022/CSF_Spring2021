@@ -190,6 +190,9 @@ void testFormatAsHex(TestObjs *objs) {
 
 	ASSERT(0 == strcmp("ffffffffffffffff", (s = apint_format_as_hex(objs->max1))));
 	free(s);
+
+	ASSERT(0 == strcmp("-2", (s = apint_format_as_hex(objs->minus2))));
+	free(s);
 }
 
 void testAdd(TestObjs *objs) {

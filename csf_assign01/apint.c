@@ -80,7 +80,9 @@ char *apint_format_as_hex(const ApInt *ap) {
 
 	//number of elements in the hex char array
 	uint64_t num_hex_bits = num_bin_bits / 4 + 1; 
-	char* hex = malloc(num_hex_bits * sizeof(char));
+	if (apint_is_negative(ap)) num_hex_bits++; //one more element for negative
+	char* hex = malloc((num_hex_bits + 1) * sizeof(char));
+	if (apint_is_negative(ap)) hex[0] = '-';
 
 	//loop through every 4 bits in the apint data
 	//sum the 4 bit number and convert to hex to store in char array
@@ -88,13 +90,14 @@ char *apint_format_as_hex(const ApInt *ap) {
 	for (uint64_t i = 0; i < num_hex_bits; i++) {
 		uint8_t hex_num = current % 2; //first bit
 		current = current / 2; //second bit
-		hex_num += current % 2 * 2;
+		hex_num += current % 2 * 2; //2^1
 		current = current / 2; //third bit
-		hex_num += current % 2 * 4;
+		hex_num += current % 2 * 4; //2^2
 		current = current / 2; //fourth bit
-		hex_num += current % 2 * 8;
+		hex_num += current % 2 * 8; //2^3
 		hex[num_hex_bits - i - 1] = int_to_hex(hex_num);
 		current = current / 2; //first bit of next iteration
+		if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
 	}
 	return hex;
 }
