@@ -22,8 +22,6 @@ ApInt *apint_create_from_u64(uint64_t val) {
 }
 
 ApInt *apint_create_from_hex(const char *hex) {
-	//for Milestone 2
-
 	ApInt *ap = malloc(sizeof(ApInt));
 
 	if (hex[0] == '-') {
@@ -96,14 +94,14 @@ char int_to_hex(const uint8_t num) {
 	return (char)(num+87);
 }
 
-uint8_t hex_to_int(const char *hex) {
+uint8_t hex_to_int(const char hex) {
 	if (hex >= '0' && hex <= '9') {
 		return hex - '0';
 	}
     else if (hex >= 'a' && hex <='f') {
 		return hex - 'a' + 10;
 	}
-    else if (byte >= 'A' && hex <='F') { 
+    else if (hex >= 'A' && hex <='F') { 
 		return hex - 'A' + 10;    
 	}
 	//error condition: hex char is not valid
