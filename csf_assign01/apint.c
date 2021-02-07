@@ -35,15 +35,21 @@ ApInt *apint_create_from_hex(const char *hex) {
 
 	uint64_t hex_len = strlen(hex); 
 	uint64_t sum = 0; 
-	uint64_t curDigit = 0; 
+	uint64_t curDigitHex = 0; 
+	uint64_t curDigitAP = 0; 
 
 	//these conditions have bugs in them, need to fix
 	for (int i = hex_len - 1; i >= 0; i--) {
-		sum += (hex_to_int(hex[i]) * pow(16, curDigit)); 
-		curDigit++; 
-	}
+		sum += (hex_to_int(hex[i]) * pow(16, curDigitHex)); 
 
-	ap->data[0] = sum;
+		curDigitHex++; 
+		if (curDigitHex == 16) {
+			ap->data[curDigitAP] = sum;
+			curDigitAP++; 
+			curDigitHex = 0; 
+			sum = 0; 
+		}
+	}
 	return ap;
 }
 
