@@ -100,7 +100,7 @@ uint8_t hex_to_int(const char hex) {
     else if (hex >= 'a' && hex <='f') {
 		return hex - 'a' + 10;
 	}
-    else if (hex >= 'A' && hex <='F') { 
+    else if (hex >= 'A' && hex <= 'F') { 
 		return hex - 'A' + 10;    
 	}
 	//error condition: hex char is not valid
@@ -123,6 +123,7 @@ char *apint_format_as_hex(const ApInt *ap) {
 	//sum the 4 bit number and convert to hex to store in char array
 	uint64_t current = ap->data[0]; 
 	for (uint64_t i = 0; i < num_hex_bits; i++) {
+		if (i % 16 == 0) current = ap->data[i / 16]; //jump to the correct element
 		hex[num_hex_bits - i - 1] = int_to_hex(current % 16);
 		current = current / 16; //shift to the right by 4 bits
 		if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
