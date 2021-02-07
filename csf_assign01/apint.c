@@ -77,14 +77,13 @@ int apint_highest_bit_set(const ApInt *ap) {
 	assert(ap); //make sure ap isn't pointing to NULL
 	int highest_bit = -1; 
 
-	//for milestone 1
-	uint64_t dataVal= ap->data[0]; 
+	uint64_t dataVal= ap->data[ap->len - 1]; 
     
 	while (dataVal > 0) {
 		dataVal = dataVal >> 1; //move to the left bit
 		highest_bit++; 
 	}
-	return highest_bit;
+	return highest_bit + 64 * (ap->len - 1);
 }
 
 char int_to_hex(const uint8_t num) {
@@ -124,9 +123,8 @@ char *apint_format_as_hex(const ApInt *ap) {
 	//sum the 4 bit number and convert to hex to store in char array
 	uint64_t current = ap->data[0]; 
 	for (uint64_t i = 0; i < num_hex_bits; i++) {
-		uint8_t hex_num = current % 16; 
-		hex[num_hex_bits - i - 1] = int_to_hex(hex_num);
-		current = current / 16; //first bit of next iteration
+		hex[num_hex_bits - i - 1] = int_to_hex(current % 16);
+		current = current / 16; //shift to the right by 4 bits
 		if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
 	}
 	return hex;
