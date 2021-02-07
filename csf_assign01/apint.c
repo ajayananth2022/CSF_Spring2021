@@ -88,15 +88,9 @@ char *apint_format_as_hex(const ApInt *ap) {
 	//sum the 4 bit number and convert to hex to store in char array
 	uint64_t current = ap->data[0]; 
 	for (uint64_t i = 0; i < num_hex_bits; i++) {
-		uint8_t hex_num = current % 2; //first bit
-		current = current / 2; //second bit
-		hex_num += current % 2 * 2; //2^1
-		current = current / 2; //third bit
-		hex_num += current % 2 * 4; //2^2
-		current = current / 2; //fourth bit
-		hex_num += current % 2 * 8; //2^3
+		uint8_t hex_num = current % 16; 
 		hex[num_hex_bits - i - 1] = int_to_hex(hex_num);
-		current = current / 2; //first bit of next iteration
+		current = current / 16; //first bit of next iteration
 		if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
 	}
 	return hex;
