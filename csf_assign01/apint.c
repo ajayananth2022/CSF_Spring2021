@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 #include "apint.h"
 
 ApInt *apint_create_from_u64(uint64_t val) {
@@ -22,9 +23,30 @@ ApInt *apint_create_from_u64(uint64_t val) {
 
 ApInt *apint_create_from_hex(const char *hex) {
 	//for Milestone 2
-	assert(0);
-	(void)hex; //suppresses compile warning of unused variable
-	return NULL;
+
+	ApInt *ap = malloc(sizeof(ApInt));
+
+	if (hex[0] == '-') {
+		ap->flags = 1;
+	} else {
+		ap->flags = 0;
+	}
+	
+	ap->len = 1; //only one element FOR NOW
+	ap->data = malloc(ap->len * sizeof(uint64_t));
+
+	uint64_t hex_len = strlen(hex); 
+	uint64_t sum = 0; 
+	uint64_t curDigit = 0; 
+
+	//these conditions have bugs in them, need to fix
+	for (int i = hex_len - 1; i >= 0; i--) {
+		sum += (hex_to_int(hex[i]) * pow(16, curDigit)); 
+		curDigit++; 
+	}
+
+	ap->data[0] = sum;
+	return ap;
 }
 
 void apint_destroy(ApInt *ap) {
@@ -72,6 +94,22 @@ char int_to_hex(const uint8_t num) {
 		return (char)(num+48); //convert number to corresponding char
 	}
 	return (char)(num+87);
+}
+
+uint8_t hex_to_int(const char *hex) {
+	if (hex >= '0' && hex <= '9') {
+		return hex - '0';
+	}
+    else if (hex >= 'a' && hex <='f') {
+		return hex - 'a' + 10;
+	}
+    else if (byte >= 'A' && hex <='F') { 
+		return hex - 'A' + 10;    
+	}
+	//error condition: hex char is not valid
+	else {
+		return 101; 
+	}
 }
 
 char *apint_format_as_hex(const ApInt *ap) {
