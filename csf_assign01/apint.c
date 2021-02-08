@@ -127,6 +127,7 @@ char *apint_format_as_hex(const ApInt *ap) {
 	uint64_t num_hex_bits = num_bin_bits / 4 + 1; 
 	if (apint_is_negative(ap)) num_hex_bits++; //one more element for negative
 	char* hex = malloc((num_hex_bits + 1) * sizeof(char));
+	hex[num_hex_bits] = '\0';
 	if (apint_is_negative(ap)) hex[0] = '-';
 
 	//loop through every 4 bits in the apint data
