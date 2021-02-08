@@ -24,17 +24,16 @@ ApInt *apint_create_from_u64(uint64_t val) {
 
 ApInt *apint_create_from_hex(const char *hex) {
 	ApInt *ap = malloc(sizeof(ApInt));
-
+    int leadZeroes = 0; 
 	if (hex[0] == '-') {
 		ap->flags = 1;
 		ap->len = ((strlen(hex) - 2) / 16) + 1; //number of elements needed
 	} else {
 		ap->flags = 0;
-		int leadZeroes = 0; 
 		while (hex[leadZeroes] == '0') {
 			leadZeroes++; 
 		}
-		ap->len = ((strlen(hex) - leadZeroes) / 16) + 1; 
+		ap->len = ((strlen(hex) - leadZeroes  - 1 )/ 16) + 1; 
 	}
 
 	ap->data = malloc(ap->len * sizeof(uint64_t));
@@ -43,7 +42,7 @@ ApInt *apint_create_from_hex(const char *hex) {
 	uint64_t curDigitAP = 0; 
 
 	//these conditions have bugs in them, need to fix
-	for (int i = strlen(hex) - 1; i >= 0; i--) {
+	for (int i = strlen(hex) - 1; i >= leadZeroes; i--) {
 		sum += (hex_to_int(hex[i]) * (uint64_t)pow(16, curDigitHex)); 
 		curDigitHex++; 
 		if (curDigitHex == 16) {
@@ -52,8 +51,9 @@ ApInt *apint_create_from_hex(const char *hex) {
 			curDigitHex = 0; 
 			sum = 0; 
 		}
+		if (ap->flags == 1 && i == 1) break; 
 	}
-	ap->data[curDigitAP] = sum;
+	if (curDigitHex != 0) ap->data[curDigitAP] = sum;
 	return ap;
 }
 
