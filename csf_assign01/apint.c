@@ -36,6 +36,13 @@ ApInt *apint_create_from_hex(const char *hex) {
 		ap->len = ((strlen(hex) - leadZeroes  - 1 )/ 16) + 1; 
 	}
 
+	if (ap->len == 0) { //if hex is "0" or ""
+		ap->len = 1;
+		ap->data = malloc(ap->len * sizeof(uint64_t));
+		ap->data[0] = 0;
+		return ap;
+	}
+
 	ap->data = malloc(ap->len * sizeof(uint64_t));
 	uint64_t sum = 0; 
 	uint64_t curDigitHex = 0; 
