@@ -37,6 +37,7 @@ typedef struct {
 	ApInt *apF;
 	ApInt *apFFFFFFFFFFFFFFFF;
 	ApInt *apFFFFFFFFFFFFFFFE;
+	ApInt *ap10000000000000000;
 	ApInt *ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9;
 	ApInt *ap000962d7e839ed2d377;
 	ApInt *minus962d7e839ed2d377;
@@ -99,6 +100,7 @@ TestObjs *setup(void) {
 	objs->apF = apint_create_from_hex("F");
 	objs->apFFFFFFFFFFFFFFFF = apint_create_from_hex("FFFFFFFFFFFFFFFF");
 	objs->apFFFFFFFFFFFFFFFE = apint_create_from_hex("FFFFFFFFFFFFFFFE");
+	objs->ap10000000000000000 = apint_create_from_hex("10000000000000000");
 	objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 = apint_create_from_hex("7e5ff912c8ede6ccff0d56ae5a9b5459804f9");
 	objs->ap000962d7e839ed2d377 = apint_create_from_hex("000962d7e839ed2d377");
 	objs->minus962d7e839ed2d377 = apint_create_from_hex("-962d7e839ed2d377");
@@ -125,6 +127,7 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->apF);
 	apint_destroy(objs->apFFFFFFFFFFFFFFFF);
 	apint_destroy(objs->apFFFFFFFFFFFFFFFE);
+	apint_destroy(objs->ap10000000000000000);
 	apint_destroy(objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9);
 	apint_destroy(objs->ap000962d7e839ed2d377);
 	apint_destroy(objs->minus962d7e839ed2d377);
@@ -154,6 +157,7 @@ void testIsNegative(TestObjs *objs) {
 	ASSERT(apint_is_negative(objs->ap110660361) == 0);
 	ASSERT(apint_is_negative(objs->max1) == 0);
     ASSERT(apint_is_negative(objs->minus1) == 1);
+	ASSERT(apint_is_negative(objs->minus962d7e839ed2d377) == 1);
 }
 
 void testHighestBitSet(TestObjs *objs) {
@@ -161,6 +165,8 @@ void testHighestBitSet(TestObjs *objs) {
 	ASSERT(0 == apint_highest_bit_set(objs->ap1));
 	ASSERT(26 == apint_highest_bit_set(objs->ap110660361));
 	ASSERT(63 == apint_highest_bit_set(objs->max1));
+	ASSERT(63 == apint_highest_bit_set(objs->apFFFFFFFFFFFFFFFF));
+	ASSERT(64 == apint_highest_bit_set(objs->ap10000000000000000));
 }
 
 void testCompare(TestObjs *objs) {
@@ -218,6 +224,9 @@ void testFormatAsHex(TestObjs *objs) {
 	free(s);
 
 	ASSERT(0 == strcmp("fffffffffffffffe", (s = apint_format_as_hex(objs->apFFFFFFFFFFFFFFFE))));
+	free(s);
+
+	ASSERT(0 == strcmp("10000000000000000", (s = apint_format_as_hex(objs->ap10000000000000000))));
 	free(s);
 
 	ASSERT(0 == strcmp("7e5ff912c8ede6ccff0d56ae5a9b5459804f9", (s = apint_format_as_hex(objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9))));
