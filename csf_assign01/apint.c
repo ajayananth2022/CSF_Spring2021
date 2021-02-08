@@ -24,7 +24,7 @@ ApInt *apint_create_from_u64(uint64_t val) {
 
 ApInt *apint_create_from_hex(const char *hex) {
 	ApInt *ap = malloc(sizeof(ApInt));
-	if (strcmp(hex, "-0") == 0) hex = "0"; 
+	if (strcmp(hex, "-0") == 0) hex = "0"; //-0 is positive
 
 	int leadZeroes = 0; 
 	if (hex[0] == '-') {
@@ -32,7 +32,7 @@ ApInt *apint_create_from_hex(const char *hex) {
 		ap->len = ((strlen(hex) - 2) / 16) + 1; //number of elements needed
 	} else {
 		ap->flags = 0;
-		while (hex[leadZeroes] == '0') {
+		while (hex[leadZeroes] == '0') { //count number of leading zeros
 			leadZeroes++; 
 		}
 		ap->len = ((strlen(hex) - leadZeroes  - 1 )/ 16) + 1; 
@@ -50,18 +50,19 @@ ApInt *apint_create_from_hex(const char *hex) {
 	uint64_t curDigitHex = 0; 
 	uint64_t curDigitAP = 0; 
 
-	//these conditions have bugs in them, need to fix
+	//loop over each non-leadzero and non-sign char in hex
 	for (int i = strlen(hex) - 1; i >= leadZeroes; i--) {
 		sum += (hex_to_int(hex[i]) * (uint64_t)pow(16, curDigitHex)); 
 		curDigitHex++; 
-		if (curDigitHex == 16) {
+		if (curDigitHex == 16) { //current data array element is full
 			ap->data[curDigitAP] = sum;
 			curDigitAP++; 
 			curDigitHex = 0; 
 			sum = 0; 
 		}
-		if (ap->flags == 1 && i == 1) break; 
+		if (ap->flags == 1 && i == 1) break; //one fewer iteration for negatives
 	}
+	//if the last sum is not stored afer the loop
 	if (curDigitHex != 0) ap->data[curDigitAP] = sum;
 	return ap;
 }
@@ -195,6 +196,23 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 		}
 	}
 	return sum;
+}
+
+int unsigned_compare(const ApInt *left, const ApInt *right) {
+	int left_highest = apint_highest_bit_set(left);
+	int right_highest = apint_highest_bit_set(right);
+	if (left_highest != right_highest) {
+		if (left_highest > right_highest) return 1;
+		return -1;
+	}
+	assert(left->len == right->len); //for testing
+	for (int i = left->len; i >= 0; i--) {
+		if (left->data[i] != right->data[i]) {
+			if (left->data[i] > right->data[i]) return 1;
+			return -1;
+		}
+	}
+	return 0;
 }
 
 //helper function of adding unsigned int

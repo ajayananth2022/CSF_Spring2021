@@ -151,6 +151,8 @@ char int_to_hex(const uint8_t num);
 
 uint8_t hex_to_int(const char hex);
 
+int unsigned_compare(const ApInt *left, const ApInt *right);
+
 #ifdef __cplusplus
 }
 #endif
