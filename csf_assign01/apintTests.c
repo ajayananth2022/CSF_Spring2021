@@ -34,6 +34,12 @@ typedef struct {
 	ApInt *ap8;
 	ApInt *ap15;
 	ApInt *ap16;
+	ApInt *apF;
+	ApInt *apFFFFFFFFFFFFFFFF;
+	ApInt *apFFFFFFFFFFFFFFFE;
+	ApInt *ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9;
+	ApInt *ap000962d7e839ed2d377;
+	ApInt *minus962d7e839ed2d377;
 	/* TODO: add additional fields of test fixture */
 } TestObjs;
 
@@ -84,12 +90,18 @@ TestObjs *setup(void) {
 	objs->max1 = apint_create_from_u64(0xFFFFFFFFFFFFFFFFUL);
 	objs->minus1 = apint_negate(objs->ap1);
 	objs->minusMax = apint_negate(objs->max1);
-	objs->ap2 = apint_create_from_u64(2UL);
+	objs->ap2 = apint_create_from_hex("2");
 	objs->minus2 = apint_negate(objs->ap2);
-	objs->ap8 = apint_create_from_u64(8UL);
-	objs->ap7 = apint_create_from_u64(7UL);
+	objs->ap8 = apint_create_from_hex("8");
+	objs->ap7 = apint_create_from_hex("7");
 	objs->ap15 = apint_create_from_u64(15UL);
 	objs->ap16 = apint_create_from_u64(16UL);
+	objs->apF = apint_create_from_hex("F");
+	objs->apFFFFFFFFFFFFFFFF = apint_create_from_hex("FFFFFFFFFFFFFFFF");
+	objs->apFFFFFFFFFFFFFFFE = apint_create_from_hex("FFFFFFFFFFFFFFFE");
+	objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 = apint_create_from_hex("7e5ff912c8ede6ccff0d56ae5a9b5459804f9");
+	objs->ap000962d7e839ed2d377 = apint_create_from_hex("000962d7e839ed2d377");
+	objs->minus962d7e839ed2d377 = apint_create_from_hex("-962d7e839ed2d377");
 	/* TODO: initialize additional members of test fixture */
 
 	return objs;
@@ -110,7 +122,12 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->ap7);
 	apint_destroy(objs->ap15);
 	apint_destroy(objs->ap16);
-	
+	apint_destroy(objs->apF);
+	apint_destroy(objs->apFFFFFFFFFFFFFFFF);
+	apint_destroy(objs->apFFFFFFFFFFFFFFFE);
+	apint_destroy(objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9);
+	apint_destroy(objs->ap000962d7e839ed2d377);
+	apint_destroy(objs->minus962d7e839ed2d377);
 	/* TODO: destroy additional members of test fixture */
 
 	free(objs);
@@ -192,6 +209,24 @@ void testFormatAsHex(TestObjs *objs) {
 	free(s);
 
 	ASSERT(0 == strcmp("-2", (s = apint_format_as_hex(objs->minus2))));
+	free(s);
+
+	ASSERT(0 == strcmp("f", (s = apint_format_as_hex(objs->apF))));
+	free(s);
+
+	ASSERT(0 == strcmp("ffffffffffffffff", (s = apint_format_as_hex(objs->apFFFFFFFFFFFFFFFF))));
+	free(s);
+
+	ASSERT(0 == strcmp("fffffffffffffffe", (s = apint_format_as_hex(objs->apFFFFFFFFFFFFFFFE))));
+	free(s);
+
+	ASSERT(0 == strcmp("7e5ff912c8ede6ccff0d56ae5a9b5459804f9", (s = apint_format_as_hex(objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9))));
+	free(s);
+
+    ASSERT(0 == strcmp("962d7e839ed2d377", (s = apint_format_as_hex(objs->ap000962d7e839ed2d377))));
+	free(s);
+
+	ASSERT(0 == strcmp("-962d7e839ed2d377", (s = apint_format_as_hex(objs->minus962d7e839ed2d377))));
 	free(s);
 }
 
