@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 
 TestObjs *setup(void) {
 	TestObjs *objs = malloc(sizeof(TestObjs));
-	objs->ap0 = apint_create_from_hex("0");
+	objs->ap0 = apint_create_from_hex("-0");
 	objs->ap1 = apint_create_from_hex("1");
 	objs->ap110660361 = apint_create_from_u64(110660361UL);
 	objs->ap100000000 = apint_create_from_u64(100000000UL);

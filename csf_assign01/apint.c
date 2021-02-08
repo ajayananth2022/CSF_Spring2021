@@ -24,7 +24,9 @@ ApInt *apint_create_from_u64(uint64_t val) {
 
 ApInt *apint_create_from_hex(const char *hex) {
 	ApInt *ap = malloc(sizeof(ApInt));
-    int leadZeroes = 0; 
+	if (strcmp(hex, "-0") == 0) hex = "0"; 
+
+	int leadZeroes = 0; 
 	if (hex[0] == '-') {
 		ap->flags = 1;
 		ap->len = ((strlen(hex) - 2) / 16) + 1; //number of elements needed
