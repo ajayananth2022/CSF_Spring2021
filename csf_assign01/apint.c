@@ -143,11 +143,11 @@ char *apint_format_as_hex(const ApInt *ap) {
 	//loop through every 4 bits in the apint data
 	//sum the 4 bit number and convert to hex to store in char array
 	uint64_t current = ap->data[0]; 
-	for (uint64_t i = 0; i < num_hex_bits; i++) {
+	for (uint64_t i = 0; i < num_hex_bits - ap->flags; i++) {
 		if (i % 16 == 0) current = ap->data[i / 16]; //jump to the correct element
 		hex[num_hex_bits - i - 1] = int_to_hex(current % 16);
 		current = current / 16; //shift to the right by 4 bits
-		if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
+		//if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
 	}
 	return hex;
 }
@@ -217,12 +217,19 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 //returns uint64_t represeting the sum 
 //of the two values
 ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
-	if (apint_highest_bit_set(left) >= apint_highest_bit_set(right)) {
+	int left_highest = apint_highest_bit_set(left);
+	int right_highest = apint_highest_bit_set(right);
+	int smaller_highest;
+	if (left_highest >= right_highest) {
 		sum->len = left->len + 1; //guarantee enough space in sum's data array
+		smaller_highest = right_highest;
 	} else {
 		sum->len = right->len + 1;
+		smaller_highest = left_highest;
 	}
 	sum->data = malloc(sum->len * sizeof(uint64_t));
+	//for (int i = 0; )
+	
 	return sum; 
 }
 
