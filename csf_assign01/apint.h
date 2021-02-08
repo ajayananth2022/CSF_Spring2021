@@ -136,7 +136,7 @@ int apint_compare(const ApInt *left, const ApInt *right);
  * @param val2 second 64-bit unsigned integer
  * @return a 64-bit unsigned integer that is the sum
  */
-uint64_t add(uint64_t val1, uint64_t val2);
+ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum);
 
 /*
  * A helper function that subtracts two 64-bit unsigned integers.

@@ -174,11 +174,8 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 	assert(a); //make sure a isn't pointing to NULL
 	assert(b); //make sure b isn't pointing to NULL
 	ApInt *sum = malloc(sizeof(ApInt)); //new instance of ApInt representing sum
-	sum->len = 1; //only for Milestone 1, data will have only 1 element
-	sum->data = malloc(sizeof(uint64_t));
-
 	if (a->flags == b->flags) { //signs are the same
-		sum->data[0] = add(a->data[0], b->data[0]);
+		//sum->data[0] = add(a->data[0], b->data[0]);
 		sum->flags = a->flags;
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
@@ -219,8 +216,14 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 //helper function of adding unsigned int
 //returns uint64_t represeting the sum 
 //of the two values
-uint64_t add(uint64_t val1, uint64_t val2) {
-	return val1 + val2; 
+ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
+	if (apint_highest_bit_set(left) >= apint_highest_bit_set(right)) {
+		sum->len = left->len + 1; //guarantee enough space in sum's data array
+	} else {
+		sum->len = right->len + 1;
+	}
+	sum->data = malloc(sum->len * sizeof(uint64_t));
+	return sum; 
 }
 
 //helper function of subtracting unsigned int
