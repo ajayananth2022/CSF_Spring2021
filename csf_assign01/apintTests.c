@@ -55,6 +55,7 @@ void testCompare(TestObjs *objs);
 void testFormatAsHex(TestObjs *objs);
 void testAdd(TestObjs *objs);
 void testSub(TestObjs *objs);
+void testUnsignedCompare(TestObjs *objs);
 /* TODO: add more test function prototypes */
 
 int main(int argc, char **argv) {
@@ -76,6 +77,7 @@ int main(int argc, char **argv) {
 	TEST(testFormatAsHex);
 	TEST(testAdd);
 	TEST(testSub);
+	TEST(testUnsignedCompare);
 	/* TODO: use TEST macro to execute more test functions */
 
 	TEST_FINI();
@@ -169,6 +171,15 @@ void testHighestBitSet(TestObjs *objs) {
 	ASSERT(64 == apint_highest_bit_set(objs->ap10000000000000000));
 }
 
+void testUnsignedCompare(TestObjs *objs) {
+	ASSERT(unsigned_compare(objs->apFFFFFFFFFFFFFFFF, objs->apFFFFFFFFFFFFFFFE) > 0);
+	ASSERT(unsigned_compare(objs->apFFFFFFFFFFFFFFFF, objs->apFFFFFFFFFFFFFFFF) == 0);
+	ASSERT(unsigned_compare(objs->apFFFFFFFFFFFFFFFE, objs->apFFFFFFFFFFFFFFFF) < 0);
+	ASSERT(unsigned_compare(objs->ap000962d7e839ed2d377, objs->minus962d7e839ed2d377) == 0);
+	ASSERT(unsigned_compare(objs->ap10000000000000000, objs->apFFFFFFFFFFFFFFFF) > 0);
+	ASSERT(unsigned_compare(objs->apFFFFFFFFFFFFFFFF, objs->ap10000000000000000) < 0);
+}
+
 void testCompare(TestObjs *objs) {
 	/* 1 > 0 */
 	ASSERT(apint_compare(objs->ap1, objs->ap0) > 0);
@@ -238,6 +249,7 @@ void testFormatAsHex(TestObjs *objs) {
 	ASSERT(0 == strcmp("-962d7e839ed2d377", (s = apint_format_as_hex(objs->minus962d7e839ed2d377))));
 	free(s);
 }
+
 
 void testAdd(TestObjs *objs) {
 	ApInt *sum;

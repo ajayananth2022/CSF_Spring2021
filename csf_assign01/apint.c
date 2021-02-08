@@ -198,6 +198,7 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 	return sum;
 }
 
+//helper function for comparing the value of two ApInts
 int unsigned_compare(const ApInt *left, const ApInt *right) {
 	int left_highest = apint_highest_bit_set(left);
 	int right_highest = apint_highest_bit_set(right);
@@ -206,7 +207,7 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 		return -1;
 	}
 	assert(left->len == right->len); //for testing
-	for (int i = left->len; i >= 0; i--) {
+	for (int i = left->len - 1; i >= 0; i--) {
 		if (left->data[i] != right->data[i]) {
 			if (left->data[i] > right->data[i]) return 1;
 			return -1;
