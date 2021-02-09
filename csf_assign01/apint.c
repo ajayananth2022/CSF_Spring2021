@@ -38,7 +38,6 @@ ApInt *apint_create_from_hex(const char *hex) {
 		ap->flags = 0;
 	}
 
-	//-05
 	while (hex[leadZeroes] == '0') { //count number of leading zeros
 		leadZeroes++; 
 		if (leadZeroes == (int)strlen(hex)) {
@@ -60,6 +59,12 @@ ApInt *apint_create_from_hex(const char *hex) {
 	ap->len = ((strlen(hex) - leadZeroes - 1)/ 16) + 1; 
 	ap->data = malloc(ap->len * sizeof(uint64_t));
 
+	hexConvert(ap, hex, leadZeroes); 
+	return ap; 
+}
+
+//helper function that converts hex chars and places then into ap object
+void hexConvert(ApInt *ap, const char *hex, int leadZeroes) {
 	uint64_t sum = 0; 
 	uint64_t curDigitHex = 0; 
 	uint64_t curDigitAP = 0; 
@@ -70,7 +75,8 @@ ApInt *apint_create_from_hex(const char *hex) {
 
 		//111 is invalid code
 		if (convertedInt == 111) {
-			return NULL; 
+			ap = NULL; 
+			break; 
 		}
 
 		sum += (convertedInt * (uint64_t)pow(16, curDigitHex)); 
@@ -85,7 +91,6 @@ ApInt *apint_create_from_hex(const char *hex) {
 	}
 	//if the last sum is not stored afer the loop
 	if (curDigitHex != 0) ap->data[curDigitAP] = sum;
-	return ap;
 }
 
 void apint_destroy(ApInt *ap) {
@@ -265,7 +270,7 @@ ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
 			temp_sum = 0;
 		}
 		sum->len++;
-	}
+	}  
 	int remaining_elements = bigger_num_elements - smaller_num_elements;
 	for (int i = 0; i < remaining_elements; i++) {
 		temp_sum += bigger->data[smaller_num_elements + i];
