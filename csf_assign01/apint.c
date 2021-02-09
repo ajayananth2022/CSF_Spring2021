@@ -41,7 +41,7 @@ ApInt *apint_create_from_hex(const char *hex) {
 	//-05
 	while (hex[leadZeroes] == '0') { //count number of leading zeros
 		leadZeroes++; 
-		if (leadZeroes == strlen(hex)) {
+		if (leadZeroes == (int)strlen(hex)) {
 			//string of ONLY 0 or 0s (preceeded or not preceeded by - sign)
 			makeZero = 1; 
 			break; 
@@ -169,7 +169,6 @@ char *apint_format_as_hex(const ApInt *ap) {
 		if (i % 16 == 0) current = ap->data[i / 16]; //jump to the correct element
 		hex[num_hex_bits - i - 1] = int_to_hex(current % 16);
 		current = current / 16; //shift to the right by 4 bits
-		//if (apint_is_negative(ap) && i == num_hex_bits - 2) break;
 	}
 	return hex;
 }
@@ -197,8 +196,8 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 	assert(b); //make sure b isn't pointing to NULL
 	ApInt *sum = malloc(sizeof(ApInt)); //new instance of ApInt representing sum
 	if (a->flags == b->flags) { //signs are the same
-		//sum->data[0] = add(a->data[0], b->data[0]);
 		sum->flags = a->flags;
+		sum = add(a, b, sum);
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
 		if (a->data[0] <= b->data[0]) { 
@@ -240,19 +239,54 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 //returns uint64_t represeting the sum 
 //of the two values
 ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
-	int left_highest = apint_highest_bit_set(left);
-	int right_highest = apint_highest_bit_set(right);
-	int smaller_highest;
-	if (left_highest >= right_highest) {
-		sum->len = left->len + 1; //guarantee enough space in sum's data array
-		smaller_highest = right_highest;
+	assert(!apint_is_negative(left)); //for testing
+	assert(!apint_is_negative(right)); //for testing
+	const ApInt *bigger;
+	const ApInt *smaller;
+	if (unsigned_compare(left, right) >= 0) {
+		bigger = left;
+		smaller = right;
 	} else {
-		sum->len = right->len + 1;
-		smaller_highest = left_highest;
+		bigger = right;
+		smaller = left;
 	}
-	sum->data = malloc(sum->len * sizeof(uint64_t));
-	//for (int i = 0; )
-	
+	int bigger_num_elements = apint_highest_bit_set(bigger) / 64 + 1;
+	int smaller_num_elements = apint_highest_bit_set(smaller) / 64 + 1;
+	//guarantee's enough memory for the sum value
+	sum->data = malloc((bigger_num_elements + 1) * sizeof(uint64_t));
+	sum->len = 0;
+	uint64_t temp_sum = 0;
+	for (int i = 0; i < smaller_num_elements; i++) {
+		temp_sum = left->data[i] + right->data[i];
+		if (temp_sum < left->data[i]) { //addition causes overflow
+			sum->data[i] = 0;
+			temp_sum++;
+		} else { //no overflow
+			sum->data[i] = temp_sum;
+			temp_sum = 0;
+		}
+		sum->len++;
+	}
+	int remaining_elements = bigger_num_elements - smaller_num_elements;
+	for (int i = 0; i < remaining_elements; i++) {
+		temp_sum += bigger->data[smaller_num_elements + i];
+		if (temp_sum < bigger->data[smaller_num_elements + i]) { //overflow
+			sum->data[sum->len] = 0;
+			temp_sum++;
+		} else {
+			sum->data[sum->len] = temp_sum;
+			temp_sum = 0; 
+		}
+		sum->len++;
+	}
+	if (temp_sum != 0) {
+		sum->data[sum->len] = temp_sum;
+		sum->len++;
+	}
+
+	if (sum->len < (unsigned)(bigger_num_elements + 1)) {
+		sum->data = realloc(sum->data, sum->len * sizeof(uint64_t));
+	}
 	return sum; 
 }
 
