@@ -272,6 +272,8 @@ void testFormatAsHex(TestObjs *objs) {
 void testAdd(TestObjs *objs) {
 	ApInt *sum;
 	char *s;
+	ApInt *a;
+	ApInt *b;
 
 	/* 0 + 0 = 0 */
 	sum = apint_add(objs->ap0, objs->ap0);
@@ -337,132 +339,150 @@ void testAdd(TestObjs *objs) {
 	apint_destroy(sum);
 	free(s);
 
-	ApInt *a = apint_create_from_hex("7e5ff912c8ede6ccff0d56ae5a9b5459804f9");
-	ApInt *b = apint_create_from_hex("6057bccd860546f03fd51bf5488d50cca96");
+	a = apint_create_from_hex("d4fa6f0b63ad80a34b93b74d");
+	b = apint_create_from_hex("3935dcebf95bdf");
 	sum = apint_add(a, b);
 	s = apint_format_as_hex(sum);
-	//ASSERT(0 == strcmp("7ec050cf9673ec13ef4d2bca4fe3e1aa4cf8f", (s = apint_format_as_hex(sum))));
-	for (int i = 0; i < (int)strlen(s); i++) {
-		printf("%c", s[i]);
-	}
+	ASSERT(0 == strcmp("d4fa6f0b63e6b680378d132c", (s = apint_format_as_hex(sum))));
+	//for (int i = 0; i < (int)strlen(s); i++) {
+	//	printf("%c", s[i]);
+	//}
 	apint_destroy(sum);
 	apint_destroy(b);
 	apint_destroy(a);
 	free(s);
 
-	/* 0 + -1 = -1 */
-	sum = apint_add(objs->ap0, objs->minus1);
-	ASSERT(1UL == apint_get_bits(sum, 0));
-	ASSERT(0 == apint_compare(sum, objs->minus1));
-	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	a = apint_create_from_hex("7e5ff912c8ede6ccff0d56ae5a9b5459804f9");
+	b = apint_create_from_hex("6057bccd860546f03fd51bf5488d50cca96");
+	sum = apint_add(a, b);
+	s = apint_format_as_hex(sum);
+	ASSERT(0 == strcmp("7ec050cf9673ec13ef4d2bca4fe3e1aa4cf8f", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
 
-	/* -1 + 0 = -1 */
+	a = apint_create_from_hex("4196fa3cfa950ebfdfa3db92");
+	b = apint_create_from_hex("b87eea6af80e95c107103f2554036b0fa");
+	sum = apint_add(a, b);
+	s = apint_format_as_hex(sum);
+	ASSERT(0 == strcmp("b87eea6afc280564d6b9901151fda8c8c", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
+
+ 	/* -1 + 0 = -1 */
 	sum = apint_add(objs->minus1, objs->ap0);
 	ASSERT(1UL == apint_get_bits(sum, 0));
 	ASSERT(0 == apint_compare(sum, objs->minus1));
-	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	ASSERT(0 == strcmp("-1", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
+	free(s); 
 
 	/* 1 + -1 = 0 */
 	sum = apint_add(objs->ap1, objs->minus1);
 	ASSERT(0UL == apint_get_bits(sum, 0));
 	ASSERT(0 == apint_compare(sum, objs->ap0));
-	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	ASSERT(0 == strcmp("0", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
+	free(s);
 
 	/* -1 + 1 = 0 */
 	sum = apint_add(objs->minus1, objs->ap1);
 	ASSERT(0UL == apint_get_bits(sum, 0));
 	ASSERT(0 == apint_compare(sum, objs->ap0));
-	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	ASSERT(0 == strcmp("0", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
+	free(s);
 
     /* -1 + -1 = -2 */
 	sum = apint_add(objs->minus1, objs->minus1);
 	ASSERT(2UL == apint_get_bits(sum, 0));
 	ASSERT(0 == apint_compare(sum, objs->minus2));
-	//ASSERT(0 == strcmp("2", (s = apint_format_as_hex(sum))));
+	ASSERT(0 == strcmp("-2", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
-
-	/* FFFFFFFFFFFFFFFF + 1 = 10000000000000000 */
-	sum = apint_add(objs->max1, objs->ap1);
-	//ASSERT(10000000000000000 == apint_get_bits(sum, 0));
-	//ASSERT(0 == strcmp("10000000000000000", (s = apint_format_as_hex(sum))));
-	apint_destroy(sum);
-	//free(s);
+	free(s);
 }
 
 void testSub(TestObjs *objs) {
-	//ApInt *a, *b;
+	ApInt *a, *b;
 	ApInt *diff;
-	//char *s;
+	char *s;
 
 	/* subtracting 1 from ffffffffffffffff is fffffffffffffffe */
 	diff = apint_sub(objs->max1, objs->ap1);
 	ASSERT(18446744073709551614UL == apint_get_bits(diff, 0));
-	//ASSERT(0 == strcmp("fffffffffffffffe", (s = apint_format_as_hex(diff))));
+	ASSERT(0 == strcmp("fffffffffffffffe", (s = apint_format_as_hex(diff))));
 	apint_destroy(diff);
-	//free(s);
+	free(s);
 
 	/* subtracting 0 from 1 is 1 */
 	diff = apint_sub(objs->ap1, objs->ap0);
 	ASSERT(1UL == apint_get_bits(diff, 0));
-	//ASSERT(0 == strcmp("1", (s = apint_format_as_hex(diff))));
+	ASSERT(0 == strcmp("1", (s = apint_format_as_hex(diff))));
 	ASSERT(0 == apint_compare(diff, objs->ap1));
 	apint_destroy(diff);
-	//free(s);
+	free(s);
 
 	/* subtracting 1 from 1 is 0 */
 	diff = apint_sub(objs->ap1, objs->ap1);
 	ASSERT(0UL == apint_get_bits(diff, 0));
-	//ASSERT(0 == strcmp("0", (s = apint_format_as_hex(diff))));
+	ASSERT(0 == strcmp("0", (s = apint_format_as_hex(diff))));
 	ASSERT(0 == apint_compare(diff, objs->ap0));
 	apint_destroy(diff);
-	//free(s);
+	free(s);
 
 	/* subtracting 1 from 0 is -1 */
 	diff = apint_sub(objs->ap0, objs->ap1);
 	ASSERT(1UL == apint_get_bits(diff, 0));
-	//ASSERT(0 == (strcmp("-1", (s = apint_format_as_hex(diff)))));
+	ASSERT(0 == (strcmp("-1", (s = apint_format_as_hex(diff)))));
 	ASSERT(0 == apint_compare(diff, objs->minus1));
 	apint_destroy(diff);
-	//free(s);
+	free(s);
 
 	/* subtracting 1 from -1 is -2 */
 	diff = apint_sub(objs->minus1, objs->ap1);
 	ASSERT(2UL == apint_get_bits(diff, 0));
-	//ASSERT(0 == (strcmp("-1", (s = apint_format_as_hex(diff)))));
-	//ASSERT(0 == apint_compare(diff, objs->minus1));
+	ASSERT(0 == (strcmp("-2", (s = apint_format_as_hex(diff)))));
+	ASSERT(0 == apint_compare(diff, objs->minus2));
 	apint_destroy(diff);
-	//free(s);
+	free(s);
 
 	/* test involving larger values */
-	//a = apint_create_from_hex("7e35207519b6b06429378631ca460905c19537644f31dc50114e9dc90bb4e4ebc43cfebe6b86d");
-	//b = apint_create_from_hex("9fa0fb165441ade7cb8b17c3ab3653465e09e8078e09631ec8f6fe3a5b301dc");
-	//diff = apint_sub(a, b);
-	//ASSERT(0 == strcmp("7e35207519b6afc4883c6fdd8898213a367d73b918de95f20766963b0251c622cd3ec4633b691",
-	//	(s = apint_format_as_hex(diff))));
-	//apint_destroy(diff);
-	//apint_destroy(b);
-	//apint_destroy(a);
-	//free(s);
+	a = apint_create_from_hex("ce7e8b1706cfb9ea5517ca20f5993c6bd4b25f86273b72f62a35420fc");
+	b = apint_create_from_hex("fb8a7f5e9d31c");
+	diff = apint_sub(a, b);
+	s = apint_format_as_hex(diff);
+	ASSERT(0 == strcmp("ce7e8b1706cfb9ea5517ca20f5993c6bd4b25f86273a776baad6a4de0",(s = apint_format_as_hex(diff))));
+	apint_destroy(diff);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
+
+	/* test involving larger values */
+	a = apint_create_from_hex("7e35207519b6b06429378631ca460905c19537644f31dc50114e9dc90bb4e4ebc43cfebe6b86d");
+	b = apint_create_from_hex("9fa0fb165441ade7cb8b17c3ab3653465e09e8078e09631ec8f6fe3a5b301dc");
+	diff = apint_sub(a, b);
+	s = apint_format_as_hex(diff);
+	ASSERT(0 == strcmp("7e35207519b6afc4883c6fdd8898213a367d73b918de95f20766963b0251c622cd3ec4633b691",(s = apint_format_as_hex(diff))));
+	apint_destroy(diff);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
 
 	/* test involving larger values (with a negative difference) */
-	//a = apint_create_from_hex("9fa0fb165441ade7cb8b17c3ab3653465e09e8078e09631ec8f6fe3a5b301dc");
-	//b = apint_create_from_hex("7e35207519b6b06429378631ca460905c19537644f31dc50114e9dc90bb4e4ebc43cfebe6b86d");
-	//diff = apint_sub(a, b);
-	//ASSERT(0 == strcmp("-7e35207519b6afc4883c6fdd8898213a367d73b918de95f20766963b0251c622cd3ec4633b691",
-	//	(s = apint_format_as_hex(diff))));
-	//apint_destroy(diff);
-	//apint_destroy(b);
-	//apint_destroy(a);
-	//free(s);
+	a = apint_create_from_hex("9fa0fb165441ade7cb8b17c3ab3653465e09e8078e09631ec8f6fe3a5b301dc");
+	b = apint_create_from_hex("7e35207519b6b06429378631ca460905c19537644f31dc50114e9dc90bb4e4ebc43cfebe6b86d");
+	diff = apint_sub(a, b);
+	ASSERT(0 == strcmp("-7e35207519b6afc4883c6fdd8898213a367d73b918de95f20766963b0251c622cd3ec4633b691",
+		(s = apint_format_as_hex(diff))));
+	apint_destroy(diff);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
+
+
 }
 
 /* TODO: add more test functions */

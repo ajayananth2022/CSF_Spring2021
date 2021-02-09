@@ -145,7 +145,7 @@ ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum);
  * @param val2 64-bit unsigned integer to be subtracted
  * @return the absolute value of the difference between the two values
  */
-uint64_t subtract(uint64_t val1, uint64_t val2);
+ApInt* subtract(const ApInt *left, const ApInt *right, ApInt *diff);
 
 char int_to_hex(const uint8_t num);
 

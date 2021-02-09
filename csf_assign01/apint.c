@@ -199,15 +199,15 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 		sum->flags = a->flags;
 		sum = add(a, b, sum);
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
-		sum->data[0] = subtract(a->data[0], b->data[0]);
-		if (a->data[0] <= b->data[0]) { 
+		sum = subtract(a, b, sum);
+		if (unsigned_compare(a, b) <= 0) { 
 			sum->flags = 0;  
 		} else {
 			sum->flags = 1; 
 		}
 	} else { //a is positive and b is negative
-		sum->data[0] = subtract(a->data[0], b->data[0]); 
-		if (a->data[0] < b->data[0]) {
+		sum = subtract(a, b, sum); 
+		if (unsigned_compare(a, b) < 0) {
 			sum->flags = 1; 
 		} else {
 			sum->flags = 0; 
@@ -235,12 +235,12 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 	return 0;
 }
 
-//helper function of adding unsigned int
-//returns uint64_t represeting the sum 
-//of the two values
+//helper function of adding two positive ApInts
+//returns pointer to ApInt representing the sum 
+//of the two ApInts
 ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
-	assert(!apint_is_negative(left)); //for testing
-	assert(!apint_is_negative(right)); //for testing
+	//assert(!apint_is_negative(left)); //for testing
+	//assert(!apint_is_negative(right)); //for testing
 	const ApInt *bigger;
 	const ApInt *smaller;
 	if (unsigned_compare(left, right) >= 0) {
@@ -257,12 +257,11 @@ ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
 	sum->len = 0;
 	uint64_t temp_sum = 0;
 	for (int i = 0; i < smaller_num_elements; i++) {
-		temp_sum = left->data[i] + right->data[i];
+		temp_sum += left->data[i] + right->data[i];
+		sum->data[i] = temp_sum;
 		if (temp_sum < left->data[i]) { //addition causes overflow
-			sum->data[i] = 0;
-			temp_sum++;
+			temp_sum = 1;
 		} else { //no overflow
-			sum->data[i] = temp_sum;
 			temp_sum = 0;
 		}
 		sum->len++;
@@ -270,11 +269,10 @@ ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
 	int remaining_elements = bigger_num_elements - smaller_num_elements;
 	for (int i = 0; i < remaining_elements; i++) {
 		temp_sum += bigger->data[smaller_num_elements + i];
+		sum->data[sum->len] = temp_sum;
 		if (temp_sum < bigger->data[smaller_num_elements + i]) { //overflow
-			sum->data[sum->len] = 0;
-			temp_sum++;
+			temp_sum = 1;
 		} else {
-			sum->data[sum->len] = temp_sum;
 			temp_sum = 0; 
 		}
 		sum->len++;
@@ -283,22 +281,66 @@ ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
 		sum->data[sum->len] = temp_sum;
 		sum->len++;
 	}
-
+	//take care of unassigned empty memory
 	if (sum->len < (unsigned)(bigger_num_elements + 1)) {
 		sum->data = realloc(sum->data, sum->len * sizeof(uint64_t));
 	}
 	return sum; 
 }
 
-//helper function of subtracting unsigned int
-//returns uint64_t represeting the difference 
-//between the two values
-uint64_t subtract(uint64_t val1, uint64_t val2) {
-	if (val1 > val2) { //make sure the result doesn't overflow
-		return val1 - val2; 
+//helper function of subtracting two positive ApInts
+//returns a pointer to an ApInt represeting the difference 
+//between the two ApInts
+ApInt* subtract(const ApInt *left, const ApInt *right, ApInt *diff) {
+	//assert(!apint_is_negative(left)); //for testing
+	//assert(!apint_is_negative(right)); //for testing
+	const ApInt *bigger;
+	const ApInt *smaller;
+	if (unsigned_compare(left, right) >= 0) {
+		bigger = left;
+		smaller = right;
 	} else {
-		return val2 - val1; 
+		bigger = right;
+		smaller = left;
 	}
+	int bigger_num_elements = apint_highest_bit_set(bigger) / 64 + 1;
+	int smaller_num_elements = apint_highest_bit_set(smaller) / 64 + 1;
+	//guarantee's enough memory for the sum value
+	diff->data = malloc(bigger_num_elements * sizeof(uint64_t));
+	diff->len = 0;
+	uint64_t temp_diff = 0;
+	for (int i = 0; i < smaller_num_elements; i++) {
+		temp_diff += bigger->data[i] - smaller->data[i];
+		if (temp_diff > bigger->data[i]) { //subtraction causes overflow
+			diff->data[i] = temp_diff + 1 + UINT64_MAX;
+			temp_diff = -1;
+		} else { //no overflow
+			diff->data[i] = temp_diff;
+			temp_diff = 0;
+		}
+		diff->len++;
+	}
+	int remaining_elements = bigger_num_elements - smaller_num_elements;
+	for (int i = 0; i < remaining_elements; i++) {
+		temp_diff += bigger->data[smaller_num_elements + i];
+		diff->data[diff->len] = temp_diff;
+		if (temp_diff > bigger->data[smaller_num_elements + i]) { //overflow
+			temp_diff = -1;
+		} else {
+			temp_diff = 0; 
+		}
+		diff->len++;
+	}
+	//if (temp_sum != 0) {
+	//	diff->data[diff->len] = temp_diff;
+	//	diff->len++;
+	//}
+	//take care of unassigned empty memory
+	assert(!(diff->len > (unsigned)bigger_num_elements));
+	if (diff->len < (unsigned)bigger_num_elements) {
+		diff->data = realloc(diff->data, diff->len * sizeof(uint64_t));
+	}
+	return diff; 
 }
 
 ApInt *apint_sub(const ApInt *a, const ApInt *b) {
