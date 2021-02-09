@@ -24,35 +24,56 @@ ApInt *apint_create_from_u64(uint64_t val) {
 
 ApInt *apint_create_from_hex(const char *hex) {
 	ApInt *ap = malloc(sizeof(ApInt));
-	if (strcmp(hex, "-0") == 0) hex = "0"; //-0 is positive
+
+	uint8_t makeZero = 0; 
+
+	if (strcmp(hex, "") == 0) makeZero = 1; //account for empty string
 
 	int leadZeroes = 0; 
+
 	if (hex[0] == '-') {
+		leadZeroes++; 
 		ap->flags = 1;
-		ap->len = ((strlen(hex) - 2) / 16) + 1; //number of elements needed
 	} else {
 		ap->flags = 0;
-		while (hex[leadZeroes] == '0') { //count number of leading zeros
-			leadZeroes++; 
-		}
-		ap->len = ((strlen(hex) - leadZeroes  - 1 )/ 16) + 1; 
 	}
 
-	if (ap->len == 0) { //if hex is "0" or ""
+	//-05
+	while (hex[leadZeroes] == '0') { //count number of leading zeros
+		leadZeroes++; 
+		if (leadZeroes == strlen(hex)) {
+			//string of ONLY 0 or 0s (preceeded or not preceeded by - sign)
+			makeZero = 1; 
+			break; 
+		}
+	}
+
+	if (makeZero) {
 		ap->len = 1;
-		ap->data = malloc(ap->len * sizeof(uint64_t));
-		ap->data[0] = 0;
+		ap->flags = 0; 
+		ap->data = malloc(sizeof(uint64_t));
+		ap->data[0] = (uint64_t)0;
 		return ap;
 	}
 
+	//2^64 is 17 hex chars long, and represented as 0 1 as 2 elements in an apInt
+	ap->len = ((strlen(hex) - leadZeroes - 1)/ 16) + 1; 
 	ap->data = malloc(ap->len * sizeof(uint64_t));
+
 	uint64_t sum = 0; 
 	uint64_t curDigitHex = 0; 
 	uint64_t curDigitAP = 0; 
 
 	//loop over each non-leadzero and non-sign char in hex
 	for (int i = strlen(hex) - 1; i >= leadZeroes; i--) {
-		sum += (hex_to_int(hex[i]) * (uint64_t)pow(16, curDigitHex)); 
+		uint8_t convertedInt = hex_to_int(hex[i]); 
+
+		//111 is invalid code
+		if (convertedInt == 111) {
+			return NULL; 
+		}
+
+		sum += (convertedInt * (uint64_t)pow(16, curDigitHex)); 
 		curDigitHex++; 
 		if (curDigitHex == 16) { //current data array element is full
 			ap->data[curDigitAP] = sum;
@@ -125,7 +146,8 @@ uint8_t hex_to_int(const char hex) {
 	}
 	//error condition: hex char is not valid
 	else {
-		return 101; 
+		//111 will only be returned in case of invalid hex char
+		return 111; 
 	}
 }
 
@@ -175,7 +197,7 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 	assert(b); //make sure b isn't pointing to NULL
 	ApInt *sum = malloc(sizeof(ApInt)); //new instance of ApInt representing sum
 	if (a->flags == b->flags) { //signs are the same
-		//sum->data[0] = add(a->data[0], b->data[0]);
+		sum->data[0] = add(a->data[0], b->data[0], sum);
 		sum->flags = a->flags;
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
