@@ -38,7 +38,9 @@ typedef struct {
 	ApInt *apFFFFFFFFFFFFFFFF;
 	ApInt *apFFFFFFFFFFFFFFFE;
 	ApInt *ap10000000000000000;
+	ApInt *minus10000000000000000; 
 	ApInt *ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9;
+	ApInt *ap7e5ff912c8ede6ccff0d56ae5a9b5459804f8; 
 	ApInt *ap000962d7e839ed2d377;
 	ApInt *minus962d7e839ed2d377;
 	/* TODO: add additional fields of test fixture */
@@ -104,8 +106,11 @@ TestObjs *setup(void) {
 	objs->apFFFFFFFFFFFFFFFE = apint_create_from_hex("FFFFFFFFFFFFFFFE");
 	objs->ap10000000000000000 = apint_create_from_hex("10000000000000000");
 	objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 = apint_create_from_hex("7e5ff912c8ede6ccff0d56ae5a9b5459804f9");
+	objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f8 = apint_create_from_hex("7e5ff912c8ede6ccff0d56ae5a9b5459804f8");
 	objs->ap000962d7e839ed2d377 = apint_create_from_hex("000962d7e839ed2d377");
 	objs->minus962d7e839ed2d377 = apint_create_from_hex("-962d7e839ed2d377");
+	objs->minus10000000000000000 = apint_create_from_hex("-10000000000000000");
+
 	/* TODO: initialize additional members of test fixture */
 
 	return objs;
@@ -154,6 +159,7 @@ void testIsZero(TestObjs *objs) {
 }
 
 void testIsNegative(TestObjs *objs) {
+	printf("%u", objs->ap0->flags); 
     ASSERT(apint_is_negative(objs->ap0) == 0);
 	ASSERT(apint_is_negative(objs->ap1) == 0);
 	ASSERT(apint_is_negative(objs->ap110660361) == 0);
@@ -193,6 +199,19 @@ void testCompare(TestObjs *objs) {
 	ASSERT(apint_compare(objs->ap0, objs->ap110660361) < 0);
 	/* 1 < 110660361 */
 	ASSERT(apint_compare(objs->ap1, objs->ap110660361) < 0);
+
+	//larger numbers below
+
+	/* 1 < ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 */
+	ASSERT(apint_compare(objs->ap1, objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9) < 0);
+	/* 10000000000000000 < ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 */
+	ASSERT(apint_compare(objs->ap10000000000000000, objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9) < 0);
+	/* minus962d7e839ed2d377 < ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 */
+	ASSERT(apint_compare(objs->minus962d7e839ed2d377, objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9) < 0);
+	/* ap7e5ff912c8ede6ccff0d56ae5a9b5459804f8 < ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9 */
+	ASSERT(apint_compare(objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f8, objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f9) < 0);
+	/* -10000000000000000 < -962d7e839ed2d377 */
+	ASSERT(apint_compare(objs->minus10000000000000000, objs->minus962d7e839ed2d377) < 0);
 }
 
 void testFormatAsHex(TestObjs *objs) {

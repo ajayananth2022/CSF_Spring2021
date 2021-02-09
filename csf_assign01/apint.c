@@ -197,7 +197,7 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 	assert(b); //make sure b isn't pointing to NULL
 	ApInt *sum = malloc(sizeof(ApInt)); //new instance of ApInt representing sum
 	if (a->flags == b->flags) { //signs are the same
-		sum->data[0] = add(a->data[0], b->data[0], sum);
+		//sum->data[0] = add(a->data[0], b->data[0]);
 		sum->flags = a->flags;
 	} else if (a->flags == 1 && b->flags == 0) { //a is negative and b is positive
 		sum->data[0] = subtract(a->data[0], b->data[0]);
@@ -218,6 +218,7 @@ ApInt *apint_add(const ApInt *a, const ApInt *b) {
 }
 
 //helper function for comparing the value of two ApInts
+//return 1 if left > right, -1 if left < right, 0 if left == right
 int unsigned_compare(const ApInt *left, const ApInt *right) {
 	int left_highest = apint_highest_bit_set(left);
 	int right_highest = apint_highest_bit_set(right);
@@ -279,23 +280,23 @@ int apint_compare(const ApInt *left, const ApInt *right) {
 	assert(left); //make sure left isn't pointing to NULL
 	assert(right); //make sure right isn't pointing to NULL
 	//both equal
-	if (left->data[0] == right->data[0] && left->flags == right->flags) {
-		return 0; 
-	}
 
-	//both negative
-	if (left->flags == 1 && right->flags == 1) {
-		if (left->data[0] > right->data[0]) return -1; 
-		return 1; 
-	}
-
-	//both positive
-	if (left->flags == 0 && right->flags == 0) {
-		if (left->data[0] > right->data[0]) return 1; 
+	if (left-> flags > right->flags) {
 		return -1; 
+	} else if (left-> flags < right->flags) {
+		return 1; 
+	} else if (left-> flags == 0 && right->flags == 0) {
+		if (unsigned_compare(left, right) > 0) {
+			return 1; 
+		} else if (unsigned_compare(left, right) < 0) {
+			return -1; 
+		}
+	} else {
+		if (unsigned_compare(left, right) > 0) {
+			return -1; 
+		} else if (unsigned_compare(left, right) < 0) {
+			return 1; 
+		}
 	}
-	//left is positive and right is negative
-	if (left->flags == 0 && right->flags ==1) return 1; 
-	//vice versa
-	return -1; 
+	return 0; 
 }
