@@ -43,7 +43,6 @@ typedef struct {
 	ApInt *ap7e5ff912c8ede6ccff0d56ae5a9b5459804f8; 
 	ApInt *ap000962d7e839ed2d377;
 	ApInt *minus962d7e839ed2d377;
-	/* TODO: add additional fields of test fixture */
 } TestObjs;
 
 TestObjs *setup(void);
@@ -58,7 +57,6 @@ void testFormatAsHex(TestObjs *objs);
 void testAdd(TestObjs *objs);
 void testSub(TestObjs *objs);
 void testUnsignedCompare(TestObjs *objs);
-/* TODO: add more test function prototypes */
 
 int main(int argc, char **argv) {
 	TEST_INIT();
@@ -80,7 +78,6 @@ int main(int argc, char **argv) {
 	TEST(testAdd);
 	TEST(testSub);
 	TEST(testUnsignedCompare);
-	/* TODO: use TEST macro to execute more test functions */
 
 	TEST_FINI();
 }
@@ -111,8 +108,6 @@ TestObjs *setup(void) {
 	objs->minus962d7e839ed2d377 = apint_create_from_hex("-962d7e839ed2d377");
 	objs->minus10000000000000000 = apint_create_from_hex("-10000000000000000");
 
-	/* TODO: initialize additional members of test fixture */
-
 	return objs;
 }
 
@@ -140,8 +135,6 @@ void cleanup(TestObjs *objs) {
 	apint_destroy(objs->minus962d7e839ed2d377);
 	apint_destroy(objs->minus10000000000000000);
 	apint_destroy(objs->ap7e5ff912c8ede6ccff0d56ae5a9b5459804f8);
-
-	/* TODO: destroy additional members of test fixture */
 
 	free(objs);
 }
@@ -305,50 +298,36 @@ void testAdd(TestObjs *objs) {
 	/* 110660361 + 1 = 110660362 */
 	sum = apint_add(objs->ap110660361, objs->ap1);
 	ASSERT(110660362UL == apint_get_bits(sum, 0));
-	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
 
 	/* 197675183 + 1 = 197675184 */
 	sum = apint_add(objs->ap0xbc848afUL, objs->ap1);
 	ASSERT(197675184UL == apint_get_bits(sum, 0));
-	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
 
 	/* 197675183 + 0 = 197675183 */
 	sum = apint_add(objs->ap0xbc848afUL, objs->ap0);
 	ASSERT(0xbc848afUL == apint_get_bits(sum, 0));
-	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
 
 	/* 110660361 + 100000000 = 210660361 */
 	sum = apint_add(objs->ap110660361, objs->ap100000000);
 	ASSERT(210660361UL == apint_get_bits(sum, 0));
-	//ASSERT(0 == strcmp("6988b0a", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
-	//free(s);
 
 	/* FFFFFFFFFFFFFFFF + 1 = 10000000000000000 */
 	sum = apint_add(objs->max1, objs->ap1);
 	ASSERT(0 == strcmp("10000000000000000", (s = apint_format_as_hex(sum))));
+	ASSERT(0 == apint_compare(sum, objs->ap10000000000000000));
 	apint_destroy(sum);
 	free(s);
 
-	/* FFFFFFFFFFFFFFFF + 1 = 10000000000000000 */
-	sum = apint_add(objs->max1, objs->ap1);
-	ASSERT(0 == strcmp("10000000000000000", (s = apint_format_as_hex(sum))));
-	apint_destroy(sum);
-	free(s);
 
+    //larger number addition (generated from ruby)
 	a = apint_create_from_hex("d4fa6f0b63ad80a34b93b74d");
 	b = apint_create_from_hex("3935dcebf95bdf");
 	sum = apint_add(a, b);
 	ASSERT(0 == strcmp("d4fa6f0b63e6b680378d132c", (s = apint_format_as_hex(sum))));
-	//for (int i = 0; i < (int)strlen(s); i++) {
-	//	printf("%c", s[i]);
-	//}
 	apint_destroy(sum);
 	apint_destroy(b);
 	apint_destroy(a);
@@ -367,6 +346,15 @@ void testAdd(TestObjs *objs) {
 	b = apint_create_from_hex("b87eea6af80e95c107103f2554036b0fa");
 	sum = apint_add(a, b);
 	ASSERT(0 == strcmp("b87eea6afc280564d6b9901151fda8c8c", (s = apint_format_as_hex(sum))));
+	apint_destroy(sum);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
+
+	a = apint_create_from_hex("7da6ad7f02af9134482f9693106a77ccd376a34a1f6c8194d19a26397c25f5a4888880971a658d");
+	b = apint_create_from_hex("-3b0563888783163e1ad4a7e");
+	sum = apint_add(a, b);
+	ASSERT(0 == strcmp("7da6ad7f02af9134482f9693106a77ccd376a34a1f6c8194d19a2635cbcfbd1c10571cb56d1b0f", (s = apint_format_as_hex(sum))));
 	apint_destroy(sum);
 	apint_destroy(b);
 	apint_destroy(a);
@@ -449,12 +437,39 @@ void testSub(TestObjs *objs) {
 	apint_destroy(diff);
 	free(s);
 
+	/* subtracting 0 from 0 is 0 */
+	diff = apint_sub(objs->ap0, objs->ap0);
+	ASSERT(0UL == apint_get_bits(diff, 0));
+	ASSERT(0 == (strcmp("0", (s = apint_format_as_hex(diff)))));
+	ASSERT(0 == apint_compare(diff, objs->ap0));
+	apint_destroy(diff);
+	free(s);
+
+	/* subtracting -1 from 0 is 1 */
+	diff = apint_sub(objs->ap0, objs->minus1);
+	ASSERT(1UL == apint_get_bits(diff, 0));
+	ASSERT(0 == (strcmp("1", (s = apint_format_as_hex(diff)))));
+	ASSERT(0 == apint_compare(diff, objs->ap1));
+	apint_destroy(diff);
+	free(s);
+
 	/* subtracting 1 from 10000000000000000 is ffffffffffffffff*/
 	diff = apint_sub(objs->ap10000000000000000, objs->ap1);
 	ASSERT(0xFFFFFFFFFFFFFFFFUL == apint_get_bits(diff, 0));
 	ASSERT(0 == (strcmp("ffffffffffffffff", (s = apint_format_as_hex(diff)))));
 	ASSERT(0 == apint_compare(diff, objs->apFFFFFFFFFFFFFFFF));
 	apint_destroy(diff);
+	free(s);
+
+	/* test involving larger values */
+	a = apint_create_from_hex("ce7e8b1706cfb9ea5517ca20f5993c6bd4b25f86273b72f62a35420fc");
+	b = apint_create_from_hex("ce7e8b1706cfb9ea5517ca20f5993c6bd4b25f86273b72f62a35420fc");
+	diff = apint_sub(a, b);
+	ASSERT(0 == strcmp("0",(s = apint_format_as_hex(diff))));
+	ASSERT(0 == apint_compare(diff, objs->ap0));
+	apint_destroy(diff);
+	apint_destroy(b);
+	apint_destroy(a);
 	free(s);
 
 	/* test involving larger values */
@@ -477,6 +492,16 @@ void testSub(TestObjs *objs) {
 	apint_destroy(a);
 	free(s);
 
+	/* test involving larger values */
+	a = apint_create_from_hex("8a8c64b4d5b5e52ec4bf0d061d556d71102232017fe7f2533c4bc02424361c5ad771bea5");
+	b = apint_create_from_hex("9a9a4a886af85deaa39fea8b4c7988335cdf842c778d931eff31");
+	diff = apint_sub(a, b);
+	ASSERT(0 == strcmp("8a8c64b4d5b5e52ec4be726bd2cd0278b2378e61955ca5d9b4186344a009a4cd4452bf74",(s = apint_format_as_hex(diff))));
+	apint_destroy(diff);
+	apint_destroy(b);
+	apint_destroy(a);
+	free(s);
+
 	/* test involving larger values (with a negative difference) */
 	a = apint_create_from_hex("9fa0fb165441ade7cb8b17c3ab3653465e09e8078e09631ec8f6fe3a5b301dc");
 	b = apint_create_from_hex("7e35207519b6b06429378631ca460905c19537644f31dc50114e9dc90bb4e4ebc43cfebe6b86d");
@@ -491,4 +516,3 @@ void testSub(TestObjs *objs) {
 
 }
 
-/* TODO: add more test functions */

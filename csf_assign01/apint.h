@@ -130,30 +130,80 @@ ApInt *apint_sub(const ApInt *a, const ApInt *b);
 int apint_compare(const ApInt *left, const ApInt *right);
 
 /*
- * A helper function that adds two 64-bit unsigned integers.
+ * A helper function that adds two ApInts.
  *
- * @param val1 first 64-bit unsigned integer
- * @param val2 second 64-bit unsigned integer
- * @return a 64-bit unsigned integer that is the sum
+ * @param left pointer to the first ApInt 
+ * @param right pointer to the second ApInt
+ * @param sum pointer to the ApInt to store the sum of the two ApInts
+ * @return a pointer to the ApInt used to store the sum
  */
 ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum);
 
 /*
- * A helper function that subtracts two 64-bit unsigned integers.
+ * A helper function that subtracts two ApInts.
  *
- * @param val1 64-bit unsigned integer to be subtracted from
- * @param val2 64-bit unsigned integer to be subtracted
- * @return the absolute value of the difference between the two values
+ * @param left pointer to the first ApInt
+ * @param right pointer to the second ApInt
+ * @param diff pointer to the ApInt to store the difference of the two ApInts
+ * @return a pointer to the ApInt used to store the absolute difference 
  */
 ApInt* subtract(const ApInt *left, const ApInt *right, ApInt *diff);
 
+/*
+ * A helper function that adds two elements at the same index from two ApInts.
+ *
+ * @param bigger pointer to the ApInt with bigger value
+ * @param smaller pointer to the ApInt with smaller value
+ * @param sum pointer to the ApInt to store the sum of the two ApInts
+ * @temp_sum pointer to a 64-bit unsigned int to store the temporary sum and overflow
+ */
+void add_elements(const ApInt *bigger, const ApInt *smaller, ApInt *sum, uint64_t *temp_sum);
+
+/*
+ * A helper function that subtracts two elements at the same index from two ApInts.
+ *
+ * @param bigger pointer to the ApInt with bigger value
+ * @param smaller pointer to the ApInt with smaller value
+ * @param diff pointer to the ApInt to store the sum of the two ApInts
+ * @temp_diff pointer to a 64-bit unsigned int to store the temporary diff and overflow
+ */
+void sub_elements(const ApInt *bigger, const ApInt *smaller, ApInt *diff, uint64_t *temp_diff);
+
+/*
+ * A helper function that converts an 8-bit unsigned int to a hex char.
+ *
+ * @param num an 8-bit unsigned integer to be converted into hexadecimal char
+ * @return a char corresponding to the given 8-bit unsigned int
+ */
 char int_to_hex(const uint8_t num);
 
+/*
+ * A helper function that converts hex char to an 8-bit unsigned int.
+ *
+ * @param hex a hexadecimal char to be converted into 8-bit unsigned int
+ * @return the corresponding 8-bit unsigned int, or 111 if the hex char is invalid
+ */
 uint8_t hex_to_int(const char hex);
 
+/*
+ * A helper function used by apint_create_from_hex to convert hex chars into 64-bit
+ * unsigned int and place them into an ApInt data array.
+ *
+ * @param pointer to the ApInt to store the converted hex chars
+ * @hex pointer to a hexadecimal array to be converted into 64-bit and stored
+ * @leadZeroes the number of leading zeros or negative signs at the front of the hex
+ */
+void hexConvert(ApInt *ap, const char *hex, int leadZeroes);
+
+/*
+ * A helper function that compares the value ofo two ApInts.
+ *
+ * @param left pointer to the first ApInt
+ * @param right pointer to the second ApInt
+ * @return 1 if left > right, -1 if left < right, 0 if left == right
+ */
 int unsigned_compare(const ApInt *left, const ApInt *right);
 
-void hexConvert(ApInt *ap, const char *hex, int leadZeroes);
 #ifdef __cplusplus
 }
 #endif
