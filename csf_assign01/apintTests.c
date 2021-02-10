@@ -449,6 +449,14 @@ void testSub(TestObjs *objs) {
 	apint_destroy(diff);
 	free(s);
 
+	/* subtracting 1 from 10000000000000000 is ffffffffffffffff*/
+	diff = apint_sub(objs->ap10000000000000000, objs->ap1);
+	ASSERT(0xFFFFFFFFFFFFFFFFUL == apint_get_bits(diff, 0));
+	ASSERT(0 == (strcmp("ffffffffffffffff", (s = apint_format_as_hex(diff)))));
+	ASSERT(0 == apint_compare(diff, objs->apFFFFFFFFFFFFFFFF));
+	apint_destroy(diff);
+	free(s);
+
 	/* test involving larger values */
 	a = apint_create_from_hex("ce7e8b1706cfb9ea5517ca20f5993c6bd4b25f86273b72f62a35420fc");
 	b = apint_create_from_hex("fb8a7f5e9d31c");

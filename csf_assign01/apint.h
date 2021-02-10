@@ -153,6 +153,7 @@ uint8_t hex_to_int(const char hex);
 
 int unsigned_compare(const ApInt *left, const ApInt *right);
 
+void hexConvert(ApInt *ap, const char *hex, int leadZeroes);
 #ifdef __cplusplus
 }
 #endif

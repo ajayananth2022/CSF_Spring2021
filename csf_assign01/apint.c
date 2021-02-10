@@ -230,7 +230,7 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 		if (left_highest > right_highest) return 1;
 		return -1;
 	}
-	assert(left->len == right->len); //for testing
+	//assert(left->len == right->len); //for testing
 	for (int i = left->len - 1; i >= 0; i--) {
 		if (left->data[i] != right->data[i]) {
 			if (left->data[i] > right->data[i]) return 1;
@@ -244,8 +244,6 @@ int unsigned_compare(const ApInt *left, const ApInt *right) {
 //returns pointer to ApInt representing the sum 
 //of the two ApInts
 ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
-	//assert(!apint_is_negative(left)); //for testing
-	//assert(!apint_is_negative(right)); //for testing
 	const ApInt *bigger;
 	const ApInt *smaller;
 	if (unsigned_compare(left, right) >= 0) {
@@ -297,8 +295,6 @@ ApInt* add(const ApInt *left, const ApInt *right, ApInt *sum) {
 //returns a pointer to an ApInt represeting the difference 
 //between the two ApInts
 ApInt* subtract(const ApInt *left, const ApInt *right, ApInt *diff) {
-	//assert(!apint_is_negative(left)); //for testing
-	//assert(!apint_is_negative(right)); //for testing
 	const ApInt *bigger;
 	const ApInt *smaller;
 	if (unsigned_compare(left, right) >= 0) {
@@ -332,14 +328,13 @@ ApInt* subtract(const ApInt *left, const ApInt *right, ApInt *diff) {
 		if (temp_diff > bigger->data[smaller_num_elements + i]) { //overflow
 			temp_diff = -1;
 		} else {
-			temp_diff = 0; 
+			if (i != remaining_elements -1) temp_diff = 0; 
 		}
 		diff->len++;
 	}
-	//if (temp_sum != 0) {
-	//	diff->data[diff->len] = temp_diff;
-	//	diff->len++;
-	//}
+	if (diff->len != 1 && temp_diff == 0) {
+		diff->len--;
+	}
 	//take care of unassigned empty memory
 	assert(!(diff->len > (unsigned)bigger_num_elements));
 	if (diff->len < (unsigned)bigger_num_elements) {
