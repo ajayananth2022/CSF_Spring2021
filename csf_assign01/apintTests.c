@@ -57,6 +57,7 @@ void testFormatAsHex(TestObjs *objs);
 void testAdd(TestObjs *objs);
 void testSub(TestObjs *objs);
 void testUnsignedCompare(TestObjs *objs);
+void testGetBits(TestObjs *objs);
 
 int main(int argc, char **argv) {
 	TEST_INIT();
@@ -78,6 +79,7 @@ int main(int argc, char **argv) {
 	TEST(testAdd);
 	TEST(testSub);
 	TEST(testUnsignedCompare);
+	TEST(testGetBits);
 
 	TEST_FINI();
 }
@@ -161,6 +163,11 @@ void testIsNegative(TestObjs *objs) {
 	ASSERT(apint_is_negative(objs->max1) == 0);
     ASSERT(apint_is_negative(objs->minus1) == 1);
 	ASSERT(apint_is_negative(objs->minus962d7e839ed2d377) == 1);
+}
+
+void testGetBits(TestObjs *objs) {
+	ASSERT(0 == apint_get_bits(objs->ap10000000000000000, 0));
+	ASSERT(1 == apint_get_bits(objs->ap10000000000000000, 1));
 }
 
 void testHighestBitSet(TestObjs *objs) {
