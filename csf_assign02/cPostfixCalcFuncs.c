@@ -23,6 +23,12 @@ long addPositive(long a, long b) {
  */
 void fatalError(const char *msg) {
   /* TODO: implement */
+
+  char erMsg[] = "Error: <";
+  char endCarot[] = ">";
+  strcat(erMsg,msg);
+  strcat(erMsg,endCarot);
+  printf("%s", erMsg);
 }
 
 /*
@@ -40,6 +46,10 @@ void fatalError(const char *msg) {
  */
 int isSpace(int c) {
   /* TODO: implement */
+  if (c == 9 || c == 32) {
+    return 1; 
+  }
+  return 0; 
 }
 
 /*
@@ -54,6 +64,10 @@ int isSpace(int c) {
  */
 int isDigit(int c) {
   /* TODO: implement */
+  if (c>47 && c <58) {
+    return 1; 
+  }
+  return 0; 
 }
 
 /*
@@ -70,6 +84,16 @@ int isDigit(int c) {
  */
 const char *skipws(const char *s) {
   /* TODO: implement */
+
+  int i = 0; 
+
+  while (isSpace(s[i])) {
+    i++; 
+    if (i == strlen(s)) {
+      return NULL; 
+    }
+  }
+  return s[i]; 
 }
 
 /*
@@ -85,6 +109,13 @@ const char *skipws(const char *s) {
  */
 int tokenType(const char *s) {
   /* TODO: implement */
+  if (isDigit(s[0])) {
+    return 0; 
+  }
+  if (s =='+' || s =='-' || s =='*' || s =='/') {
+    return 1; 
+  }
+  return 2; 
 }
 
 /*
@@ -104,6 +135,14 @@ int tokenType(const char *s) {
  */
 const char *consumeInt(const char *s, long *pval) {
   /* TODO: implement */
+  *pval = 0; 
+
+  int i = 0;
+  while (isDigit(s[i])) {
+    *pval = *pval*10 + s[i]; 
+    i++; 
+  }
+  return s[i]; 
 }
 
 /*
@@ -120,6 +159,8 @@ const char *consumeInt(const char *s, long *pval) {
  */
 const char *consumeOp(const char *s, int *op) {
   /* TODO: implement */
+  *op = s[0]; 
+  return s[1]; 
 }
 
 /*
@@ -140,6 +181,13 @@ const char *consumeOp(const char *s, int *op) {
  */
 void stackPush(long stack[], long *count, long val) {
   /* TODO: implement */
+  if (*count == MAX_STACK) {
+    fatalError("place_holder"); 
+  }
+  else {
+    *count++; 
+    stack[*count] = val; 
+  }
 }
 
 /*
@@ -158,6 +206,13 @@ void stackPush(long stack[], long *count, long val) {
  */
 long stackPop(long stack[], long *count) {
   /* TODO: implement */
+   if (*count == 0) {
+    fatalError("place_holder"); 
+  }
+  else {
+    *count--; 
+    return stack[*count - 1]; 
+  }
 }
 
 /*
@@ -173,4 +228,21 @@ long stackPop(long stack[], long *count) {
  */
 long evalOp(int op, long left, long right) {
   /* TODO: implement */
+
+  long result; 
+   switch(op) {
+      case '+' :
+         result = left + right; 
+         break;
+      case '-' :
+         result = left - right; 
+         break;
+      case '*' :
+         result = left * right; 
+         break;
+      case '/' :
+         result = left / right; 
+         break;
+   }
+   return result; 
 }
