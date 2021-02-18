@@ -26,7 +26,7 @@ void fatalError(const char *msg) {
   printf("Error: <");
   printf("%s", msg);
   printf(">\n");
-  exit(1);
+  exit(1); //exit with exit code 1
 }
 
 /*
@@ -43,8 +43,7 @@ void fatalError(const char *msg) {
  *   spaces and tabs)
  */
 int isSpace(int c) {
-  assert(c);
-  if (c == 9 || c == 32) {
+  if (c == 9 || c == 32) { //space or tab
     return 1; 
   }
   return 0; 
@@ -61,7 +60,7 @@ int isSpace(int c) {
  *   1 if c is a digit, 0 otherwise
  */
 int isDigit(int c) {
-  if (c>47 && c <58) {
+  if (c > 47 && c < 58) {
     return 1; 
   }
   return 0; 
@@ -80,11 +79,11 @@ int isDigit(int c) {
  *   is reached
  */
 const char *skipws(const char *s) {
-  if (strlen(s) == 0) return NULL;
+  if (strlen(s) == 0) return NULL; //empty string
   int i = 0; 
   while (isSpace(s[i])) {
     i++; 
-    if (i == strlen(s)) {
+    if (i == strlen(s)) { //string with only spaces or tabs
       return NULL; 
     }
   }
@@ -103,7 +102,7 @@ const char *skipws(const char *s) {
  *   the token type
  */
 int tokenType(const char *s) {
-  assert(s);
+  assert(s); //make sure s is a valid pointer
   if (isDigit(s[0])) {
     return 0; 
   } if (*s == '+' || *s == '-' || *s == '*' || *s == '/') {
@@ -128,10 +127,10 @@ int tokenType(const char *s) {
  *   pointer to the first character in the string that is not a digit
  */
 const char *consumeInt(const char *s, long *pval) {
-  assert(s);
+  assert(s); //make sure s is a valid pointer
   *pval = 0; 
   int i = 0;
-  while (isDigit(s[i])) {
+  while (isDigit(s[i])) { //keep reading in digits
     *pval = *pval*10 + (s[i] - 48); 
     i++; 
   }
@@ -151,7 +150,7 @@ const char *consumeInt(const char *s, long *pval) {
  *   a pointer to the second character of s
  */
 const char *consumeOp(const char *s, int *op) {
-  assert(s);
+  assert(s); //make sure s is a valid pointer
   *op = s[0]; 
   return &s[1]; 
 }
@@ -176,8 +175,8 @@ void stackPush(long stack[], long *count, long val) {
   if (*count == MAX_STACK) {
     fatalError("stack is full"); 
   } else {
-    stack[*count] = val; 
-    (*count)++;
+    stack[*count] = val;
+    (*count)++; //increment count of stack
   }
 }
 
@@ -199,7 +198,7 @@ long stackPop(long stack[], long *count) {
   if (*count == 0) {
     fatalError("stack is empty"); 
   } else {
-    (*count)--; 
+    (*count)--; //decrement count of stack
     return stack[*count]; 
   }
 }
@@ -228,6 +227,7 @@ long evalOp(int op, long left, long right) {
         result = left * right; 
         break;
       case '/' :
+        if (right == 0) fatalError("division by 0");
         result = left / right; 
         break;
       default:

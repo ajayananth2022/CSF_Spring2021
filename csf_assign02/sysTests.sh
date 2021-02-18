@@ -53,6 +53,7 @@ expect_error '2 2'
 expect_error '1 *'
 expect_error ''
 expect_error ' '
+expect_error '3 0 /'
 # TODO: add more tests...
 
 #######################################################################

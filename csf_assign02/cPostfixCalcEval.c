@@ -16,27 +16,23 @@
 long eval(const char *s) {
   long stack[MAX_STACK];
   long stackCount = 0; 
-  long extractNum = 0; //default
-  int32_t operator = '+'; //default
+  long extractNum = 0; //keeps the extracted number, default to 0
+  int32_t operator = '+'; //keeps the extracted operator, default to +
 
-  long operand1; 
-  long operand2; 
-  
+  long operand1, operand2;
   s = skipws(s); 
   while (s != NULL && strlen(s) != 0) {
-    s = skipws(s);
-    if (s == NULL) fatalError("Invalid expression"); 
-    if (tokenType(s) == 0) {
+    if (tokenType(s) == 0) { //if token is a number
       s = consumeInt(s, &extractNum); 
       stackPush(stack, &stackCount, extractNum); 
       s = skipws(s);
-    } else if (tokenType(s) == 1) {
+    } else if (tokenType(s) == 1) { //if token is an operator
       s = consumeOp(s, &operator); 
       operand1 = stackPop(stack, &stackCount); 
       operand2 = stackPop(stack, &stackCount); 
       stackPush(stack, &stackCount, evalOp(operator, operand2, operand1)); 
       s = skipws(s); 
-    } else {
+    } else { //if token is unknown
       fatalError("unknown token");
     }
   }
