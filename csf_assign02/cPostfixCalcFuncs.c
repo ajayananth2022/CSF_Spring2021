@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "cPostfixCalc.h"
 
 /*
@@ -42,6 +43,7 @@ void fatalError(const char *msg) {
  *   spaces and tabs)
  */
 int isSpace(int c) {
+  assert(c);
   if (c == 9 || c == 32) {
     return 1; 
   }
@@ -78,8 +80,8 @@ int isDigit(int c) {
  *   is reached
  */
 const char *skipws(const char *s) {
+  if (strlen(s) == 0) return NULL;
   int i = 0; 
-
   while (isSpace(s[i])) {
     i++; 
     if (i == strlen(s)) {
@@ -101,6 +103,7 @@ const char *skipws(const char *s) {
  *   the token type
  */
 int tokenType(const char *s) {
+  assert(s);
   if (isDigit(s[0])) {
     return 0; 
   } if (*s == '+' || *s == '-' || *s == '*' || *s == '/') {
@@ -125,8 +128,8 @@ int tokenType(const char *s) {
  *   pointer to the first character in the string that is not a digit
  */
 const char *consumeInt(const char *s, long *pval) {
+  assert(s);
   *pval = 0; 
-
   int i = 0;
   while (isDigit(s[i])) {
     *pval = *pval*10 + (s[i] - 48); 
@@ -148,6 +151,7 @@ const char *consumeInt(const char *s, long *pval) {
  *   a pointer to the second character of s
  */
 const char *consumeOp(const char *s, int *op) {
+  assert(s);
   *op = s[0]; 
   return &s[1]; 
 }
