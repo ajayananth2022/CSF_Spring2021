@@ -22,13 +22,15 @@ long eval(const char *s) {
   long operand1; 
   long operand2; 
   
+  s = skipws(s); 
   while (s != NULL && strlen(s) != 0) {
-    s = skipws(s); 
+    s = skipws(s);
+    if (s == NULL) fatalError("Invalid expression"); 
     if (tokenType(s) == 0) {
       s = consumeInt(s, &extractNum); 
       stackPush(stack, &stackCount, extractNum); 
+      s = skipws(s);
     } else if (tokenType(s) == 1) {
-      s = skipws(s); 
       s = consumeOp(s, &operator); 
       operand1 = stackPop(stack, &stackCount); 
       operand2 = stackPop(stack, &stackCount); 
