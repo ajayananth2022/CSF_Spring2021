@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cPostfixCalc.h"
 
 /*
@@ -7,8 +8,7 @@
  */
 long addPositive(long a, long b) {
   if (a < 0L || b < 0L) {
-    printf("Error: values must be positive\n");
-    exit(1);
+    fatalError("Error: values must be positive\n");
   }
   return a + b;
 }
@@ -22,13 +22,10 @@ long addPositive(long a, long b) {
  *   msg - description of the error which occurred
  */
 void fatalError(const char *msg) {
-  /* TODO: implement */
-
-  char erMsg[] = "Error: <";
-  char endCarot[] = ">";
-  strcat(erMsg,msg);
-  strcat(erMsg,endCarot);
-  printf("%s", erMsg);
+  printf("Error: <");
+  printf("%s", msg);
+  printf(">\n");
+  exit(1);
 }
 
 /*
@@ -45,7 +42,6 @@ void fatalError(const char *msg) {
  *   spaces and tabs)
  */
 int isSpace(int c) {
-  /* TODO: implement */
   if (c == 9 || c == 32) {
     return 1; 
   }
@@ -63,7 +59,6 @@ int isSpace(int c) {
  *   1 if c is a digit, 0 otherwise
  */
 int isDigit(int c) {
-  /* TODO: implement */
   if (c>47 && c <58) {
     return 1; 
   }
@@ -83,8 +78,6 @@ int isDigit(int c) {
  *   is reached
  */
 const char *skipws(const char *s) {
-  /* TODO: implement */
-
   int i = 0; 
 
   while (isSpace(s[i])) {
@@ -93,7 +86,7 @@ const char *skipws(const char *s) {
       return NULL; 
     }
   }
-  return s[i]; 
+  return &s[i]; 
 }
 
 /*
@@ -108,11 +101,9 @@ const char *skipws(const char *s) {
  *   the token type
  */
 int tokenType(const char *s) {
-  /* TODO: implement */
   if (isDigit(s[0])) {
     return 0; 
-  }
-  if (s =='+' || s =='-' || s =='*' || s =='/') {
+  } if (*s == '+' || *s == '-' || *s == '*' || *s == '/') {
     return 1; 
   }
   return 2; 
@@ -134,15 +125,14 @@ int tokenType(const char *s) {
  *   pointer to the first character in the string that is not a digit
  */
 const char *consumeInt(const char *s, long *pval) {
-  /* TODO: implement */
   *pval = 0; 
 
   int i = 0;
   while (isDigit(s[i])) {
-    *pval = *pval*10 + s[i]; 
+    *pval = *pval*10 + (s[i] - 48); 
     i++; 
   }
-  return s[i]; 
+  return &s[i]; 
 }
 
 /*
@@ -158,9 +148,8 @@ const char *consumeInt(const char *s, long *pval) {
  *   a pointer to the second character of s
  */
 const char *consumeOp(const char *s, int *op) {
-  /* TODO: implement */
   *op = s[0]; 
-  return s[1]; 
+  return &s[1]; 
 }
 
 /*
@@ -180,13 +169,11 @@ const char *consumeOp(const char *s, int *op) {
  *   nothing
  */
 void stackPush(long stack[], long *count, long val) {
-  /* TODO: implement */
   if (*count == MAX_STACK) {
-    fatalError("place_holder"); 
-  }
-  else {
-    *count++; 
+    fatalError("stack is full"); 
+  } else {
     stack[*count] = val; 
+    (*count)++;
   }
 }
 
@@ -205,13 +192,11 @@ void stackPush(long stack[], long *count, long val) {
  *   the value popped from the stack
  */
 long stackPop(long stack[], long *count) {
-  /* TODO: implement */
-   if (*count == 0) {
-    fatalError("place_holder"); 
-  }
-  else {
-    *count--; 
-    return stack[*count - 1]; 
+  if (*count == 0) {
+    fatalError("stack is empty"); 
+  } else {
+    (*count)--; 
+    return stack[*count]; 
   }
 }
 
@@ -227,22 +212,23 @@ long stackPop(long stack[], long *count) {
  *   the result of applying the operator to the operands
  */
 long evalOp(int op, long left, long right) {
-  /* TODO: implement */
-
   long result; 
    switch(op) {
       case '+' :
-         result = left + right; 
-         break;
+        result = left + right; 
+        break;
       case '-' :
-         result = left - right; 
-         break;
+        result = left - right; 
+        break;
       case '*' :
-         result = left * right; 
-         break;
+        result = left * right; 
+        break;
       case '/' :
-         result = left / right; 
-         break;
+        result = left / right; 
+        break;
+      default:
+        result = 0; 
+        break;
    }
    return result; 
 }

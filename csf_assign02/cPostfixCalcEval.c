@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cPostfixCalc.h"
 
 /*
@@ -13,40 +14,30 @@
  *   the result of evaluating the expression
  */
 long eval(const char *s) {
-  /* TODO: implement */
-
-  /* Note: this function should be implemented by calling functions
-   * declared in cPostfixCalc.h and defined in cPostfixCalcFuncs.c
-   */
-  int i = 0; 
-
   long stack[MAX_STACK];
   long stackCount = 0; 
-
-  long extractNum; 
-  int32_t operator; 
+  long extractNum = 0; //default
+  int32_t operator = '+'; //default
 
   long operand1; 
   long operand2; 
-
-  while (strlen(s) != 0) {
-
+  
+  while (s != NULL && strlen(s) != 0) {
     s = skipws(s); 
-
     if (tokenType(s) == 0) {
-      s = consumeInt(s, extractNum); 
-      stackPush(stack, stackCount, extractNum); 
-    }
-
-    else if (tokenType(s) == 1) {
-      s = consumeOp(s, operator); 
-
-      operand1 = stackPop(stack, stackCount); 
-      operand2 = stackPop(stack, stackCount); 
-
-      stackPush(stack, stackCount, evalOp(operator, operand1, operand2)); 
+      s = consumeInt(s, &extractNum); 
+      stackPush(stack, &stackCount, extractNum); 
+    } else if (tokenType(s) == 1) {
+      s = skipws(s); 
+      s = consumeOp(s, &operator); 
+      operand1 = stackPop(stack, &stackCount); 
+      operand2 = stackPop(stack, &stackCount); 
+      stackPush(stack, &stackCount, evalOp(operator, operand2, operand1)); 
+      s = skipws(s); 
+    } else {
+      fatalError("unknown token");
     }
   }
-
-  return stackPop(stack, stackCount);
+  if (stackCount != 1) fatalError("Invalid expression");
+  return stackPop(stack, &stackCount);
 }
