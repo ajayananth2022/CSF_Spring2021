@@ -23,9 +23,7 @@ long addPositive(long a, long b) {
  *   msg - description of the error which occurred
  */
 void fatalError(const char *msg) {
-  printf("Error: <");
-  printf("%s", msg);
-  printf(">\n");
+  printf("Error: %s\n", msg);
   exit(1); //exit with exit code 1
 }
 

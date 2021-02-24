@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 	TEST_INIT();
 
 	TEST(testAddPositive);
-	//TEST(testAddPositiveInvalid);
+	TEST(testAddPositiveInvalid);
 	TEST(testIsSpace);
 	TEST(testIsDigit);
 	TEST(testSkipws);
