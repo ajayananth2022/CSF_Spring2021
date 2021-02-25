@@ -237,11 +237,17 @@ consumeOp:
 	movq %r10, %rdi
 	*/
 
+	/*
 	movzbl (%rdi), %eax  	/* i want %rsi to point to s[0] */
-
+	/*
 	movq %eax, (%rsi)     	/* i want %rsi to point to s[0] */
+	/*
 	incq %rdi 			/* make rdi point to s[1] */
+	/*
 	movq %rdi, %rax			/* move %rdi to result register */
+	
+
+	
 	
 			
 			/* 
@@ -328,6 +334,44 @@ stackPop:
  */
 	.globl evalOp
 evalOp:
+	subq $8, %rsp               /* align stack pointer */
+
+	cmpb $43, %dil              /* check if char is "+" */
+	je .LcharIsPlus
+	cmpb $45, %dil              /* check if char is "-" */
+	je .LcharIsMinus
+	cmpb $42, %dil              /* check if char is "*" */
+	je .LcharIsMutiplication
+	cmpb $47, %dil              /* check if char is "/" */
+	je .LcharIsDivision
+
+	movq $0, %rax               /* returns 0 for invalid operator */
+	jmp .LdoneEvalOp
+
+.LcharIsPlus:
+	addq %rsi, %rdx             /* add first and second argument */
+	movq %rdx, %rax             /* stores first + second argument in rax */
+	jmp .LdoneEvalOp
+
+.LcharIsMinus:
+	subq %rdx, %rsi             /* subtract second arg from first argument */  
+	movq %rsi, %rax             /* stores first - second argument in rax */
+	jmp .LdoneEvalOp
+
+.LcharIsMutiplication:
+	movq %rdx, %rax             /* multiplies first and second argument */
+	mulq %rsi                   /* stores first * second argument in rax */
+	jmp .LdoneEvalOp
+
+.LcharIsDivision:
+	movq %rdx, %r10              /* temporarily store %rdx in %r10 */
+	movq %rsi, %rax              /* put dividend in %rax */
+	cqto                         /* sign-extend dividend into %rdx */
+	idivq %r10                   /* quotient is now in %rax */
+	jmp .LdoneEvalOp
+
+.LdoneEvalOp:
+	addq $8, %rsp                /* restore stack pointer */
 	ret
 
 /* vim:ft=gas:
