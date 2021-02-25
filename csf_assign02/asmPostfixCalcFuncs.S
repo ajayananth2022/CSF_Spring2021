@@ -230,6 +230,35 @@ consumeInt:
 	.globl consumeOp
 consumeOp:
 	/* TODO: implement */
+	subq $8, %rsp                /* align stack pointer */
+
+	/*movq (%rdi), %r10    
+	/* dereference rdi and store in r10         
+	movq %r10, %rdi
+	*/
+
+	movzbl (%rdi), %eax  	/* i want %rsi to point to s[0] */
+
+	movq %eax, (%rsi)     	/* i want %rsi to point to s[0] */
+	incq %rdi 			/* make rdi point to s[1] */
+	movq %rdi, %rax			/* move %rdi to result register */
+	
+			
+			/* 
+
+			char is one byte
+			assert(s);
+			*op = s[0]; 
+   			return &s[1]; 
+
+			const char *consumeOp(const char *s, int *op) {
+  			assert(s); //make sure s is a valid pointer
+  			*op = s[0]; 
+  			return &s[1]; 
+			}
+   			*/
+	addq $8, %rsp                /* align stack pointer */
+
 	ret
 
 /*
@@ -247,11 +276,25 @@ consumeOp:
  *
  * Returns:
  *   nothing
+
+ void stackPush(long stack[], long *count, long val) {
+  if (*count == MAX_STACK) {
+    fatalError("stack is full"); 
+  } else {
+    stack[*count] = val;
+    (*count)++; //increment count of stack
+  }
+}
  */
 	.globl stackPush
 stackPush:
 	/* TODO: implement */
-	ret
+
+	/*first check if count == MAX_STACK if yes, call fatalError*/
+	/* if not, do the following: 
+		movq (%rdx) (%rdi,%r10,4) // rdx is val 
+
+	*/
 
 /*
  * stackPop - pops a long (64 bit signed integer) value from the stack.
