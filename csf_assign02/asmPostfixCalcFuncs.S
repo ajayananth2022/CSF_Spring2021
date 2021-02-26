@@ -237,13 +237,10 @@ consumeOp:
 	movq %r10, %rdi
 	*/
 
-	/*
+	
 	movzbl (%rdi), %eax  	/* i want %rsi to point to s[0] */
-	/*
 	movq %eax, (%rsi)     	/* i want %rsi to point to s[0] */
-	/*
 	incq %rdi 			/* make rdi point to s[1] */
-	/*
 	movq %rdi, %rax			/* move %rdi to result register */
 	
 
