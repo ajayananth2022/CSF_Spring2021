@@ -229,38 +229,20 @@ consumeInt:
  */
 	.globl consumeOp
 consumeOp:
-	/* TODO: implement */
+		/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 
-	/*movq (%rdi), %r10    
-	/* dereference rdi and store in r10         
-	movq %r10, %rdi
-	*/
+	movq %rdi, %r10			/* copy over first argument (s pointer) to r10 */
 
-	
-	movzbl (%rdi), %eax  	/* i want %rsi to point to s[0] */
-	movq %eax, (%rsi)     	/* i want %rsi to point to s[0] */
-	incq %rdi 			/* make rdi point to s[1] */
-	movq %rdi, %rax			/* move %rdi to result register */
-	
+	movq $0, %rdi 			/* clear rdi register (get rid of garbage values in higher bits)*/
+	movb (%r10), %dil 		/* move first byte (first char) of s to %dil (byte 0 subreg of rdi)*/
 
-	
-	
-			
-			/* 
+	movl %edi, (%rsi)     	/* set rsi equal to operator (s[0]) */
 
-			char is one byte
-			assert(s);
-			*op = s[0]; 
-   			return &s[1]; 
-
-			const char *consumeOp(const char *s, int *op) {
-  			assert(s); //make sure s is a valid pointer
-  			*op = s[0]; 
-  			return &s[1]; 
-			}
-   			*/
-	addq $8, %rsp                /* align stack pointer */
+	incq %r10 				/* make rdi point to s[1] */
+	movq %r10, %rax			/* move %rdi to result register */
+	
+	addq $8, %rsp       	/* align stack pointer */
 
 	ret
 
@@ -291,13 +273,25 @@ consumeOp:
  */
 	.globl stackPush
 stackPush:
-	/* TODO: implement */
-
-	/*first check if count == MAX_STACK if yes, call fatalError*/
-	/* if not, do the following: 
-		movq (%rdx) (%rdi,%r10,4) // rdx is val 
-
+    /* TODO: implement */
+	/* 
+	rdi:1st arg, rsi = esi:2nd reg , rdx = edi: 3rd reg
 	*/
+
+	cmpl $MAX_STACK, %esi        /* if count equals 20 */
+	je .LFullStack
+
+	movl %edi,(%rdi,%esi)  		/*stack[*count] = val;*/
+	incq %rsi 					/*increment stack. shoud this be rsi or esi?*/	
+	jmp .LDoneStackPush
+
+.LFullStack:
+	call fatalError
+9:	jmp 9b                       /* should not get here, but what does this even mean??*/
+
+.LDoneStackPush:
+	addq $8, %rsp                /* restore stack pointer */
+	ret
 
 /*
  * stackPop - pops a long (64 bit signed integer) value from the stack.
