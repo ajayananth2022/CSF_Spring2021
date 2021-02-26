@@ -12,6 +12,9 @@
 	.section .rodata
 
 eNegativeValue: .string "Negative value"
+eFullStack: .string "Full Stack"
+eEmptyStack: .string "Empty Stack"
+
 errorMessage: .string "Error: %s\n"
 
 
@@ -275,22 +278,28 @@ consumeOp:
 stackPush:
     /* TODO: implement */
 	/* 
-	rdi:1st arg, rsi = esi:2nd reg , rdx = edi: 3rd reg
+	rdi:1st arg, rsi = esi:2nd reg , rdx = edx: 3rd reg
 	*/
 
-	cmpl $MAX_STACK, %esi        /* if count equals 20 */
+	subq $8, %rsp                /* align stack pointer */
+
+
+	cmpl $MAX_STACK,(%esi)       /* if count equals 20 */
 	je .LFullStack
 
-	movl %edi,(%rdi,%esi)  		/*stack[*count] = val;*/
-	incq %rsi 					/*increment stack. shoud this be rsi or esi?*/	
+	movq (%rsi), %r10		/* dereference count pointer and store in r10 */
+	
+	movq %rdx,(%rdi,%r10)  		/*stack[*count] = val;*/
+	incq (%rsi)				/*increment stack. shoud this be rsi or esi?*/	
 	jmp .LDoneStackPush
 
 .LFullStack:
+	movq $eFullStack, %rdi
 	call fatalError
 9:	jmp 9b                       /* should not get here, but what does this even mean??*/
 
 .LDoneStackPush:
-	addq $8, %rsp                /* restore stack pointer */
+	addq $8, %rsp                /* align stack pointer */
 	ret
 
 /*
@@ -309,7 +318,31 @@ stackPush:
  */
 	.globl stackPop
 stackPop:
-	/* TODO: implement */
+	    /* TODO: implement */
+	/* 
+	rdi:1st arg, rsi = esi:2nd reg 
+	*/
+
+	subq $8, %rsp                /* align stack pointer */
+	movq (%rsi), %r10 			/* dereference count pointer and store in r10 */
+
+	cmpl $0, (%esi)       /* if count equals 0 */
+	je .LEmptyStack
+
+	decq (%rsi)				;//decrement count of stack
+
+	movq (%rdi, %r10), %r11		/* store value at stack[*count] in r11*/
+	
+	movq %r11,%rax 			/* store r11 in result register*/
+	jmp .LDoneStackPop
+
+.LEmptyStack:
+	movq $eEmptyStack, %rdi
+	call fatalError
+9:	jmp 9b                       /* should not get here, but what does this even mean??*/
+
+.LDoneStackPop:
+	addq $8, %rsp                /* align stack pointer */
 	ret
 
 /*
