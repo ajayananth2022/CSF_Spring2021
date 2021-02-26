@@ -63,13 +63,13 @@ fatalError:
 	/* TODO: implement */
 	/* note that this function should not return */
 	subq $8, %rsp                /* align stack pointer */
-	movq %rdi, %r10
+	movq %rdi, %r10              /* temporarily stores the error message in r10 */
 
-	movq $errorMessage, %rdi
-	movq %r10, %rsi 
+	movq $errorMessage, %rdi     /* move the error message format into first arg */
+	movq %r10, %rsi              /* move error message into second arg */
 	call printf
 
-	movq $1, %rdi
+	movq $1, %rdi                /* move 1 to first arg to exit with code 1 */
 	addq $8, %rsp                /* restore stack pointer */
 	call exit
 
@@ -91,9 +91,9 @@ isSpace:
 	/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 	cmpb $9, %dil                /* compare first argument (0th bit) with space */
-	je .LspaceOrTab
+	je .LspaceOrTab              /* jumps to this label when the char is a space */
 	cmpb $32, %dil               /* compare first argument (0th bit) with tab */
-	je .LspaceOrTab
+	je .LspaceOrTab              /* jumps to this label when the char is a tab */
 	movq $0, %rax                /* return 0 if not space or tab */
 	jmp .LdoneIsSpace
 
@@ -120,9 +120,9 @@ isDigit:
 	/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 	cmpb $48, %dil               /* compare first argument (0th bit) with 0 */
-	jb .LnotDigit
+	jb .LnotDigit                /* jump to the not digit label when char is below '0' */
 	cmpb $57, %dil               /* compare first argument (0th bit) with 9 */
-	ja .LnotDigit
+	ja .LnotDigit                /* jump to the not digit label when char is above '9' */
 	movq $1, %rax                /* return 1 if is digit */
 	jmp .LdoneIsDigit
 
@@ -168,30 +168,30 @@ tokenType:
 	subq $8, %rsp                /* align stack pointer */
 
 	movq (%rdi), %r10            /* dereference rdi and store in r10 */
-	movq %r10, %rdi
-	call isDigit
+	movq %r10, %rdi              /* move dereferenced rdi to rdi */
+	call isDigit                 /* check if dereferenced rdi is a digit */
 
 	cmpq $1, %rax                /* check if char is digit */
 	je .LcharIsDigit
 
 	cmpb $43, %r10b              /* check if char is "+" */
-	je .LcharIsOperator
+	je .LcharIsOperator          /* jump to isOperator label when char is "+" */
 	cmpb $45, %r10b              /* check if char is "-" */
-	je .LcharIsOperator
+	je .LcharIsOperator          /* jump to isOperator label when char is "-" */
 	cmpb $42, %r10b              /* check if char is "*" */
-	je .LcharIsOperator
-	cmpb $47, %r10b             /* check if char is "/" */
-	je .LcharIsOperator
+	je .LcharIsOperator          /* jump to isOperator label when char is "*" */
+	cmpb $47, %r10b              /* check if char is "/" */
+	je .LcharIsOperator          /* jump to isOperator label when char is "/" */
 
-	movq $2, %rax               /* returns 2 for invalid token */
+	movq $2, %rax                /* returns 2 for invalid token */
 	jmp .LdonetokenType
 
 .LcharIsDigit:	
-	movq $0, %rax               /* returns 0 for digit */
+	movq $0, %rax                /* returns 0 for digit */
 	jmp .LdonetokenType
 
 .LcharIsOperator:
-	movq $1, %rax               /* returns 1 for operator */
+	movq $1, %rax                /* returns 1 for operator */
 	jmp .LdonetokenType
 
 .LdonetokenType:
@@ -287,16 +287,16 @@ stackPush:
 	cmpl $MAX_STACK,(%esi)       /* if count equals 20 */
 	je .LFullStack
 
-	movq (%rsi), %r10		/* dereference count pointer and store in r10 */
+	movq (%rsi), %r10		     /* dereference count pointer and store in r10 */
 	
-	movq %rdx,(%rdi,%r10)  		/*stack[*count] = val;*/
-	incq (%rsi)				/*increment stack. shoud this be rsi or esi?*/	
+	movq %rdx, (%rdi, %r10, 8)   /* store the long into the stack at right position */
+	incq (%rsi)				     /* increment stack */	
 	jmp .LDoneStackPush
 
 .LFullStack:
-	movq $eFullStack, %rdi
+	movq $eFullStack, %rdi       /* call fatalError with Full Stack error message */
 	call fatalError
-9:	jmp 9b                       /* should not get here, but what does this even mean??*/
+9:	jmp 9b                       /* should not get here */
 
 .LDoneStackPush:
 	addq $8, %rsp                /* align stack pointer */
@@ -324,22 +324,20 @@ stackPop:
 	*/
 
 	subq $8, %rsp                /* align stack pointer */
-	movq (%rsi), %r10 			/* dereference count pointer and store in r10 */
 
-	cmpl $0, (%esi)       /* if count equals 0 */
+	cmpl $0, (%esi)              /* if count equals 0 */
 	je .LEmptyStack
 
-	decq (%rsi)				;//decrement count of stack
+	decq (%rsi)				     /* decrement count of stack */
+	movq (%rsi), %r10 			 /* dereference count pointer and store in r10 */
 
-	movq (%rdi, %r10), %r11		/* store value at stack[*count] in r11*/
-	
-	movq %r11,%rax 			/* store r11 in result register*/
+	movq (%rdi, %r10, 8), %rax	 /* store value at stack[*count] in rax to return it*/
 	jmp .LDoneStackPop
 
 .LEmptyStack:
-	movq $eEmptyStack, %rdi
+	movq $eEmptyStack, %rdi      /* call fatalError with empty stack error */
 	call fatalError
-9:	jmp 9b                       /* should not get here, but what does this even mean??*/
+9:	jmp 9b                       /* should not get here */
 
 .LDoneStackPop:
 	addq $8, %rsp                /* align stack pointer */
@@ -361,13 +359,13 @@ evalOp:
 	subq $8, %rsp               /* align stack pointer */
 
 	cmpb $43, %dil              /* check if char is "+" */
-	je .LcharIsPlus
+	je .LcharIsPlus             /* perform addition when char is "+" */
 	cmpb $45, %dil              /* check if char is "-" */
-	je .LcharIsMinus
+	je .LcharIsMinus            /* perform subtraction when char is "-" */
 	cmpb $42, %dil              /* check if char is "*" */
-	je .LcharIsMutiplication
+	je .LcharIsMutiplication    /* perform multiplication when char is "*" */
 	cmpb $47, %dil              /* check if char is "/" */
-	je .LcharIsDivision
+	je .LcharIsDivision         /* perform multiplication when char is "/" */
 
 	movq $0, %rax               /* returns 0 for invalid operator */
 	jmp .LdoneEvalOp

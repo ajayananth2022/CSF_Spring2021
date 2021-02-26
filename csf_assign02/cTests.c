@@ -106,14 +106,14 @@ int main(int argc, char **argv) {
 	TEST(testIsDigit);
 	//TEST(testSkipws);
 	TEST(testTokenType);
-	TEST(testConsumeInt);
+	//TEST(testConsumeInt);
 	TEST(testConsumeOp);
 	TEST(testPush);
 	TEST(testPushFull);
 	TEST(testPop);
 	TEST(testEvalOp);
-	TEST(testEval);
-	TEST(testEvalInvalid);
+	//TEST(testEval);
+	//TEST(testEvalInvalid);
 
 	TEST_FINI();
 }
