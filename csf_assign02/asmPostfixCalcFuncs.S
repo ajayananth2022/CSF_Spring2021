@@ -149,6 +149,33 @@ isDigit:
 	.globl skipws
 skipws:
 	/* TODO: implement */
+	subq $8, %rsp                /* align stack pointer */               
+	movq %rdi, %r11              /* temporarily store the pointer to current char */
+	movq (%rdi), %rdi            /* dereference the char pointer and call isSpace */
+	call isSpace
+
+.Ltop:
+	cmpb $0, (%r11)              /* if current char is null */
+	je .LemptyString
+
+	cmpq $0, %rax                /* if current char is not space */
+	je .LdoneSkipping
+
+	incq %r11                    /* update pointer to the current char */
+	movq (%r11), %rdi            /* dereference the char pointer and call isSpace */
+    call isSpace
+	jmp .Ltop
+
+.LemptyString:
+	movq $0, %rax                /* return NULL */
+	jmp .LdoneSkipWs
+
+.LdoneSkipping:
+	movq %r11, %rax              /* return a pointer to the current char */
+	jmp .LdoneSkipWs
+
+.LdoneSkipWs:
+	addq $8, %rsp                /* restore stack pointer */
 	ret
 
 /*
@@ -282,7 +309,6 @@ stackPush:
 	*/
 
 	subq $8, %rsp                /* align stack pointer */
-
 
 	cmpl $MAX_STACK,(%esi)       /* if count equals 20 */
 	je .LFullStack

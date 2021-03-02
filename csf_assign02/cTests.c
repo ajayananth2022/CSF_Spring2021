@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 	TEST(testAddPositiveInvalid);
 	TEST(testIsSpace);
 	TEST(testIsDigit);
-	//TEST(testSkipws);
+	TEST(testSkipws);
 	TEST(testTokenType);
 	//TEST(testConsumeInt);
 	TEST(testConsumeOp);
