@@ -262,19 +262,29 @@ consumeInt:
 
 	jmp .LEnd
 
+/*2 3 + */
+
 .LupdatePVal: 
 	imulq $10, %r11         /* multiply pval (r11) by 10*/ 
-	leaq (%r10, %r12), %r13
-	movq (%r13), %r14
-	subq $48, %r14  /* get integer value of s[i] (by subtracting 48)*/ 
-	addq %r14, %r11 /* update pval (r11)*/ 
-	incq %r12             
-	movq (%r13), %rdi  /* update rdi argument register to store incremented character*/ 
+
+	/*leaq (%r10, %r12), %r13*/
+
+	movq (%r10, %r12), %r14 /*INSTEAD*/
+	/*movq (%r13), %r14*/
+	subl $48, %r14d  /* get integer value of s[i] (by subtracting 48)*/ 
+	addl %r14d, %r11d /* update pval (r11)*/ 
+	incq %r12            
+	 
+	movq (%r10, %r12), %rdi /*INSTEAD*/
+	/*movq (%r13), %rdi  /* update rdi argument register to store incremented character*/ 
 	jmp .LcheckDigit
 
 .LEnd: 
+
+	/*leaq (%r11), %rsi  /*INSTEAD*/
+	movq $0, (%rsi)
 	movq %r11, (%rsi) 		
-	movq %r13, %rax  /*store pointer to first str char that is not a digit in result arg*/
+	leaq (%r10, %r12), %rax  /*store pointer to first str char that is not a digit in result arg*/
 	addq $8, %rsp           /* restore stack pointer */
 	ret
 
