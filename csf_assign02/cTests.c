@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 	TEST(testIsDigit);
 	TEST(testSkipws);
 	TEST(testTokenType);
-	//TEST(testConsumeInt);
+	TEST(testConsumeInt);
 	TEST(testConsumeOp);
 	TEST(testPush);
 	TEST(testPushFull);
