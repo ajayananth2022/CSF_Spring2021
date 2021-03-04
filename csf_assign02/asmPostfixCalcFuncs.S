@@ -195,7 +195,7 @@ tokenType:
 	/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 
-	movq %rdi, %r11
+	movq %rdi, %r11              /* temporarily store the postfix in r11 */
 	movq (%rdi), %r10            /* dereference rdi and store in r10 */
 	movq %r10, %rdi              /* move dereferenced rdi to rdi */
 	call isDigit                 /* check if dereferenced rdi is a digit */
@@ -212,19 +212,19 @@ tokenType:
 	cmpb $47, %r10b              /* check if char is "/" */
 	je .LcharIsOperator          /* jump to isOperator label when char is "/" */
 
-	movq $TOK_UNKNOWN, %rax                /* returns 2 for invalid token */
+	movq $TOK_UNKNOWN, %rax      /* returns 2 for invalid token */
 	jmp .LdonetokenType
 
 .LcharIsDigit:	
-	movq $TOK_INT, %rax                /* returns 0 for digit */
+	movq $TOK_INT, %rax          /* returns 0 for digit */
 	jmp .LdonetokenType
 
 .LcharIsOperator:
-	movq $TOK_OP, %rax                /* returns 1 for operator */
+	movq $TOK_OP, %rax           /* returns 1 for operator */
 	jmp .LdonetokenType
 
 .LdonetokenType:
-	movq %r11, %rdi
+	movq %r11, %rdi              /* restore the value of rdi (postfix) */
 	addq $8, %rsp                /* restore stack pointer */
 	ret
 
@@ -258,9 +258,9 @@ tokenType:
 	.globl consumeInt
 consumeInt:
 	/* TODO: implement */
-	pushq %r12
-	subq $16, %rsp
-	movq %rsp, %r12
+	pushq %r12                  /* push r12 onto the stack to save its value */
+	subq $16, %rsp              /* allocate space for local variables */
+	movq %rsp, %r12             /* make %r12 point to local variables area */	
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
 	movq (%rsi), %r11    		/* dereference pval pointer and store value */
@@ -292,8 +292,8 @@ consumeInt:
 	movq %r11, (%rsi) 			/* make pval pointer point to r11 */
 	leaq (%r10, %r12), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
 
-	addq $16, %rsp
-	popq %r12
+	addq $16, %rsp              /* deallocate space for local variable(s) */
+	popq %r12                   /* restore value of r12 */
 	ret
 
 /*
