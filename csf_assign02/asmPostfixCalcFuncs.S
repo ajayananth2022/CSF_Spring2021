@@ -14,6 +14,7 @@
 eNegativeValue: .string "Negative value"
 eFullStack: .string "Full Stack"
 eEmptyStack: .string "Empty Stack"
+eDivisionByZero: .string "Division by zero"
 
 errorMessage: .string "Error: %s\n"
 
@@ -257,7 +258,6 @@ tokenType:
 	.globl consumeInt
 consumeInt:
 	/* TODO: implement */
-	subq $8, %rsp           	/* align stack pointer */
 	pushq %r12
 	subq $16, %rsp
 	movq %rsp, %r12
@@ -294,7 +294,6 @@ consumeInt:
 
 	addq $16, %rsp
 	popq %r12
-	addq $8, %rsp           	/* restore stack pointer */
 	ret
 
 /*
@@ -464,11 +463,18 @@ evalOp:
 	jmp .LdoneEvalOp
 
 .LcharIsDivision:
+	cmpq $0, %rdx
+	je .LdivisionByZero
 	movq %rdx, %r10              /* temporarily store %rdx in %r10 */
 	movq %rsi, %rax              /* put dividend in %rax */
 	cqto                         /* sign-extend dividend into %rdx */
 	idivq %r10                   /* quotient is now in %rax */
 	jmp .LdoneEvalOp
+
+.LdivisionByZero:
+	movq $eDivisionByZero, %rdi
+	call fatalError
+9:	jmp 9b                       /* should not get here */
 
 .LdoneEvalOp:
 	addq $8, %rsp                /* restore stack pointer */
