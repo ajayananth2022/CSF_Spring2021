@@ -257,10 +257,15 @@ tokenType:
 
 	.globl consumeInt
 consumeInt:
-	/* TODO: implement */
-	pushq %rbp                  /* push r12 onto the stack to save its value */
+	/*
+ 	* Local variables:
+ 	*    %r10 - base address of char array
+ 	*    %r11 - dereferenced value of pval 
+	*    %rbp - address extracted number or operator
+ 	*/
+	pushq %rbp                  /* push rbp onto the stack to save its value */
 	subq $16, %rsp              /* allocate space for local variables */
-	movq %rsp, %rbp             /* make %r12 point to local variables area */	
+	movq %rsp, %rbp             /* make %rbp point to local variables area */	
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
 	movq (%rsi), %r11    		/* dereference pval pointer and store value */
@@ -279,10 +284,11 @@ consumeInt:
 
 .LupdatePVal: 
 	imulq $10, %r11         	/* multiply pval (r11) by 10 */ 
-
-	addb (%r10, %rbp), %r11b 	/* add pval to s[i] */
+    movb (%r10, %rbp), %r15b
+	addq %r15, %r11 	/* add pval to s[i] */
+	/*  *pval = *pval*10 + (s[i] - 48); */
 	subq $48, %r11  			/* sub 48 to account for ASCII offset */ 
-	incq %rbp          			/* increment r12 (loop var) */ 
+	incq %rbp          			/* increment rbp (loop var) */ 
 
 	movq (%r10, %rbp), %rdi 	/* store s[i] in 1st arg register */
 	jmp .LcheckDigit
@@ -293,7 +299,7 @@ consumeInt:
 	leaq (%r10, %rbp), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
 
 	addq $16, %rsp              /* deallocate space for local variable(s) */
-	popq %rbp                   /* restore value of r12 */
+	popq %rbp                   /* restore value of rbp */
 	ret
 
 /*

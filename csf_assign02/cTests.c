@@ -159,6 +159,11 @@ void testIsSpace(TestObjs *objs) {
 	ASSERT(!isSpace('3'));
 	ASSERT(!isSpace('+'));
 	ASSERT(!isSpace('a'));
+	ASSERT(!isSpace('!'));
+	ASSERT(!isSpace('"'));
+	ASSERT(!isSpace(8));
+	ASSERT(!isSpace(10));
+
 }
 
 void testIsDigit(TestObjs *objs) {
@@ -187,18 +192,22 @@ void testSkipws(TestObjs *objs) {
 	ASSERT(0 == strcmp("abc", skipws("     abc")));
 	ASSERT(0 == strcmp("abc", skipws("\t\t\t\tabc")));
 	ASSERT(0 == strcmp("abc", skipws(" \tabc")));
+	ASSERT(0 == strcmp("abc  ", skipws(" \t abc  ")));
 	ASSERT(NULL == skipws("   "));
+	ASSERT(NULL == skipws("   \t\t \t"));
 }
 
 void testTokenType(TestObjs *objs) {
 	ASSERT(TOK_INT == tokenType("2 3 +"));
 	ASSERT(TOK_INT == tokenType("123 4 +"));
+	ASSERT(TOK_INT == tokenType("0123 4 +"));
 	ASSERT(TOK_OP == tokenType("+ 2 3"));
 	ASSERT(TOK_OP == tokenType("- 2 3"));
 	ASSERT(TOK_OP == tokenType("* 2 3"));
 	ASSERT(TOK_OP == tokenType("/ 2 3"));
 	ASSERT(TOK_UNKNOWN == tokenType("abc"));
 	ASSERT(TOK_UNKNOWN == tokenType("?"));
+	ASSERT(TOK_UNKNOWN == tokenType(" "));
 }
 
 void testConsumeInt(TestObjs *objs) {
@@ -207,6 +216,10 @@ void testConsumeInt(TestObjs *objs) {
 	ASSERT(2L == val);
 	ASSERT(0 == strcmp(" 456 -", consumeInt("123 456 -", &val)));
 	ASSERT(123L == val);
+	ASSERT(0 == strcmp(" 456 -", consumeInt("0123 456 -", &val)));
+	ASSERT(123L == val);
+	ASSERT(0 == strcmp(" 0456 -", consumeInt("0123456 0456 -", &val)));
+	ASSERT(123456L == val);
 }
 
 void testConsumeOp(TestObjs *objs) {
