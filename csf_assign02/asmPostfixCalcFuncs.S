@@ -194,6 +194,7 @@ tokenType:
 	/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 
+	movq %rdi, %r11
 	movq (%rdi), %r10            /* dereference rdi and store in r10 */
 	movq %r10, %rdi              /* move dereferenced rdi to rdi */
 	call isDigit                 /* check if dereferenced rdi is a digit */
@@ -210,18 +211,19 @@ tokenType:
 	cmpb $47, %r10b              /* check if char is "/" */
 	je .LcharIsOperator          /* jump to isOperator label when char is "/" */
 
-	movq $2, %rax                /* returns 2 for invalid token */
+	movq $TOK_UNKNOWN, %rax                /* returns 2 for invalid token */
 	jmp .LdonetokenType
 
 .LcharIsDigit:	
-	movq $0, %rax                /* returns 0 for digit */
+	movq $TOK_INT, %rax                /* returns 0 for digit */
 	jmp .LdonetokenType
 
 .LcharIsOperator:
-	movq $1, %rax                /* returns 1 for operator */
+	movq $TOK_OP, %rax                /* returns 1 for operator */
 	jmp .LdonetokenType
 
 .LdonetokenType:
+	movq %r11, %rdi
 	addq $8, %rsp                /* restore stack pointer */
 	ret
 
@@ -256,36 +258,42 @@ tokenType:
 consumeInt:
 	/* TODO: implement */
 	subq $8, %rsp           	/* align stack pointer */
+	pushq %r12
+	subq $16, %rsp
+	movq %rsp, %r12
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
-	movq (%rsi), %r11    		/* dereference pval pointer and store value*/
+	movq (%rsi), %r11    		/* dereference pval pointer and store value */
 	movq $0, %r11 				/* necessary? */
 	movq $0, %r12  				/* loop variable, i */
 
-	movq (%r10), %rdi  			/*move s[0] char to 1st arg. register*/
+	movq (%r10), %rdi  			/* move s[0] char to 1st arg. register */
 	jmp .LcheckDigit
 
 .LcheckDigit: 
 	call isDigit
-	cmpq $1, %rax 				/*check if char is digit*/
+	cmpq $1, %rax 				/* check if char is digit */
 	je .LupdatePVal         	/* jump to .LupdatePval if digit */
 
 	jmp .LEnd
 
 .LupdatePVal: 
-	imulq $10, %r11         	/* multiply pval (r11) by 10*/ 
+	imulq $10, %r11         	/* multiply pval (r11) by 10 */ 
 
 	addb (%r10, %r12), %r11b 	/* add pval to s[i] */
-	subq $48, %r11  			/* sub 48 to account for ASCII offset*/ 
-	incq %r12          			/* increment r12 (loop var)*/ 
+	subq $48, %r11  			/* sub 48 to account for ASCII offset */ 
+	incq %r12          			/* increment r12 (loop var) */ 
 
-	movq (%r10, %r12), %rdi 	/* store s[i] in 1st arg register*/
+	movq (%r10, %r12), %rdi 	/* store s[i] in 1st arg register */
 	jmp .LcheckDigit
 
 .LEnd: 
 	movq $0, (%rsi)
-	movq %r11, (%rsi) 			/* make pval pointer point to r11*/
-	leaq (%r10, %r12), %rax  	/*store pointer to first s[i] that is not a digit in result arg*/
+	movq %r11, (%rsi) 			/* make pval pointer point to r11 */
+	leaq (%r10, %r12), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
+
+	addq $16, %rsp
+	popq %r12
 	addq $8, %rsp           	/* restore stack pointer */
 	ret
 
@@ -308,8 +316,8 @@ consumeOp:
 
 	movq %rdi, %r10			/* copy over first argument (s pointer) to r10 */
 
-	movq $0, %rdi 			/* clear rdi register (get rid of garbage values in higher bits)*/
-	movb (%r10), %dil 		/* move first byte (first char) of s to %dil (byte 0 subreg of rdi)*/
+	movq $0, %rdi 			/* clear rdi register (get rid of garbage values in higher bits) */
+	movb (%r10), %dil 		/* move first byte (first char) of s to %dil (byte 0 subreg of rdi) */
 
 	movl %edi, (%rsi)     	/* set rsi equal to operator (s[0]) */
 
@@ -354,7 +362,7 @@ stackPush:
 
 	subq $8, %rsp                /* align stack pointer */
 
-	cmpl $MAX_STACK,(%esi)       /* if count equals 20 */
+	cmpl $MAX_STACK, (%rsi)      /* if count equals 20 */
 	je .LFullStack
 
 	movq (%rsi), %r10		     /* dereference count pointer and store in r10 */
@@ -395,7 +403,7 @@ stackPop:
 
 	subq $8, %rsp                /* align stack pointer */
 
-	cmpl $0, (%esi)              /* if count equals 0 */
+	cmpl $0, (%rsi)              /* if count equals 0 */
 	je .LEmptyStack
 
 	decq (%rsi)				     /* decrement count of stack */
