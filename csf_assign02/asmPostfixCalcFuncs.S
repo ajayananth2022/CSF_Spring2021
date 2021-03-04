@@ -258,14 +258,14 @@ tokenType:
 	.globl consumeInt
 consumeInt:
 	/* TODO: implement */
-	pushq %r12                  /* push r12 onto the stack to save its value */
+	pushq %rbp                  /* push r12 onto the stack to save its value */
 	subq $16, %rsp              /* allocate space for local variables */
-	movq %rsp, %r12             /* make %r12 point to local variables area */	
+	movq %rsp, %rbp             /* make %r12 point to local variables area */	
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
 	movq (%rsi), %r11    		/* dereference pval pointer and store value */
 	movq $0, %r11 				/* necessary? */
-	movq $0, %r12  				/* loop variable, i */
+	movq $0, %rbp  				/* loop variable, i */
 
 	movq (%r10), %rdi  			/* move s[0] char to 1st arg. register */
 	jmp .LcheckDigit
@@ -280,20 +280,20 @@ consumeInt:
 .LupdatePVal: 
 	imulq $10, %r11         	/* multiply pval (r11) by 10 */ 
 
-	addb (%r10, %r12), %r11b 	/* add pval to s[i] */
+	addb (%r10, %rbp), %r11b 	/* add pval to s[i] */
 	subq $48, %r11  			/* sub 48 to account for ASCII offset */ 
-	incq %r12          			/* increment r12 (loop var) */ 
+	incq %rbp          			/* increment r12 (loop var) */ 
 
-	movq (%r10, %r12), %rdi 	/* store s[i] in 1st arg register */
+	movq (%r10, %rbp), %rdi 	/* store s[i] in 1st arg register */
 	jmp .LcheckDigit
 
 .LEnd: 
 	movq $0, (%rsi)
 	movq %r11, (%rsi) 			/* make pval pointer point to r11 */
-	leaq (%r10, %r12), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
+	leaq (%r10, %rbp), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
 
 	addq $16, %rsp              /* deallocate space for local variable(s) */
-	popq %r12                   /* restore value of r12 */
+	popq %rbp                   /* restore value of r12 */
 	ret
 
 /*
