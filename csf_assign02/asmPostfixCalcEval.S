@@ -49,7 +49,7 @@ eval:
 	call skipws                  /* skip white space in postfix char array */
 	
 .LcheckPostfix:
-	cmpb $0, %al                 /* compare postfix (skipped white space) with null */
+	cmpq $0, %rax                   /* compare postfix (skipped white space) with null */
 	je .LPostfixIsEmpty          /* postfix char array is empty, time to return */
 
 	movq %rax, %rdi              /* use skipped white space postfix to call tokenType */
@@ -70,7 +70,7 @@ eval:
 	call consumeInt
 	movq %rax, %r13              /* store the postfix with int consumed */
 
-	movq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
+	leaq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
 	leaq 160(%rbp), %rsi         /* move the address of stack count to second argument */
 	movq (%r12), %rdx            /* dereference the stored int and move to third argument */
 	call stackPush               /* push the extracted number into stack */
@@ -84,12 +84,12 @@ eval:
 	call consumeOp
 	movq %rax, %r13              /* store the postfix with operator consumed */
 
-	movq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
+	leaq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
 	leaq 160(%rbp), %rsi         /* move the address of stack count to second argument */
 	call stackPop                /* pop the first operand from the stack */
 	movq %rax, %rdx              /* move the first operand to third argument for evaluation */
 	
-	movq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
+	leaq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
 	leaq 160(%rbp), %rsi         /* move the address of stack count to second argument */
 	call stackPop                /* pop the second operand from the stack */
 
@@ -99,7 +99,7 @@ eval:
 
 	movq %rax, %rdx              /* move the result of evaluation to third arg */
 	leaq 160(%rbp), %rsi         /* move the stack base pointer to first argument */
-	movq 0(%rbp), %rdi           /* move the address of stack count to second argument */
+	leaq 0(%rbp), %rdi           /* move the address of stack count to second argument */
 	call stackPush               /* push the evaluated result to the stack */
 
 	movq %r13, %rdi              /* call skipws with the postfix array */
@@ -115,7 +115,7 @@ eval:
 9:	jmp 9b                       /* should not get here */
 
 .LdoneEval:
-	movq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
+	leaq 0(%rbp), %rdi           /* move the stack base pointer to first argument */
 	leaq 160(%rbp), %rsi         /* move the address of stack count to second argument */
 	call stackPop                /* pop the postfix result from stack */
 
