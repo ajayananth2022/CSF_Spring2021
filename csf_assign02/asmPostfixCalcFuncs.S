@@ -259,7 +259,7 @@ consumeInt:
  	*/
 	pushq %rbp                  /* push rbp onto the stack to save its value */
 	pushq %r15                  /* push r15 onto the stack to save its value */
-	subq $16, %rsp              /* allocate space for local variables */
+	subq $8, %rsp              /* allocate space for local variables */
 	movq %rsp, %rbp             /* make %rbp point to local variables area */	
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
@@ -293,7 +293,7 @@ consumeInt:
 	movq %r11, (%rsi) 			/* make pval pointer point to r11 */
 	leaq (%r10, %rbp), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
 
-	addq $16, %rsp              /* deallocate space for local variable(s) */
+	addq $8, %rsp              /* deallocate space for local variable(s) */
 	popq %r15                   /* restore value of r15 */
 	popq %rbp                   /* restore value of rbp */
 	ret
