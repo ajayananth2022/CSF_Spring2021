@@ -61,7 +61,6 @@ addPositive:
  */
 	.globl fatalError
 fatalError:
-	/* TODO: implement */
 	/* note that this function should not return */
 	subq $8, %rsp                /* align stack pointer */
 	movq %rdi, %r10              /* temporarily stores the error message in r10 */
@@ -89,7 +88,6 @@ fatalError:
  */
 	.globl isSpace
 isSpace:
-	/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 	cmpb $9, %dil                /* compare first argument (0th bit) with space */
 	je .LspaceOrTab              /* jumps to this label when the char is a space */
@@ -118,7 +116,6 @@ isSpace:
  */
 	.globl isDigit
 isDigit:
-	/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 	cmpb $48, %dil               /* compare first argument (0th bit) with 0 */
 	jb .LnotDigit                /* jump to the not digit label when char is below '0' */
@@ -149,11 +146,14 @@ isDigit:
  */
 	.globl skipws
 skipws:
-	/* TODO: implement */
+	/*
+ 	* variables:
+ 	*    %r11 - pointer to the current char in the postfix array
+ 	*/	
 	subq $8, %rsp                /* align stack pointer */               
 	movq %rdi, %r11              /* temporarily store the pointer to current char */
 	movq (%rdi), %rdi            /* dereference the char pointer and call isSpace */
-	call isSpace
+	call isSpace                 /* checek if the first char is space or tab */
 
 .Ltop:
 	cmpb $0, (%r11)              /* if current char is null */
@@ -164,7 +164,7 @@ skipws:
 
 	incq %r11                    /* update pointer to the current char */
 	movq (%r11), %rdi            /* dereference the char pointer and call isSpace */
-    call isSpace
+    call isSpace                 /* checek if the current char is space or tab */
 	jmp .Ltop
 
 .LemptyString:
@@ -193,7 +193,7 @@ skipws:
 	.globl tokenType
 tokenType:
 	/*
- 	* Local variables:
+ 	* variables:
  	*    %r10 - first token val
 	*    %r11 - base address of char array
  	*/	
@@ -251,13 +251,14 @@ tokenType:
 	.globl consumeInt
 consumeInt:
 	/*
- 	* Local variables:
+ 	* variables:
  	*    %r10 - base address of char array
  	*    %r11 - dereferenced value of pval 
 	*    %r15 - temporary storage of char (1st byte) at s[i]
-	*    %rbp - address extracted number or operator
+	*    %rbp - the index of the char array (loop var)
  	*/
 	pushq %rbp                  /* push rbp onto the stack to save its value */
+	pushq %r15                  /* push r15 onto the stack to save its value */
 	subq $16, %rsp              /* allocate space for local variables */
 	movq %rsp, %rbp             /* make %rbp point to local variables area */	
 
@@ -279,7 +280,7 @@ consumeInt:
 .LupdatePVal: 
 	imulq $10, %r11         	/* multiply pval (r11) by 10 */ 
     movb (%r10, %rbp), %r15b
-	addq %r15, %r11 	/* add pval to s[i] */
+	addq %r15, %r11 	        /* add pval to s[i] */
 	/*  *pval = *pval*10 + (s[i] - 48); */
 	subq $48, %r11  			/* sub 48 to account for ASCII offset */ 
 	incq %rbp          			/* increment rbp (loop var) */ 
@@ -293,6 +294,7 @@ consumeInt:
 	leaq (%r10, %rbp), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
 
 	addq $16, %rsp              /* deallocate space for local variable(s) */
+	popq %r15                   /* restore value of r15 */
 	popq %rbp                   /* restore value of rbp */
 	ret
 
@@ -310,7 +312,7 @@ consumeInt:
  */
 	.globl consumeOp
 consumeOp:
-	subq $8, %rsp                /* align stack pointer */
+	subq $8, %rsp           /* align stack pointer */
 
 	movq %rdi, %r10			/* copy over first argument (s pointer) to r10 */
 
@@ -353,10 +355,6 @@ consumeOp:
  */
 	.globl stackPush
 stackPush:
-	/* 
-	rdi:1st arg, rsi = esi:2nd reg , rdx = edx: 3rd reg
-	*/
-
 	subq $8, %rsp                /* align stack pointer */
 
 	cmpl $MAX_STACK, (%rsi)      /* if count equals 20 */
@@ -393,10 +391,6 @@ stackPush:
  */
 	.globl stackPop
 stackPop:
-	/* 
-	rdi:1st arg, rsi = esi:2nd reg 
-	*/
-
 	subq $8, %rsp                /* align stack pointer */
 
 	cmpl $0, (%rsi)              /* if count equals 0 */

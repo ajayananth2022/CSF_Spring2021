@@ -28,7 +28,6 @@ eInvalidExpression: .string "Invalid Expression"
  */
 	.globl eval
 eval:
-	/* TODO: implement */
 
 	pushq %rbp                   /* save previous frame pointer */
 	pushq %r12                   /* save previous frame pointer */

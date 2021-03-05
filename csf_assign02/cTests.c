@@ -221,6 +221,10 @@ void testConsumeInt(TestObjs *objs) {
 	ASSERT(123L == val);
 	ASSERT(0 == strcmp(" 0456 -", consumeInt("0123456 0456 -", &val)));
 	ASSERT(123456L == val);
+	ASSERT(0 == strcmp(" 0456 -", consumeInt("012345678 0456 -", &val)));
+	ASSERT(12345678L == val);
+	ASSERT(0 == strcmp(" 0456 -", consumeInt("0 0456 -", &val)));
+	ASSERT(0L == val);
 }
 
 void testConsumeOp(TestObjs *objs) {
@@ -236,8 +240,6 @@ void testConsumeOp(TestObjs *objs) {
 	ASSERT('/' == op);
 	ASSERT(0 == strcmp("3", consumeOp("/3", &op)));
 	ASSERT('/' == op);
-
-
 	ASSERT(0 == strcmp("33 4 12 /   ", consumeOp("*33 4 12 /   ", &op)));
 	ASSERT('*' == op);
 }
@@ -253,6 +255,9 @@ void testPush(TestObjs *objs) {
 	stackPush(objs->values, &objs->count, 789L);
 	ASSERT(3 == objs->count);
 	ASSERT(789L == objs->values[2]);
+	stackPush(objs->values, &objs->count, 1234567L);
+	ASSERT(4 == objs->count);
+	ASSERT(1234567L == objs->values[3]);
 }
 
 void testPushFull(TestObjs *objs) {
@@ -302,6 +307,11 @@ void testEvalOp(TestObjs *objs) {
 	ASSERT(-10L == evalOp('-', 3L, 13L));
 	ASSERT(77L == evalOp('*', 11L, 7L));
 	ASSERT(3 == evalOp('/', 17L, 5L));
+	ASSERT(10L == evalOp('-', 13L, 3L));
+	ASSERT(0L == evalOp('*', 0L, 7L));
+	ASSERT(0L == evalOp('*', 0L, 0L));
+	ASSERT(0L == evalOp('+', 0L, 0L));
+	ASSERT(0L == evalOp('-', 0L, 0L));
 
 	//NOTE: division by 0 is tested in testEvalInvalid
 }
@@ -363,5 +373,32 @@ void testEvalInvalid(TestObjs *objs) {
 	} else {
 		/* good, push failed */
 		printf("division by 0 failed, good...");
+	}
+
+	/* division by 0 inside larger postfix should cause a fatal error */
+	if (sigsetjmp(exitBuf, 1) == 0) {
+		eval("2 3 + 0/"); 
+		FAIL("division by 0 inside larger postfix didn't fail");
+	} else {
+		/* good, push failed */
+		printf("division by 0 inside larger postfix failed, good...");
+	}
+
+	/* empty postfix string should cause a fatal error */
+	if (sigsetjmp(exitBuf, 1) == 0) {
+		eval(""); 
+		FAIL("empty string by 0 didn't fail");
+	} else {
+		/* good, push failed */
+		printf("empty string failed, good...");
+	}
+
+	/* postfix string with only space should cause a fatal error */
+	if (sigsetjmp(exitBuf, 1) == 0) {
+		eval(" "); 
+		FAIL("postfix string with only space didn't fail");
+	} else {
+		/* good, push failed */
+		printf("postfix string with only space failed, good...");
 	}
 }
