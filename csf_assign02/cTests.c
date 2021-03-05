@@ -206,6 +206,7 @@ void testTokenType(TestObjs *objs) {
 	ASSERT(TOK_OP == tokenType("* 2 3"));
 	ASSERT(TOK_OP == tokenType("/ 2 3"));
 	ASSERT(TOK_UNKNOWN == tokenType("abc"));
+	ASSERT(TOK_UNKNOWN == tokenType("ima mystery boooo"));
 	ASSERT(TOK_UNKNOWN == tokenType("?"));
 	ASSERT(TOK_UNKNOWN == tokenType(" "));
 }
@@ -233,6 +234,12 @@ void testConsumeOp(TestObjs *objs) {
 	ASSERT('*' == op);
 	ASSERT(0 == strcmp(" 3", consumeOp("/ 3", &op)));
 	ASSERT('/' == op);
+	ASSERT(0 == strcmp("3", consumeOp("/3", &op)));
+	ASSERT('/' == op);
+
+
+	ASSERT(0 == strcmp("33 4 12 /   ", consumeOp("*33 4 12 /   ", &op)));
+	ASSERT('*' == op);
 }
 
 void testPush(TestObjs *objs) {
@@ -278,6 +285,16 @@ void testPop(TestObjs *objs) {
 	ASSERT(2L == stackPop(objs->values, &objs->count));
 	ASSERT(1L == stackPop(objs->values, &objs->count));
 	ASSERT(0 == objs->count);
+
+	/* pop another item should cause a fatal error */
+	expectedExit = 1;
+	if (sigsetjmp(exitBuf, 1) == 0) {
+		stackPop(objs->values, &objs->count);
+		FAIL("pop from empty stack didn't fail");
+	} else {
+		/* GREAT, pop failed */
+		printf("pop from empty stack failed, good..");
+	}
 }
 
 void testEvalOp(TestObjs *objs) {
@@ -285,6 +302,8 @@ void testEvalOp(TestObjs *objs) {
 	ASSERT(-10L == evalOp('-', 3L, 13L));
 	ASSERT(77L == evalOp('*', 11L, 7L));
 	ASSERT(3 == evalOp('/', 17L, 5L));
+
+	//NOTE: division by 0 is tested in testEvalInvalid
 }
 
 void testEval(TestObjs *objs) {
@@ -293,6 +312,15 @@ void testEval(TestObjs *objs) {
 	ASSERT(3L == eval("4 1 -"));
 	ASSERT(33L == eval("11 3 *"));
 	ASSERT(27L == eval("3 4 5 + *"));
+	ASSERT(0 == eval("3 10 /"));
+	ASSERT(-12 == eval("2 3 4 5 +-*"));
+
+	//ruby generated tests
+	ASSERT(489 == eval("14 2 16 - 12 + 9 11 / 7 13 + + + 7 18 12 + 16 3 + - * + 5 * +"));
+	ASSERT(-15 == eval("19 4 10 + 7 10 + - 4 6 - 1 11 / - + - 6 13 9 6 + 17 5 * / + + - 20 -"));
+	ASSERT(-168553 == eval("11 20 * 16 * 2 12 15 * - / 6 12 + 18 18 * * 13 17 5 - - + * 5 * 15 12 + 4 13 + + 9 13 - / 16 1 / 2 13 * + 18 15 17 * - + + 7 18 11 * * 13 14 7 + * * 19 14 1 + * 20 9 - 15 + * + + +"));
+	ASSERT(958 == eval("19 6 * 8 1 * + 16 12 + 14 - + 4 20 / 3 6 / * 8 + * 1 2 - 15 10 * + 3 - 17 14 + 9 / 6 7 1 / - - - - 12 +"));
+	ASSERT(0 == eval("14 10 1 * * 6 9 2 + 20 8 * * 1 9 * 16 20 + - 7 - + + /"));
 
 	/* make sure eval can handle arbitrary whitespace */
 	ASSERT(6L == eval("  1  \t 5\t\t + \t"));
@@ -310,6 +338,15 @@ void testEvalInvalid(TestObjs *objs) {
 		printf("good, multiple items on stack handled...");
 	}
 
+	/* multiple items left on stack */
+	if (sigsetjmp(exitBuf, 1) == 0) {
+		eval("* ");
+		FAIL("expresison with beginning operator not resulting in fail");
+	} else {
+		/* good, expected failure */
+		printf("good, expresison with beginning operator handled...");
+	}
+
 	/* operator with insufficient operands */
 	if (sigsetjmp(exitBuf, 1) == 0) {
 		eval("1 +");
@@ -317,5 +354,14 @@ void testEvalInvalid(TestObjs *objs) {
 	} else {
 		/* good, expected failure */
 		printf("good, stack underflow handled...");
+	}
+
+	/* division by 0 should cause a fatal error */
+	if (sigsetjmp(exitBuf, 1) == 0) {
+		eval("17 0/"); 
+		FAIL("division by 0 didn't fail");
+	} else {
+		/* good, push failed */
+		printf("division by 0 failed, good...");
 	}
 }

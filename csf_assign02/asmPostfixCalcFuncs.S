@@ -192,7 +192,11 @@ skipws:
  */
 	.globl tokenType
 tokenType:
-	/* TODO: implement */
+	/*
+ 	* Local variables:
+ 	*    %r10 - first token val
+	*    %r11 - base address of char array
+ 	*/	
 	subq $8, %rsp                /* align stack pointer */
 
 	movq %rdi, %r11              /* temporarily store the postfix in r11 */
@@ -242,18 +246,7 @@ tokenType:
  *
  * Returns:
  *   pointer to the first character in the string that is not a digit
- */
-
- /* 
-  C Code: 
-  *pval = 0; 
-  int i = 0;
-  while (isDigit(s[i])) { //keep reading in digits
-    *pval = *pval*10 + (s[i] - 48); 
-    i++; 
-  }
-  return &s[i]; 
-  */	
+ */	
 
 	.globl consumeInt
 consumeInt:
@@ -261,6 +254,7 @@ consumeInt:
  	* Local variables:
  	*    %r10 - base address of char array
  	*    %r11 - dereferenced value of pval 
+	*    %r15 - temporary storage of char (1st byte) at s[i]
 	*    %rbp - address extracted number or operator
  	*/
 	pushq %rbp                  /* push rbp onto the stack to save its value */
@@ -316,7 +310,6 @@ consumeInt:
  */
 	.globl consumeOp
 consumeOp:
-		/* TODO: implement */
 	subq $8, %rsp                /* align stack pointer */
 
 	movq %rdi, %r10			/* copy over first argument (s pointer) to r10 */
@@ -360,7 +353,6 @@ consumeOp:
  */
 	.globl stackPush
 stackPush:
-    /* TODO: implement */
 	/* 
 	rdi:1st arg, rsi = esi:2nd reg , rdx = edx: 3rd reg
 	*/
@@ -401,7 +393,6 @@ stackPush:
  */
 	.globl stackPop
 stackPop:
-	    /* TODO: implement */
 	/* 
 	rdi:1st arg, rsi = esi:2nd reg 
 	*/
