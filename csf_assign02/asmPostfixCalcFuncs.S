@@ -258,15 +258,15 @@ consumeInt:
 	*    %rbp - the index of the char array (loop var)
  	*/
 
-	subq $8, %rsp              /* align stack pointer */
+	subq $8, %rsp               /* align stack pointer */
 
 	pushq %rbp                  /* push rbp onto the stack to save its value */
 	pushq %r15                  /* push r15 onto the stack to save its value */
-	/*movq %rsp, %rbp             /* make %rbp point to local variables area */	
+	/*movq %rsp, %rbp           /* make %rbp point to local variables area */	
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
 	movq (%rsi), %r11    		/* dereference pval pointer and store value */
-	movq $0, %r11 				/* necessary? */
+	movq $0, %r11 				
 	movq $0, %rbp  				/* loop variable, i */
 
 	movq (%r10), %rdi  			/* move s[0] char to 1st arg. register */
@@ -283,7 +283,6 @@ consumeInt:
 	imulq $10, %r11         	/* multiply pval (r11) by 10 */ 
     movb (%r10, %rbp), %r15b
 	addq %r15, %r11 	        /* add pval to s[i] */
-	/*  *pval = *pval*10 + (s[i] - 48); */
 	subq $48, %r11  			/* sub 48 to account for ASCII offset */ 
 	incq %rbp          			/* increment rbp (loop var) */ 
 
@@ -298,8 +297,7 @@ consumeInt:
 	popq %r15                   /* restore value of r15 */
 	popq %rbp                   /* restore value of rbp */
 
-	addq $8, %rsp              /*  realign stack pointer  */
-
+	addq $8, %rsp               /*  realign stack pointer  */
 	ret
 
 /*
@@ -347,15 +345,6 @@ consumeOp:
  *
  * Returns:
  *   nothing
-
- void stackPush(long stack[], long *count, long val) {
-  if (*count == MAX_STACK) {
-    fatalError("stack is full"); 
-  } else {
-    stack[*count] = val;
-    (*count)++; //increment count of stack
-  }
-}
  */
 	.globl stackPush
 stackPush:
