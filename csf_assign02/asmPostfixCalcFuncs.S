@@ -257,10 +257,12 @@ consumeInt:
 	*    %r15 - temporary storage of char (1st byte) at s[i]
 	*    %rbp - the index of the char array (loop var)
  	*/
+
+	subq $8, %rsp              /* align stack pointer */
+
 	pushq %rbp                  /* push rbp onto the stack to save its value */
 	pushq %r15                  /* push r15 onto the stack to save its value */
-	subq $8, %rsp              /* allocate space for local variables */
-	movq %rsp, %rbp             /* make %rbp point to local variables area */	
+	/*movq %rsp, %rbp             /* make %rbp point to local variables area */	
 
 	movq %rdi, %r10				/* copy over first argument (s pointer) to r10 */
 	movq (%rsi), %r11    		/* dereference pval pointer and store value */
@@ -293,9 +295,11 @@ consumeInt:
 	movq %r11, (%rsi) 			/* make pval pointer point to r11 */
 	leaq (%r10, %rbp), %rax  	/* store pointer to first s[i] that is not a digit in result arg */
 
-	addq $8, %rsp              /* deallocate space for local variable(s) */
 	popq %r15                   /* restore value of r15 */
 	popq %rbp                   /* restore value of rbp */
+
+	addq $8, %rsp              /*  realign stack pointer  */
+
 	ret
 
 /*
