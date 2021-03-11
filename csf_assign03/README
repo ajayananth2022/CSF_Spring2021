@@ -2,5 +2,5 @@
  //wzhang99@jhu.edu, ajayananth@jhu.edu
 
 For Milestone1:
- Lucy:
- Ajay: 
+ Lucy: wrote Makefile, and laid down basic structure of cpp files
+ Ajay: handled and checked command line arguments
