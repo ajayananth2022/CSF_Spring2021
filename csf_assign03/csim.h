@@ -33,6 +33,7 @@ class Simulator {
         std::string write_miss;
         std::string write_hit;
         std::string replace_strategy;
+        
         std::map<int, std::set<Block>> cache;
 
     public:

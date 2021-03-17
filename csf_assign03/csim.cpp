@@ -81,9 +81,37 @@ void Simulator::print_summary() {
 void Simulator::load(string address) {
     //TO-DO
 
+    //search for index (key in map)
+    //if index is present, tag is the same, we have a load hit
+    //increment load_hits and update load_ts & access_ts
+    
+    //if index is not preset, or index is present but tag is different
+    //we have a load miss
+    //increment load_misses 
+
 }
 
 void Simulator::store(string address) {
     //TO-DO
+
+    //search for index (key in map)
+    //if index is present, tag is the same, we have a write hit
+    //increment store_hits
+
+    //if index is not preset, or index is present but tag is different
+    //we have a write miss
+    //increment store_misses
+
+    //write hit:
+    //write through: "write data" to memory (dirty bit always false), update access_ts
+    //write back: "write data" to cache, update access_ts
+
+    //write miss:
+    //write-allocate: load into cache, update dirty bit, update access_ts, replace if needed
+    //no-write-allocate: "write data" to memory (dirty bit always false)
+
+    //replace:
+    //LRU: evict the least recently accessed
+    //FIFO: evict the first in (oldest)
 
 }
