@@ -85,7 +85,7 @@ void Simulator::load(string address) {
     //if index is present, tag is the same, we have a load hit
     //increment load_hits and update load_ts & access_ts
     
-    //if index is not preset, or index is present but tag is different
+    //if index is not present, or index is present but tag is different
     //we have a load miss
     //increment load_misses 
 
@@ -98,7 +98,7 @@ void Simulator::store(string address) {
     //if index is present, tag is the same, we have a write hit
     //increment store_hits
 
-    //if index is not preset, or index is present but tag is different
+    //if index is not present, or index is present but tag is different
     //we have a write miss
     //increment store_misses
 

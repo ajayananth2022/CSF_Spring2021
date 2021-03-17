@@ -13,7 +13,7 @@ std::string hexToBinary(std::string hex_string);
 
 struct Block {
     unsigned tag;
-    bool dirty;
+    bool dirty; //for it the cache is different from the main memory
     int load_ts; //for fifo
     int access_ts; //for LRU
 };
@@ -33,8 +33,8 @@ class Simulator {
         std::string write_miss;
         std::string write_hit;
         std::string replace_strategy;
-        
-        std::map<int, std::set<Block>> cache;
+
+        std::map<int, std::set<Block>> cache; //key is index, value is a set blocks
 
     public:
         Simulator(char *argv[]); //constructor
