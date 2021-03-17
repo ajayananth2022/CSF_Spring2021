@@ -43,8 +43,13 @@ Simulator::Simulator(int argc, char *argv[]) {
         cout << "Invalid write-miss strategy!" << endl;
 	    exit(1);
     }
-    if (write_hit != "lru" && write_hit != "fifo") {
+    if (write_hit != "write-through" && write_hit != "write-back") {
         cout << "Invalid write-hit strategy!" << endl;
+	    exit(1);
+    }
+
+    if (replace_strategy != "lru" && write_hit != "fifo") {
+        cout << "Invalid replace strategy!" << endl;
 	    exit(1);
     }
 
