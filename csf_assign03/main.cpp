@@ -6,6 +6,7 @@
 using std::cout;
 using std::endl;
 using std::string; 
+using std::cin;
 
 int main(int argc, char **argv) {
     Simulator sim(argc, argv);
