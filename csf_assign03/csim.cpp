@@ -16,17 +16,16 @@ bool checkPowerTwo(int num) {
 }
 
 Simulator::Simulator(int argc, char *argv[]) {
+    if (argc != 7) {
+	    cout << "Invalid number of arguments!" << endl;
+	    return NULL;
+    }
     int num_sets = atoi(argv[1]);
     int num_blocks = atoi(argv[2]);
     int size_blocks = atoi(argv[3]);
     string write_miss = argv[4];
     string write_hit = argv[5];
     string replace_strategy = argv[6];
-
-    if (argc != 7) {
-	    cout << "Invalid number of arguments!" << endl;
-	    return NULL;
-    }
 
     if (num_sets <= 0 || !checkPowerTwo(num_sets)) {
 	    cout << "Invalid number of sets in the cache!" << endl;
