@@ -48,7 +48,7 @@ Simulator::Simulator(int argc, char *argv[]) {
 	    exit(1);
     }
 
-    if (replace_strategy != "lru" && write_hit != "fifo") {
+    if (replace_strategy != "lru" && replace_strategy != "fifo") {
         cout << "Invalid replace strategy!" << endl;
 	    exit(1);
     }
