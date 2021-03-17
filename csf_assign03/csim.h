@@ -4,20 +4,43 @@
 #define __CSIM_H__
 
 #include <stdio.h>
+#include <set>
+#include <map>
 
 bool checkPowerTwo(int num);
 
+std::string hexToBinary(char * hex_string);
+
+struct Block {
+    unsigned tag;
+    bool dirty;
+    int load_ts; //for fifo
+    int access_ts; //for LRU
+};
+
 class Simulator {
     private:
-        int num_sets;
-        int num_blocks;
-        int size_blocks;
+        int associativity;
+        int num_offset;
+        int num_index;
+        int num_tag;
+
+        int load_hits;
+        int load_misses;
+        int store_hits;
+        int store_miss;
+
         std::string write_miss;
         std::string write_hit;
         std::string replace_strategy;
+        std::map<int, std::set<Block>> cache;
 
     public:
         Simulator(int argc, char *argv[]); //constructor
+        void print_summary(); //print number of loads, stores, etc
+        void load(char * address);
+        void store(char * address);
+
 };
 
 

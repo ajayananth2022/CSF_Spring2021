@@ -2,11 +2,16 @@
  //wzhang99@jhu.edu, ajayananth@jhu.edu
 
 #include <iostream>
+#include <math.h>
 #include "csim.h"
+#include <set>
+#include <map>
 
 using std::cout;
 using std::endl;
 using std::string; 
+using std::set;
+using std::map;
 
 bool checkPowerTwo(int num) {
     if ((num & (num - 1)) == 0) {
@@ -15,11 +20,12 @@ bool checkPowerTwo(int num) {
     return false; 
 }
 
+string hexToBinary(char * hex_string) {
+    //TO-DO
+    return "\0";
+}
+
 Simulator::Simulator(int argc, char *argv[]) {
-    if (argc != 7) {
-	    cout << "Invalid number of arguments!" << endl;
-	    exit(1);
-    }
     int num_sets = atoi(argv[1]);
     int num_blocks = atoi(argv[2]);
     int size_blocks = atoi(argv[3]);
@@ -53,10 +59,32 @@ Simulator::Simulator(int argc, char *argv[]) {
 	    exit(1);
     }
 
-    num_sets = num_sets; 
-    num_blocks = num_blocks; 
-    size_blocks = size_blocks; 
+    associativity = num_blocks; 
+    map<int, vector<string>> cache;
+    num_offset = log2(size_blocks);
+    num_index = log2(num_sets);
+    num_tag = 32 - num_offset - num_index;
     write_miss = write_miss; 
     write_hit = write_hit; 
     replace_strategy = replace_strategy; 
+    load_hits = 0;
+    load_misses = 0;
+    store_hits = 0;
+    store_miss = 0;
+    map<int, set<Block>> cache;
+}
+
+void Simulator::print_summary() {
+    //TO-DO
+
+}
+
+void Simulator::load(char * address) {
+    //TO-DO
+
+}
+
+void Simulator::store(char * address) {
+    //TO-DO
+
 }
