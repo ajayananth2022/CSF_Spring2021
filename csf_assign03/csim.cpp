@@ -18,7 +18,7 @@ bool checkPowerTwo(int num) {
 Simulator::Simulator(int argc, char *argv[]) {
     if (argc != 7) {
 	    cout << "Invalid number of arguments!" << endl;
-	    return NULL;
+	    exit(1);
     }
     int num_sets = atoi(argv[1]);
     int num_blocks = atoi(argv[2]);
