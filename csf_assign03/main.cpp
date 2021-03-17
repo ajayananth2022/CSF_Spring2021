@@ -8,14 +8,14 @@ using std::endl;
 using std::string; 
 
 int main(int argc, char **argv) {
-  Simulator sim(argc, argv);
-//   if (!sim) {
-//     fprintf(stderr, "Invalid simulation parameters\n");
-//     return 1;
-//   }
-  // proceed with the actual simulation...
-  return 0; 
+    Simulator sim(argc, argv);
+    string mem_access;
+    while (getline(cin, mem_access)) {
 
+    }
+    
+
+    return 0; 
 }
 
 

@@ -40,9 +40,11 @@ Simulator::Simulator(int argc, char *argv[]) {
 	    exit(1);
     }
     if (write_miss != "write-allocate" && write_miss != "no-write-allocate") {
+        cout << "Invalid write-miss strategy!" << endl;
 	    exit(1);
     }
     if (write_hit != "lru" && write_hit != "fifo") {
+        cout << "Invalid write-hit strategy!" << endl;
 	    exit(1);
     }
 
