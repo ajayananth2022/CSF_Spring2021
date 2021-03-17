@@ -29,21 +29,21 @@ Simulator::Simulator(int argc, char *argv[]) {
 
     if (num_sets <= 0 || !checkPowerTwo(num_sets)) {
 	    cout << "Invalid number of sets in the cache!" << endl;
-	    return NULL;
+	    exit(1);
     }
     if (num_blocks <= 0 || !checkPowerTwo(num_blocks)) {
 	    cout << "Invalid number of blocks in the cache!" << endl;
-        return NULL;
+        exit(1);
     }
     if (size_blocks < 4 || !checkPowerTwo(size_blocks)) {
 	    cout << "Invalid size of blocks in the cache!" << endl;
-	    return NULL;
+	    exit(1);
     }
     if (write_miss != "write-allocate" && write_miss != "no-write-allocate") {
-	    return NULL;
+	    exit(1);
     }
     if (write_hit != "lru" && write_hit != "fifo") {
-	    return NULL;
+	    exit(1);
     }
 
     num_sets = num_sets; 
