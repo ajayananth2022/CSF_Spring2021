@@ -25,7 +25,7 @@ string hexToBinary(string hex_string) {
     return "\0";
 }
 
-Simulator::Simulator(int argc, char *argv[]) {
+Simulator::Simulator(char *argv[]) {
     int num_sets = atoi(argv[1]);
     int num_blocks = atoi(argv[2]);
     int size_blocks = atoi(argv[3]);
@@ -60,7 +60,6 @@ Simulator::Simulator(int argc, char *argv[]) {
     }
 
     associativity = num_blocks; 
-    map<int, vector<string>> cache;
     num_offset = log2(size_blocks);
     num_index = log2(num_sets);
     num_tag = 32 - num_offset - num_index;

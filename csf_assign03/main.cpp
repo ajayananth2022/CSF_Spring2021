@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	    cout << "Invalid number of arguments!" << endl;
 	    return 1;
     }
-    Simulator sim(argc, argv);
+    Simulator sim(argv);
     string mem_access;
     while (getline(cin, mem_access)) {
         string address = hexToBinary(mem_access.substr(4, 8));
