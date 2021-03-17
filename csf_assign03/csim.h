@@ -9,7 +9,7 @@
 
 bool checkPowerTwo(int num);
 
-std::string hexToBinary(char * hex_string);
+std::string hexToBinary(std::string hex_string);
 
 struct Block {
     unsigned tag;
@@ -38,8 +38,8 @@ class Simulator {
     public:
         Simulator(int argc, char *argv[]); //constructor
         void print_summary(); //print number of loads, stores, etc
-        void load(char * address);
-        void store(char * address);
+        void load(std::string address);
+        void store(std::string address);
 
 };
 

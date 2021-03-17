@@ -20,7 +20,7 @@ bool checkPowerTwo(int num) {
     return false; 
 }
 
-string hexToBinary(char * hex_string) {
+string hexToBinary(string hex_string) {
     //TO-DO
     return "\0";
 }
@@ -79,12 +79,12 @@ void Simulator::print_summary() {
 
 }
 
-void Simulator::load(char * address) {
+void Simulator::load(string address) {
     //TO-DO
 
 }
 
-void Simulator::store(char * address) {
+void Simulator::store(string address) {
     //TO-DO
 
 }
