@@ -12,9 +12,9 @@ class Simulator {
         int num_sets;
         int num_blocks;
         int size_blocks;
-        string write_miss;
-        string write_hit;
-        string replace_strategy;
+        std::string write_miss;
+        std::string write_hit;
+        std::string replace_strategy;
 
     public:
         Simulator(int argc, char *argv[]); //constructor
