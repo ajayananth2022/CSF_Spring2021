@@ -36,7 +36,7 @@ class Simulator {
         std::map<int, std::set<Block>> cache;
 
     public:
-        Simulator(int argc, char *argv[]); //constructor
+        Simulator(char *argv[]); //constructor
         void print_summary(); //print number of loads, stores, etc
         void load(std::string address);
         void store(std::string address);
