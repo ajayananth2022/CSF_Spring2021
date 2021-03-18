@@ -23,8 +23,8 @@ bool checkPowerTwo(int num) {
 string hexToBinary(string hex_string) {
 
     string retString = "";
-	for (int i = 0; i < hex_string.length (); ++i) {
-		switch (hex_string [i]){
+	for (int i = 0; i < hex_string.length(); ++i) {
+		switch (hex_string[i]){
 			case '0': retString.append ("0000"); break;
 			case '1': retString.append ("0001"); break;
 			case '2': retString.append ("0010"); break;
@@ -41,6 +41,7 @@ string hexToBinary(string hex_string) {
 			case 'd': retString.append ("1101"); break;
 			case 'e': retString.append ("1110"); break;
 			case 'f': retString.append ("1111"); break;
+            default: cout << "invalid address" << endl; break;
 	    }
 	}
     return retString;
@@ -94,42 +95,66 @@ Simulator::Simulator(char *argv[]) {
     map<string, set<Block> > cache;
 }
 
-void Simulator::print_summary() {
-    //TO-DO
-
-    cout<<"Load hits: " + load_hits<<endl; 
-    cout<<"Load misses: " + load_misses<<endl; 
+void Simulator::printSummary() {
+    int total_loads = load_hits + load_misses;
+    int total_stores = store_hits + store_misses;
+    int total_cycles = total_loads + total stores;
+    cout << "Total loads: " + total_loads << endl;
+    cout << "Total store: " + total_stores << endl;
+    cout << "Load hits: " + load_hits << endl; 
+    cout << "Load misses: " + load_misses << endl; 
+    cout << "Store hits: " + store_hits << endl; 
+    cout << "Store misses: " + store_misses << endl; 
+    cout << "Total cycles: " + total_cycles << endl;
 }
 
-void Simulator::load(string address) {
-
-    //TO-DO
-
-    string tag = address.substr(0, num_tag - 1);
-    string index = address.substr(num_tag - 1, num_tag + num_index - 1);
-
-    bool cacheHit = false; 
-
+Block* Simulator::checkHit(string address) {
+    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
+    string index = address.substr(num_tag, num_index);
+    Block cacheHit = NULL; 
     //search for index (key in map)
     if (cache.count(index) == 1) {
-        set<Block>:: iterator it; 
+        set<Block>::iterator it; 
         //search for particular tag in index
-        for (it = cache[index].begin(); it!=cache[index].end(); it++) {
-            if (it->tag==tag) {
-                //we have a load hit
-                //increment load_hits and update load_ts & access_ts
-                cacheHit = true; 
-                load_hits++; 
+        for (it = cache[index].begin(); it != cache[index].end(); it++) {
+            if (it->tag == tag) {
+                cacheHit = it; 
+                break;
             } 
         }
     }
-    
-    //load miss
-    if (!cacheHit) {
-        //if index is not present, or index is present but tag is different
-        //we have a load miss
-        //increment load_misses 
-        load_misses++; 
+    return cacheHit;
+
+}
+
+void Simulator::load(string address) {
+    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
+    string index = address.substr(num_tag, num_index);
+    //search for index (key in map)
+    if (cache.count(index) == 1) {
+        set<Block> setHit = cache.at(index);
+        set<Block>::iterator it; 
+        //search for particular tag in index
+        for (it = setHit.begin(); it != setHit.end(); it++) {
+            if (it->tag == tag) { //load hit is found
+                load_hits++;
+                it->access_ts++; 
+                return;
+            } 
+        }
+        //if there's no block in the set with the particular tag
+        for (it = setHit.begin(); it != setHit.end(); it++) {
+            it->load_ts++; //increment load time for all old blocks
+        }
+        struct Block new_block = {.tag = tag, .dirty = false, .load_ts = 0, .access_ts = 0};
+        setHit.insert(new_block);
+        load_misses++;
+    } else { //if there's no set with the particulat index
+        set<Block> new_set;
+        struct Block new_block = {.tag = tag, .dirty = false, .load_ts = 0, .access_ts = 0};
+        new_set.insert(new_block);
+        cache.insert({index, new_set});
+        load_misses++;
     }
 }
 

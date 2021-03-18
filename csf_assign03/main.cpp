@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
             sim.load(address);
         }
     }
-    sim.print_summary();
+    sim.printSummary();
     
     return 0; 
 }

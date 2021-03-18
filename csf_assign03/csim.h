@@ -34,13 +34,14 @@ class Simulator {
         std::string write_hit;
         std::string replace_strategy;
 
-        std::map<std::string, std::set<Block> > cache; //key is index, value is a set of blocks
+        std::map<std::string, std::set<Block>> cache; //key is index, value is a set of blocks
 
     public:
         Simulator(char *argv[]); //constructor
-        void print_summary(); //print number of loads, stores, etc
+        void printSummary(); //print number of loads, stores, etc
         void load(std::string address);
         void store(std::string address);
+        //Block* checkHit(std::string address);
 
 };
 
