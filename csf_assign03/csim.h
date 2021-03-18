@@ -23,6 +23,10 @@ class Block {
             load_ts = 0;
             access_ts = 0;
         }
+        friend bool operator<(const Block& l, const Block& r) {
+            return l.access_ts < r.access_ts;
+        }
+
 };
 
 class Simulator {
