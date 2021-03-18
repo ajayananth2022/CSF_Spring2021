@@ -99,13 +99,13 @@ void Simulator::printSummary() {
     int total_loads = load_hits + load_misses;
     int total_stores = store_hits + store_misses;
     int total_cycles = total_loads + total_stores;
-    cout << "Total loads: " + total_loads << endl;
-    cout << "Total store: " + total_stores << endl;
-    cout << "Load hits: " + load_hits << endl; 
-    cout << "Load misses: " + load_misses << endl; 
-    cout << "Store hits: " + store_hits << endl; 
-    cout << "Store misses: " + store_misses << endl; 
-    cout << "Total cycles: " + total_cycles << endl;
+    cout << "Total loads: " << total_loads << endl;
+    cout << "Total store: " << total_stores << endl;
+    cout << "Load hits: " << load_hits << endl; 
+    cout << "Load misses: " << load_misses << endl; 
+    cout << "Store hits: " << store_hits << endl; 
+    cout << "Store misses: " << store_misses << endl; 
+    cout << "Total cycles: " << total_cycles << endl;
 }
 
 // Block* Simulator::checkHit(string address) {
