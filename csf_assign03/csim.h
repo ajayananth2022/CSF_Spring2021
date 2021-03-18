@@ -23,6 +23,7 @@ class Block {
             load_ts = 0;
             access_ts = 0;
         }
+};
 
 class Simulator {
     private:
