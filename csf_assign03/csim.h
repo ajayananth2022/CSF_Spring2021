@@ -28,7 +28,7 @@ class Simulator {
         int load_hits;
         int load_misses;
         int store_hits;
-        int store_miss;
+        int store_misses;
 
         std::string write_miss;
         std::string write_hit;

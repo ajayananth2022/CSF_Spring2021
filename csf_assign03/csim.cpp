@@ -23,7 +23,7 @@ bool checkPowerTwo(int num) {
 string hexToBinary(string hex_string) {
 
     string retString = "";
-	for (int i = 0; i < hex_string.length(); ++i) {
+	for (int i = 0; i < (int)hex_string.length(); ++i) {
 		switch (hex_string[i]){
 			case '0': retString.append ("0000"); break;
 			case '1': retString.append ("0001"); break;
@@ -98,7 +98,7 @@ Simulator::Simulator(char *argv[]) {
 void Simulator::printSummary() {
     int total_loads = load_hits + load_misses;
     int total_stores = store_hits + store_misses;
-    int total_cycles = total_loads + total stores;
+    int total_cycles = total_loads + total_stores;
     cout << "Total loads: " + total_loads << endl;
     cout << "Total store: " + total_stores << endl;
     cout << "Load hits: " + load_hits << endl; 
@@ -108,24 +108,24 @@ void Simulator::printSummary() {
     cout << "Total cycles: " + total_cycles << endl;
 }
 
-Block* Simulator::checkHit(string address) {
-    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
-    string index = address.substr(num_tag, num_index);
-    Block cacheHit = NULL; 
-    //search for index (key in map)
-    if (cache.count(index) == 1) {
-        set<Block>::iterator it; 
-        //search for particular tag in index
-        for (it = cache[index].begin(); it != cache[index].end(); it++) {
-            if (it->tag == tag) {
-                cacheHit = it; 
-                break;
-            } 
-        }
-    }
-    return cacheHit;
+// Block* Simulator::checkHit(string address) {
+//     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
+//     string index = address.substr(num_tag, num_index);
+//     Block cacheHit = NULL; 
+//     //search for index (key in map)
+//     if (cache.count(index) == 1) {
+//         set<Block>::iterator it; 
+//         //search for particular tag in index
+//         for (it = cache[index].begin(); it != cache[index].end(); it++) {
+//             if (it->tag == tag) {
+//                 cacheHit = it; 
+//                 break;
+//             } 
+//         }
+//     }
+//     return cacheHit;
 
-}
+// }
 
 void Simulator::load(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
