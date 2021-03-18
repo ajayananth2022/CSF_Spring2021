@@ -138,13 +138,13 @@ void Simulator::load(string address) {
         for (it = setHit.begin(); it != setHit.end(); it++) {
             if (it->tag == tag) { //load hit is found
                 load_hits++;
-                it->access_ts++; 
+                //it->access_ts++; 
                 return;
             } 
         }
         //if there's no block in the set with the particular tag
         for (it = setHit.begin(); it != setHit.end(); it++) {
-            it->load_ts++; //increment load time for all old blocks
+            //it->load_ts++; //increment load time for all old blocks
         }
         Block new_block = Block(tag, false);
         setHit.insert(new_block);
