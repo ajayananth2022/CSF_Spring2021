@@ -11,12 +11,18 @@ bool checkPowerTwo(int num);
 
 std::string hexToBinary(std::string hex_string);
 
-struct Block {
-    std::string tag;
-    bool dirty; //for it the cache is different from the main memory
-    int load_ts; //for fifo
-    int access_ts; //for LRU
-};
+class Block {
+    public:
+        std::string tag;
+        bool dirty; //for it the cache is different from the main memory
+        int load_ts; //for fifo
+        int access_ts; //for LRU
+        Block(std::string t, bool d) {
+            tag = t;
+            dirty = d;
+            load_ts = 0;
+            access_ts = 0;
+        }
 
 class Simulator {
     private:

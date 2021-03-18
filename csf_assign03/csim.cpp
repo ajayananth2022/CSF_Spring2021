@@ -91,7 +91,7 @@ Simulator::Simulator(char *argv[]) {
     load_hits = 0;
     load_misses = 0;
     store_hits = 0;
-    store_miss = 0;
+    store_misses = 0;
     map<string, set<Block> > cache;
 }
 
@@ -146,12 +146,12 @@ void Simulator::load(string address) {
         for (it = setHit.begin(); it != setHit.end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
-        struct Block new_block = {.tag = tag, .dirty = false, .load_ts = 0, .access_ts = 0};
+        Block new_block = Block(tag, false);
         setHit.insert(new_block);
         load_misses++;
     } else { //if there's no set with the particulat index
         set<Block> new_set;
-        struct Block new_block = {.tag = tag, .dirty = false, .load_ts = 0, .access_ts = 0};
+        Block new_block = Block(tag, false);
         new_set.insert(new_block);
         cache.insert({index, new_set});
         load_misses++;
