@@ -21,8 +21,29 @@ bool checkPowerTwo(int num) {
 }
 
 string hexToBinary(string hex_string) {
-    //TO-DO
-    return "\0";
+
+    string retString = "";
+	for (int i = 0; i < hex_string.length (); ++i) {
+		switch (hex_string [i]){
+			case '0': retString.append ("0000"); break;
+			case '1': retString.append ("0001"); break;
+			case '2': retString.append ("0010"); break;
+			case '3': retString.append ("0011"); break;
+			case '4': retString.append ("0100"); break;
+			case '5': retString.append ("0101"); break;
+			case '6': retString.append ("0110"); break;
+			case '7': retString.append ("0111"); break;
+			case '8': retString.append ("1000"); break;
+			case '9': retString.append ("1001"); break;
+			case 'a': retString.append ("1010"); break;
+			case 'b': retString.append ("1011"); break;
+			case 'c': retString.append ("1100"); break;
+			case 'd': retString.append ("1101"); break;
+			case 'e': retString.append ("1110"); break;
+			case 'f': retString.append ("1111"); break;
+	    }
+	}
+    return retString;
 }
 
 Simulator::Simulator(char *argv[]) {
@@ -70,25 +91,46 @@ Simulator::Simulator(char *argv[]) {
     load_misses = 0;
     store_hits = 0;
     store_miss = 0;
-    map<int, set<Block>> cache;
+    map<string, set<Block> > cache;
 }
 
 void Simulator::print_summary() {
     //TO-DO
 
+    cout<<"Load hits: " + load_hits<<endl; 
+    cout<<"Load misses: " + load_misses<<endl; 
 }
 
 void Simulator::load(string address) {
+
     //TO-DO
 
-    //search for index (key in map)
-    //if index is present, tag is the same, we have a load hit
-    //increment load_hits and update load_ts & access_ts
-    
-    //if index is not present, or index is present but tag is different
-    //we have a load miss
-    //increment load_misses 
+    string tag = address.substr(0, num_tag - 1);
+    string index = address.substr(num_tag - 1, num_tag + num_index - 1);
 
+    bool cacheHit = false; 
+
+    //search for index (key in map)
+    if (cache.count(index) == 1) {
+        set<Block>:: iterator it; 
+        //search for particular tag in index
+        for (it = cache[index].begin(); it!=cache[index].end(); it++) {
+            if (it->tag==tag) {
+                //we have a load hit
+                //increment load_hits and update load_ts & access_ts
+                cacheHit = true; 
+                load_hits++; 
+            } 
+        }
+    }
+    
+    //load miss
+    if (!cacheHit) {
+        //if index is not present, or index is present but tag is different
+        //we have a load miss
+        //increment load_misses 
+        load_misses++; 
+    }
 }
 
 void Simulator::store(string address) {

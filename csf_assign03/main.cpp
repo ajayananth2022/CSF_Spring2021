@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
     string mem_access;
     while (getline(cin, mem_access)) {
         string address = hexToBinary(mem_access.substr(4, 8));
+
         if (mem_access[0] == 's') {
             sim.store(address);
         } else if (mem_access[0] == 'l') {

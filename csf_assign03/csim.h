@@ -12,7 +12,7 @@ bool checkPowerTwo(int num);
 std::string hexToBinary(std::string hex_string);
 
 struct Block {
-    unsigned tag;
+    std::string tag;
     bool dirty; //for it the cache is different from the main memory
     int load_ts; //for fifo
     int access_ts; //for LRU
@@ -34,7 +34,7 @@ class Simulator {
         std::string write_hit;
         std::string replace_strategy;
 
-        std::map<int, std::set<Block>> cache; //key is index, value is a set blocks
+        std::map<std::string, std::set<Block> > cache; //key is index, value is a set of blocks
 
     public:
         Simulator(char *argv[]); //constructor
