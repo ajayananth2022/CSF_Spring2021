@@ -180,19 +180,21 @@ void Simulator::store(string address) {
             if (replace_strategy == "lru") {
                 int access = INT_MAX;
                 vector<Block>::iterator least_used;
-            for (it = setHit.begin(); it != setHit.end(); it++) {
-                if (it->access_ts < access) {
-                    access = it->access_ts;
-                    least_used = it;
+                for (it = setHit.begin(); it != setHit.end(); it++) {
+                    if (it->access_ts < access) {
+                        access = it->access_ts;
+                        least_used = it;
+                    }
+                    setHit.erase(least_used);
                 }
-                setHit.erase(least_used);
             } else { //fifo
                 int load = 0;
                 vector<Block>::iterator first_in;
-            for (it = setHit.begin(); it != setHit.end(); it++) {
-                if (it->load_ts > load) {
-                    load = it->access_ts;
-                    first_in = it;
+                for (it = setHit.begin(); it != setHit.end(); it++) {
+                    if (it->load_ts > load) {
+                        load = it->access_ts;
+                        first_in = it;
+                    }
                 }
                 setHit.erase(first_in);
             }
