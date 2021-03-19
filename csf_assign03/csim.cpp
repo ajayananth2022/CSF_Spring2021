@@ -22,7 +22,6 @@ bool checkPowerTwo(int num) {
 }
 
 string hexToBinary(string hex_string) {
-
     string retString = "";
 	for (int i = 0; i < (int)hex_string.length(); ++i) {
 		switch (hex_string[i]){
@@ -110,77 +109,58 @@ void Simulator::printSummary() {
     cout << "Total cycles: " << total_cycles << endl;
 }
 
-// Block* Simulator::checkHit(string address) {
-//     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
-//     string index = address.substr(num_tag, num_index);
-//     Block cacheHit = NULL; 
-//     //search for index (key in map)
-//     if (cache.count(index) == 1) {
-//         set<Block>::iterator it; 
-//         //search for particular tag in index
-//         for (it = cache[index].begin(); it != cache[index].end(); it++) {
-//             if (it->tag == tag) {
-//                 cacheHit = it; 
-//                 break;
-//             } 
-//         }
-//     }
-//     return cacheHit;
-
-// }
-
 void Simulator::load(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
     //search for index (key in map)
-    if (cache.count(index) == 1) {
+    if (cache.count(index) == 1) { //if map element is found
         vector<Block>::iterator it; 
         //search for particular tag in index
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->tag == tag) { //load hit is found
                 load_hits++;
-                it->access_ts++; 
+                it->access_ts++; //update access time
                 return;
             } 
-        }
-        //if there's no block in the set with the particular tag
-        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-            it->load_ts++; //increment load time for all old blocks
         }
         if ((int)cache.at(index).size() == associativity) {
             if (replace == "lru") {
                 int access = INT_MAX;
                 vector<Block>::iterator least_used;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-                    if (it->access_ts < access) {
+                    if (it->access_ts < access) { //find the block with smallest access time
                         access = it->access_ts;
                         least_used = it;
                     }
-                    cache.at(index).erase(least_used);
+                    cache.at(index).erase(least_used); //remove least accessed
                 }
             } else { //fifo
                 int load = 0;
                 vector<Block>::iterator first_in;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-                    if (it->load_ts > load) {
+                    if (it->load_ts > load) { //find the block with the biggest load time
                         load = it->access_ts;
                         first_in = it;
                     }
                 }
                 cache.at(index).erase(first_in);
             }
-            cycle_main_mem += 100;
+            if (write-hit == "write-back") cycle_main_mem += 100; //write memory takes 100 cycles
         }
-        Block new_block = Block(tag, false);
+        //if there's no block in the set with the particular tag
+        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+            it->load_ts++; //increment load time for all old blocks
+        }
+        Block new_block = Block(tag, false); //create new block with specific tag
         cache.at(index).push_back(new_block);
     } else { //if there's no set with the particulat index
-        vector<Block> new_set;
+        vector<Block> new_set; //create new map element with new block
         Block new_block = Block(tag, false);
         new_set.push_back(new_block);
         cache.insert({index, new_set});
     }
     load_misses++;
-    cycle_main_mem += 100;
+    cycle_main_mem += 100; //bring in memory takes 100 cycles
 }
 
 void Simulator::store(string address) {
@@ -195,9 +175,9 @@ void Simulator::store(string address) {
                 store_hits++;
                 it->access_ts++; 
                 if (write_hit == "write-back") {
-                    it->dirty = true;
+                    it->dirty = true; //block and main memory different
                 } else { //write-through
-                    cycle_main_mem += 100;
+                    cycle_main_mem += 100; //write to memory takes 100 cycles
                 }
                 return;
             } 
@@ -224,21 +204,25 @@ void Simulator::store(string address) {
                 }
                 cache.at(index).erase(first_in);
             }
-            cycle_main_mem += 100;
+            if (write-hit == "write-back") cycle_main_mem += 100; //write memory takes 100 cycles
         }
         if (write_miss == "write-allocate") {
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                 it->load_ts++; //increment load time for all old blocks
             }
-            Block new_block = Block(tag, true);
+            Block new_block = Block(tag, true); //block and main memory different
             cache.at(index).push_back(new_block);
+        } else { //no-write-allocate
+            cycle_main_mem += 100; //writes to memory takes 100 cycles
         }
     } else {
         if (write_miss == "write-allocate") {
-            vector<Block> new_set;
-            Block new_block = Block(tag, true);
+            vector<Block> new_set; //creates new map element with new block
+            Block new_block = Block(tag, true); //block and main memory different
             new_set.push_back(new_block);
             cache.insert({index, new_set});
+        } else { //no-write-allocate
+            cycle_main_mem += 100; //writes to memory takes 100 cycles
         }
     }
     store_misses++;
