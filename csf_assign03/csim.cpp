@@ -4,14 +4,12 @@
 #include <iostream>
 #include <math.h>
 #include "csim.h"
-#include <set>
 #include <vector>
 #include <map>
 
 using std::cout;
 using std::endl;
 using std::string; 
-using std::set;
 using std::map;
 using std::vector;
 
@@ -148,22 +146,45 @@ void Simulator::load(string address) {
         for (it = setHit.begin(); it != setHit.end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
-        Block new_block = Block(tag, false);
-        setHit.push_back(new_block);
-        load_misses++;
     } else { //if there's no set with the particulat index
-        vector<Block> new_set;
-        Block new_block = Block(tag, false);
-        new_set.push_back(new_block);
-        cache.insert({index, new_set});
-        load_misses++;
+        vector<Block> setHit;
+        cache.insert({index, setHit});
     }
+    Block new_block = Block(tag, false);
+    setHit.push_back(new_block);
+    load_misses++;
 }
 
 void Simulator::store(string address) {
-    //TO-DO
-
+    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
+    string index = address.substr(num_tag, num_index);
     //search for index (key in map)
+    if (cache.count(index) == 1) {
+        vector<Block> setHit = cache.at(index);
+        vector<Block>::iterator it; 
+        //search for particular tag in index
+        for (it = setHit.begin(); it != setHit.end(); it++) {
+            if (it->tag == tag) { //load hit is found
+                store_hits++;
+                it->access_ts++; 
+                if (write_hit == "write-back") {
+                    it->dirty = true;
+                }
+                return;
+            } 
+        }
+        if (setHit.size() == associativity) {
+            //evict based on replacement strategy
+        }
+    } else {
+        vector<Block> setHit;
+        cache.insert({index, setHit});
+    }
+    if (write_miss == "write-allocate") {
+        Block new_block = Block(tag, true);
+        setHit.push_back(new_block);
+    }
+    store_misses++;
     //if index is present, tag is the same, we have a write hit
     //increment store_hits
 
