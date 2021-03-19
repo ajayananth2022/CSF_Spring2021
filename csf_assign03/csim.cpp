@@ -147,11 +147,13 @@ void Simulator::load(string address) {
         for (it = setHit.begin(); it != setHit.end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
+        Block new_block = Block(tag, false);
+        setHit.push_back(new_block);
     } else { //if there's no set with the particulat index
+        Block new_block = Block(tag, false);
+        setHit.push_back(new_block);
         cache.insert({index, setHit});
     }
-    Block new_block = Block(tag, false);
-    setHit.push_back(new_block);
     load_misses++;
 }
 
