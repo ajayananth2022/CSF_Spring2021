@@ -176,8 +176,11 @@ void Simulator::load(string address) {
                 cache.at(index).erase(first_in);
             }
             
+
+            
+         
             //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty??
-            if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((2^num_offset)/4) + 1; 
+            if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4) + 1; 
         }
         //if there's no block in the set with the particular tag
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
@@ -192,7 +195,7 @@ void Simulator::load(string address) {
         cache.insert({index, new_set});
     }
     load_misses++;
-    cycle_main_mem += 100 * ((2^num_offset)/4); //bring in memory takes 100 cycles
+    cycle_main_mem += 100 * ((1<<num_offset)/4); //bring in memory takes 100 cycles
 }
 
 void Simulator::store(string address) {
@@ -262,7 +265,7 @@ void Simulator::store(string address) {
                 }
                 
                 //only if DIRTY?
-                if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((2^num_offset)/4); //write memory takes 100 cycles
+                if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); //write memory takes 100 cycles
             }
 
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
@@ -283,7 +286,7 @@ void Simulator::store(string address) {
             return; 
         }
     }
-    cycle_main_mem += 100 * ((2^num_offset)/4);
+    cycle_main_mem += 100 * ((1<<num_offset)/4);
     //if index is present, tag is the same, we have a write hit
     //increment store_hits
 
