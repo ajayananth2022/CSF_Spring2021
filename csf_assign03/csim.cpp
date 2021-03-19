@@ -175,27 +175,26 @@ void Simulator::load(string address) {
                 }
                 cache.at(index).erase(first_in);
             }
-            
-
-            
-         
+        
             //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty??
-            if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4) + 1; 
+            if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
         }
+
         //if there's no block in the set with the particular tag
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
         Block new_block = Block(tag, false); //create new block with specific tag
         cache.at(index).push_back(new_block);
-    } else { //if there's no set with the particulat index
+
+    } else { //if there's no set with the particulat index        
         vector<Block> new_set; //create new map element with new block
         Block new_block = Block(tag, false);
         new_set.push_back(new_block);
         cache.insert({index, new_set});
     }
+    cycle_main_mem += 100 * ((1<<num_offset)/4) + 1; //bring in memory block and load to CPI (+1)
     load_misses++;
-    cycle_main_mem += 100 * ((1<<num_offset)/4); //bring in memory takes 100 cycles
 }
 
 void Simulator::store(string address) {
@@ -282,7 +281,7 @@ void Simulator::store(string address) {
             new_set.push_back(new_block);
             cache.insert({index, new_set});
         } else { //no-write-allocate
-            cycle_main_mem += 100; //writes ONLY modified memory ( not ENTIRE block) directly to memory 
+            cycle_main_mem += 100; //writes modified memory directly to memory 
             return; 
         }
     }
