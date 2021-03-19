@@ -169,6 +169,7 @@ void Simulator::load(string address) {
                 }
                 cache.at(index).erase(first_in);
             }
+            cycle_main_mem += 100;
         }
         Block new_block = Block(tag, false);
         cache.at(index).push_back(new_block);
@@ -195,6 +196,8 @@ void Simulator::store(string address) {
                 it->access_ts++; 
                 if (write_hit == "write-back") {
                     it->dirty = true;
+                } else { //write-through
+                    cycle_main_mem += 100;
                 }
                 return;
             } 
@@ -221,6 +224,7 @@ void Simulator::store(string address) {
                 }
                 cache.at(index).erase(first_in);
             }
+            cycle_main_mem += 100;
         }
         if (write_miss == "write-allocate") {
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
@@ -247,7 +251,7 @@ void Simulator::store(string address) {
     //increment store_misses
 
     //write hit:
-    //write through: "write data" to memory (dirty bit always false), update access_ts
+    //write through: "write data" to memory 
     //write back: "write data" to cache, update access_ts
 
     //write miss:
