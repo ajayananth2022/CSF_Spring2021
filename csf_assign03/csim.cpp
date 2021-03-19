@@ -6,7 +6,7 @@
 #include "csim.h"
 #include <vector>
 #include <map>
-#include <limits>
+#include <climits>
 
 using std::cout;
 using std::endl;
