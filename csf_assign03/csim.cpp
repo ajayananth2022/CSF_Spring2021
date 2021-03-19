@@ -5,6 +5,7 @@
 #include <math.h>
 #include "csim.h"
 #include <set>
+#include <vector>
 #include <map>
 
 using std::cout;
@@ -12,6 +13,7 @@ using std::endl;
 using std::string; 
 using std::set;
 using std::map;
+using std::vector;
 
 bool checkPowerTwo(int num) {
     if ((num & (num - 1)) == 0) {
@@ -92,7 +94,7 @@ Simulator::Simulator(char *argv[]) {
     load_misses = 0;
     store_hits = 0;
     store_misses = 0;
-    map<string, set<Block> > cache;
+    map<string, vector<Block> > cache;
 }
 
 void Simulator::printSummary() {
@@ -132,27 +134,27 @@ void Simulator::load(string address) {
     string index = address.substr(num_tag, num_index);
     //search for index (key in map)
     if (cache.count(index) == 1) {
-        set<Block> setHit = cache.at(index);
-        set<Block>::iterator it; 
+        vector<Block> setHit = cache.at(index);
+        vector<Block>::iterator it; 
         //search for particular tag in index
         for (it = setHit.begin(); it != setHit.end(); it++) {
             if (it->tag == tag) { //load hit is found
                 load_hits++;
-                //it->access_ts++; 
+                it->access_ts++; 
                 return;
             } 
         }
         //if there's no block in the set with the particular tag
         for (it = setHit.begin(); it != setHit.end(); it++) {
-            //it->load_ts++; //increment load time for all old blocks
+            it->load_ts++; //increment load time for all old blocks
         }
         Block new_block = Block(tag, false);
-        setHit.insert(new_block);
+        setHit.push_back(new_block);
         load_misses++;
     } else { //if there's no set with the particulat index
-        set<Block> new_set;
+        vector<Block> new_set;
         Block new_block = Block(tag, false);
-        new_set.insert(new_block);
+        new_set.push_back(new_block);
         cache.insert({index, new_set});
         load_misses++;
     }

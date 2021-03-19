@@ -4,7 +4,7 @@
 #define __CSIM_H__
 
 #include <stdio.h>
-#include <set>
+#include <vector>
 #include <map>
 
 bool checkPowerTwo(int num);
@@ -45,7 +45,7 @@ class Simulator {
         std::string write_hit;
         std::string replace_strategy;
 
-        std::map<std::string, std::set<Block>> cache; //key is index, value is a set of blocks
+        std::map<std::string, std::vector<Block>> cache; //key is index, value is a set of blocks
 
     public:
         Simulator(char *argv[]); //constructor
