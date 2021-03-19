@@ -145,7 +145,7 @@ void Simulator::load(string address) {
                 }
                 cache.at(index).erase(first_in);
             }
-            if (write-hit == "write-back") cycle_main_mem += 100; //write memory takes 100 cycles
+            if (write_hit == "write-back") cycle_main_mem += 100; //write memory takes 100 cycles
         }
         //if there's no block in the set with the particular tag
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
@@ -204,7 +204,7 @@ void Simulator::store(string address) {
                 }
                 cache.at(index).erase(first_in);
             }
-            if (write-hit == "write-back") cycle_main_mem += 100; //write memory takes 100 cycles
+            if (write_hit == "write-back") cycle_main_mem += 100; //write memory takes 100 cycles
         }
         if (write_miss == "write-allocate") {
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
