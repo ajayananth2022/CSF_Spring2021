@@ -152,7 +152,7 @@ void Simulator::load(string address) {
                 int access = INT_MAX;
                 vector<Block>::iterator least_used;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-                    if (it->access_ts < access) {
+                    if (it->access_ts <= access) {
                         access = it->access_ts;
                         least_used = it;
                     }
@@ -162,7 +162,7 @@ void Simulator::load(string address) {
                 int load = 0;
                 vector<Block>::iterator first_in;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-                    if (it->load_ts > load) {
+                    if (it->load_ts >= load) {
                         load = it->access_ts;
                         first_in = it;
                     }
@@ -204,7 +204,7 @@ void Simulator::store(string address) {
                 int access = INT_MAX;
                 vector<Block>::iterator least_used;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-                    if (it->access_ts < access) {
+                    if (it->access_ts <= access) {
                         access = it->access_ts;
                         least_used = it;
                     }
@@ -214,7 +214,7 @@ void Simulator::store(string address) {
                 int load = 0;
                 vector<Block>::iterator first_in;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-                    if (it->load_ts > load) {
+                    if (it->load_ts >= load) {
                         load = it->access_ts;
                         first_in = it;
                     }
