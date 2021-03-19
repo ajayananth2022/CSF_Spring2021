@@ -131,13 +131,11 @@ void Simulator::printSummary() {
 void Simulator::load(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
-    vector<Block> setHit;
     //search for index (key in map)
     if (cache.count(index) == 1) {
-        setHit = cache.at(index);
         vector<Block>::iterator it; 
         //search for particular tag in index
-        for (it = setHit.begin(); it != setHit.end(); it++) {
+        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->tag == tag) { //load hit is found
                 load_hits++;
                 it->access_ts++; 
@@ -145,15 +143,16 @@ void Simulator::load(string address) {
             } 
         }
         //if there's no block in the set with the particular tag
-        for (it = setHit.begin(); it != setHit.end(); it++) {
+        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
         Block new_block = Block(tag, false);
-        setHit.push_back(new_block);
+        cache.at(index).push_back(new_block);
     } else { //if there's no set with the particulat index
+        vector<Block> new_set;
         Block new_block = Block(tag, false);
-        setHit.push_back(new_block);
-        cache.insert({index, setHit});
+        new_set.push_back(new_block);
+        cache.insert({index, new_set});
     }
     load_misses++;
 }
@@ -161,13 +160,11 @@ void Simulator::load(string address) {
 void Simulator::store(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
-    vector<Block> setHit;
     //search for index (key in map)
     if (cache.count(index) == 1) {
-        setHit = cache.at(index);
         vector<Block>::iterator it; 
         //search for particular tag in index
-        for (it = setHit.begin(); it != setHit.end(); it++) {
+        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->tag == tag) { //load hit is found
                 store_hits++;
                 it->access_ts++; 
@@ -177,41 +174,42 @@ void Simulator::store(string address) {
                 return;
             } 
         }
-        if ((int)setHit.size() == associativity) {
+        if ((int)cache.at(index).size() == associativity) {
             if (replace_strategy == "lru") {
                 int access = INT_MAX;
                 vector<Block>::iterator least_used;
-                for (it = setHit.begin(); it != setHit.end(); it++) {
+                for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                     if (it->access_ts < access) {
                         access = it->access_ts;
                         least_used = it;
                     }
-                    setHit.erase(least_used);
+                    cache.at(index).erase(least_used);
                 }
             } else { //fifo
                 int load = 0;
                 vector<Block>::iterator first_in;
-                for (it = setHit.begin(); it != setHit.end(); it++) {
+                for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                     if (it->load_ts > load) {
                         load = it->access_ts;
                         first_in = it;
                     }
                 }
-                setHit.erase(first_in);
+                cache.at(index).erase(first_in);
             }
         }
         if (write_miss == "write-allocate") {
-            for (it = setHit.begin(); it != setHit.end(); it++) {
+            for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                 it->load_ts++; //increment load time for all old blocks
             }
             Block new_block = Block(tag, true);
-            setHit.push_back(new_block);
+            cache.at(index).push_back(new_block);
         }
     } else {
         if (write_miss == "write-allocate") {
+            vector<Block> new_set;
             Block new_block = Block(tag, true);
-            setHit.push_back(new_block);
-            cache.insert({index, setHit});
+            new_set.push_back(new_block);
+            cache.insert({index, new_set});
         }
     }
     store_misses++;
