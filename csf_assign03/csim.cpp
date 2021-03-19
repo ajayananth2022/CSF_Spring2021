@@ -52,8 +52,8 @@ Simulator::Simulator(char *argv[]) {
     int num_sets = atoi(argv[1]);
     int num_blocks = atoi(argv[2]);
     int size_blocks = atoi(argv[3]);
-    string write_miss = argv[4];
-    string write_hit = argv[5];
+    string write_miss_strategy = argv[4];
+    string write_hit_strategy = argv[5];
     string replace_strategy = argv[6];
 
     if (num_sets <= 0 || !checkPowerTwo(num_sets)) {
@@ -68,11 +68,11 @@ Simulator::Simulator(char *argv[]) {
 	    cout << "Invalid size of blocks in the cache!" << endl;
 	    exit(1);
     }
-    if (write_miss != "write-allocate" && write_miss != "no-write-allocate") {
+    if (write_miss_strategy != "write-allocate" && write_miss_strategy != "no-write-allocate") {
         cout << "Invalid write-miss strategy!" << endl;
 	    exit(1);
     }
-    if (write_hit != "write-through" && write_hit != "write-back") {
+    if (write_hit_strategy != "write-through" && write_hit_strategy != "write-back") {
         cout << "Invalid write-hit strategy!" << endl;
 	    exit(1);
     }
@@ -86,9 +86,9 @@ Simulator::Simulator(char *argv[]) {
     num_offset = log2(size_blocks);
     num_index = log2(num_sets);
     num_tag = 32 - num_offset - num_index;
-    write_miss = write_miss; 
-    write_hit = write_hit; 
-    replace_strategy = replace_strategy; 
+    write_miss = write_miss_strategy; 
+    write_hit = write_hit_strategy; 
+    replace = replace_strategy; 
     load_hits = 0;
     load_misses = 0;
     store_hits = 0;

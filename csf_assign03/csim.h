@@ -43,7 +43,7 @@ class Simulator {
 
         std::string write_miss;
         std::string write_hit;
-        std::string replace_strategy;
+        std::string replace;
 
         std::map<std::string, std::vector<Block>> cache; //key is index, value is a set of blocks
 
