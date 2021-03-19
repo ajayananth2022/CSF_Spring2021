@@ -150,8 +150,8 @@ void Simulator::load(string address) {
                         access = it->access_ts;
                         least_used = it;
                     }
-                    cache.at(index).erase(least_used); //remove least accessed
                 }
+                cache.at(index).erase(least_used); //remove least accessed
             } else { //fifo
                 int load = -1;
                 vector<Block>::iterator first_in;
