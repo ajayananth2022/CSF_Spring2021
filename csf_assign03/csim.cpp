@@ -176,15 +176,22 @@ void Simulator::store(string address) {
                 return;
             } 
         }
-        if (setHit.size() == associativity) {
+        if ((int)setHit.size() == associativity) {
             //evict based on replacement strategy
         }
+        if (write_miss == "write-allocate") {
+            Block new_block = Block(tag, true);
+            setHit.push_back(new_block);
+            for (it = setHit.begin(); it != setHit.end(); it++) {
+                it->load_ts++; //increment load time for all old blocks
+            }
+        }
     } else {
-        cache.insert({index, setHit});
-    }
-    if (write_miss == "write-allocate") {
-        Block new_block = Block(tag, true);
-        setHit.push_back(new_block);
+        if (write_miss == "write-allocate") {
+            Block new_block = Block(tag, true);
+            setHit.push_back(new_block);
+            cache.insert({index, setHit});
+        }
     }
     store_misses++;
     //if index is present, tag is the same, we have a write hit
