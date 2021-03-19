@@ -130,9 +130,10 @@ void Simulator::printSummary() {
 void Simulator::load(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
+    vector<Block> setHit;
     //search for index (key in map)
     if (cache.count(index) == 1) {
-        vector<Block> setHit = cache.at(index);
+        setHit = cache.at(index);
         vector<Block>::iterator it; 
         //search for particular tag in index
         for (it = setHit.begin(); it != setHit.end(); it++) {
@@ -147,7 +148,6 @@ void Simulator::load(string address) {
             it->load_ts++; //increment load time for all old blocks
         }
     } else { //if there's no set with the particulat index
-        vector<Block> setHit;
         cache.insert({index, setHit});
     }
     Block new_block = Block(tag, false);
@@ -158,9 +158,10 @@ void Simulator::load(string address) {
 void Simulator::store(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
+    vector<Block> setHit;
     //search for index (key in map)
     if (cache.count(index) == 1) {
-        vector<Block> setHit = cache.at(index);
+        setHit = cache.at(index);
         vector<Block>::iterator it; 
         //search for particular tag in index
         for (it = setHit.begin(); it != setHit.end(); it++) {
@@ -177,7 +178,6 @@ void Simulator::store(string address) {
             //evict based on replacement strategy
         }
     } else {
-        vector<Block> setHit;
         cache.insert({index, setHit});
     }
     if (write_miss == "write-allocate") {
