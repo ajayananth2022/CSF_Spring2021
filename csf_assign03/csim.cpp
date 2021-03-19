@@ -157,12 +157,9 @@ void Simulator::load(string address) {
                         least_used = it;
                     }
                 }
-<<<<<<< HEAD
-=======
                 if (least_used->dirty == true) {
                     evictBlockDirty = true; 
                 }
->>>>>>> bfa9c314f8a1772bf1061d922ffb89387689ceda
                 cache.at(index).erase(least_used); //remove least accessed
             } else { //fifo
                 int load = -1;
