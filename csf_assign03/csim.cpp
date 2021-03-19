@@ -175,7 +175,7 @@ void Simulator::store(string address) {
             } 
         }
         if ((int)cache.at(index).size() == associativity) {
-            if (replace_strategy == "lru") {
+            if (replace == "lru") {
                 int access = INT_MAX;
                 vector<Block>::iterator least_used;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
