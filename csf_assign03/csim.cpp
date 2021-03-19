@@ -35,12 +35,30 @@ string hexToBinary(string hex_string) {
 			case '7': retString.append ("0111"); break;
 			case '8': retString.append ("1000"); break;
 			case '9': retString.append ("1001"); break;
-			case 'a': retString.append ("1010"); break;
-			case 'b': retString.append ("1011"); break;
-			case 'c': retString.append ("1100"); break;
-			case 'd': retString.append ("1101"); break;
-			case 'e': retString.append ("1110"); break;
-			case 'f': retString.append ("1111"); break;
+			case 'a': 
+            case 'A':
+                retString.append ("1010"); 
+                break;
+			case 'b': 
+            case 'B':
+                retString.append ("1011"); 
+                break;
+			case 'c': 
+            case 'C':
+                retString.append ("1100"); 
+                break;
+			case 'd': 
+            case 'D':
+                retString.append ("1101"); 
+                break;
+			case 'e': 
+            case 'E':
+                retString.append ("1110"); 
+                break;
+			case 'f': 
+            case 'F':
+                retString.append ("1111"); 
+                break;
             default: cout << "invalid address" << endl; break;
 	    }
 	}
