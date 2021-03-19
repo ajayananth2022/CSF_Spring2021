@@ -147,6 +147,29 @@ void Simulator::load(string address) {
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
+        if ((int)cache.at(index).size() == associativity) {
+            if (replace == "lru") {
+                int access = INT_MAX;
+                vector<Block>::iterator least_used;
+                for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+                    if (it->access_ts < access) {
+                        access = it->access_ts;
+                        least_used = it;
+                    }
+                    cache.at(index).erase(least_used);
+                }
+            } else { //fifo
+                int load = 0;
+                vector<Block>::iterator first_in;
+                for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+                    if (it->load_ts > load) {
+                        load = it->access_ts;
+                        first_in = it;
+                    }
+                }
+                cache.at(index).erase(first_in);
+            }
+        }
         Block new_block = Block(tag, false);
         cache.at(index).push_back(new_block);
     } else { //if there's no set with the particulat index
