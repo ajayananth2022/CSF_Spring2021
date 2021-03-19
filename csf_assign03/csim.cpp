@@ -93,13 +93,14 @@ Simulator::Simulator(char *argv[]) {
     load_misses = 0;
     store_hits = 0;
     store_misses = 0;
+    cycle_main_mem = 0;
     map<string, vector<Block> > cache;
 }
 
 void Simulator::printSummary() {
     int total_loads = load_hits + load_misses;
     int total_stores = store_hits + store_misses;
-    int total_cycles = total_loads + total_stores;
+    int total_cycles = total_loads + total_stores + cycle_main_mem;
     cout << "Total loads: " << total_loads << endl;
     cout << "Total store: " << total_stores << endl;
     cout << "Load hits: " << load_hits << endl; 
@@ -155,6 +156,7 @@ void Simulator::load(string address) {
         cache.insert({index, new_set});
     }
     load_misses++;
+    cycle_main_mem += 100;
 }
 
 void Simulator::store(string address) {
@@ -213,6 +215,7 @@ void Simulator::store(string address) {
         }
     }
     store_misses++;
+    cycle_main_mem += 100;
     //if index is present, tag is the same, we have a write hit
     //increment store_hits
 

@@ -40,6 +40,7 @@ class Simulator {
         int load_misses;
         int store_hits;
         int store_misses;
+        int cycle_main_mem;
 
         std::string write_miss;
         std::string write_hit;
