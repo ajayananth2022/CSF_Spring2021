@@ -135,7 +135,7 @@ void Simulator::load(string address) {
                     cache.at(index).erase(least_used); //remove least accessed
                 }
             } else { //fifo
-                int load = 0;
+                int load = -1;
                 vector<Block>::iterator first_in;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                     if (it->load_ts > load) { //find the block with the biggest load time
@@ -194,7 +194,7 @@ void Simulator::store(string address) {
                     cache.at(index).erase(least_used);
                 }
             } else { //fifo
-                int load = 0;
+                int load = -1;
                 vector<Block>::iterator first_in;
                 for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                     if (it->load_ts > load) {
