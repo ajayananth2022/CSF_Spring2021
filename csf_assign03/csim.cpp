@@ -177,14 +177,32 @@ void Simulator::store(string address) {
             } 
         }
         if ((int)setHit.size() == associativity) {
-            //evict based on replacement strategy
+            if (replace_strategy == "lru") {
+                int access = INT_MAX;
+                vector<Block>::iterator least_used;
+            for (it = setHit.begin(); it != setHit.end(); it++) {
+                if (it->access_ts < access) {
+                    access = it->access_ts;
+                    least_used = it;
+                }
+                setHit.erase(least_used);
+            } else { //fifo
+                int load = 0;
+                vector<Block>::iterator first_in;
+            for (it = setHit.begin(); it != setHit.end(); it++) {
+                if (it->load_ts > load) {
+                    load = it->access_ts;
+                    first_in = it;
+                }
+                setHit.erase(first_in);
+            }
         }
         if (write_miss == "write-allocate") {
-            Block new_block = Block(tag, true);
-            setHit.push_back(new_block);
             for (it = setHit.begin(); it != setHit.end(); it++) {
                 it->load_ts++; //increment load time for all old blocks
             }
+            Block new_block = Block(tag, true);
+            setHit.push_back(new_block);
         }
     } else {
         if (write_miss == "write-allocate") {
