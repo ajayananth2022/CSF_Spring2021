@@ -120,7 +120,7 @@ void Simulator::printSummary() {
     int total_cycles = total_loads + total_stores + cycle_main_mem;
 
     cout << "Total loads: " << total_loads << endl;
-    cout << "Total store: " << total_stores << endl;
+    cout << "Total stores: " << total_stores << endl;
     cout << "Load hits: " << load_hits << endl; 
     cout << "Load misses: " << load_misses << endl; 
     cout << "Store hits: " << store_hits << endl; 
