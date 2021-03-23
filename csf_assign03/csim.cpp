@@ -58,7 +58,7 @@ Simulator::Simulator(char *argv[]) {
     num_offset = log2(atoi(argv[3]));
     num_index = log2(atoi(argv[1]));
     num_tag = 32 - num_offset - num_index;
-    write_miss = argv[4]
+    write_miss = argv[4];
     write_hit = argv[5]; 
     replace = argv[6]; 
     load_hits = 0;
@@ -111,7 +111,7 @@ bool Simulator::evict(string strategy) {
     return evictBlockDirty;
 }
 
-void Simulator::load(string address) {
+void Simulator::load(string address, string index) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
     //search for index (key in map)
@@ -129,7 +129,7 @@ void Simulator::load(string address) {
 
         //if set is full, evict a block
         if ((int)cache.at(index).size() == associativity) {
-            bool evictBlockDirty = evict(replace);
+            bool evictBlockDirty = evict(replace, index);
             //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
             if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
         }
@@ -180,7 +180,7 @@ void Simulator::store(string address) {
         } else { //write-allocate
             //first, evict a block 
             if ((int)cache.at(index).size() == associativity) {
-                bool evictBlockDirty = evict(replace);
+                bool evictBlockDirty = evict(replace, index);
                 //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
                 if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
             }

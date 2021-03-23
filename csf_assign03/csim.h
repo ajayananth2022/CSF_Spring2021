@@ -53,7 +53,7 @@ class Simulator {
         void printSummary(); //print number of loads, stores, etc
         void load(std::string address);
         void store(std::string address);
-        bool evict(std::string strategy);
+        bool evict(std::string strategy, std::string index);
         //Block* checkHit(std::string address);
 
 };
