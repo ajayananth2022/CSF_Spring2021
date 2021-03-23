@@ -35,18 +35,30 @@ string hexToBinary(string hex_string) {
 			case '7': retString.append ("0111"); break;
 			case '8': retString.append ("1000"); break;
 			case '9': retString.append ("1001"); break;
-			case 'a': retString.append ("1010"); break;
-            case 'A': retString.append ("1010"); break;
-			case 'b': retString.append ("1011"); break;
-            case 'B': retString.append ("1011"); break;
-			case 'c': retString.append ("1100"); break;
-            case 'C': retString.append ("1100"); break;
-			case 'd': retString.append ("1101"); break;
-            case 'D': retString.append ("1101"); break;
-			case 'e': retString.append ("1110"); break;
-            case 'E': retString.append ("1110"); break;
-			case 'f': retString.append ("1111"); break;
-            case 'F': retString.append ("1111"); break;
+			case 'a': 
+            case 'A':
+                retString.append ("1010"); 
+                break;
+			case 'b': 
+            case 'B':
+                retString.append ("1011"); 
+                break;
+			case 'c': 
+            case 'C':
+                retString.append ("1100"); 
+                break;
+			case 'd': 
+            case 'D':
+                retString.append ("1101"); 
+                break;
+			case 'e': 
+            case 'E':
+                retString.append ("1110"); 
+                break;
+			case 'f': 
+            case 'F':
+                retString.append ("1111"); 
+                break;
             default: cout << "invalid address" << endl; break;
 	    }
 	}
@@ -54,19 +66,52 @@ string hexToBinary(string hex_string) {
 }
 
 Simulator::Simulator(char *argv[]) {
-    associativity = atoi(argv[2]); 
-    num_offset = log2(atoi(argv[3]));
-    num_index = log2(atoi(argv[1]));
+    int num_sets = atoi(argv[1]);
+    int num_blocks = atoi(argv[2]);
+    int size_blocks = atoi(argv[3]);
+    string write_miss_strategy = argv[4];
+    string write_hit_strategy = argv[5];
+    string replace_strategy = argv[6];
+
+    if (num_sets <= 0 || !checkPowerTwo(num_sets)) {
+	    cout << "Invalid number of sets in the cache!" << endl;
+	    exit(1);
+    }
+    if (num_blocks <= 0 || !checkPowerTwo(num_blocks)) {
+	    cout << "Invalid number of blocks in the cache!" << endl;
+        exit(1);
+    }
+    if (size_blocks < 4 || !checkPowerTwo(size_blocks)) {
+	    cout << "Invalid size of blocks in the cache!" << endl;
+	    exit(1);
+    }
+    if (write_miss_strategy != "write-allocate" && write_miss_strategy != "no-write-allocate") {
+        cout << "Invalid write-miss strategy!" << endl;
+	    exit(1);
+    }
+    if (write_hit_strategy != "write-through" && write_hit_strategy != "write-back") {
+        cout << "Invalid write-hit strategy!" << endl;
+	    exit(1);
+    }
+
+    if (replace_strategy != "lru" && replace_strategy != "fifo") {
+        cout << "Invalid replace strategy!" << endl;
+	    exit(1);
+    }
+
+    associativity = num_blocks; 
+    num_offset = log2(size_blocks);
+    num_index = log2(num_sets);
     num_tag = 32 - num_offset - num_index;
-    write_miss = argv[4]
-    write_hit = argv[5]; 
-    replace = argv[6]; 
+    write_miss = write_miss_strategy; 
+    write_hit = write_hit_strategy; 
+    replace = replace_strategy; 
     load_hits = 0;
     load_misses = 0;
     store_hits = 0;
     store_misses = 0;
     cycle_main_mem = 0;
-    map<string, vector<Block>> cache;
+    map<string, vector<Block> > cache;
 }
 
 void Simulator::printSummary() {
@@ -75,40 +120,12 @@ void Simulator::printSummary() {
     int total_cycles = total_loads + total_stores + cycle_main_mem;
 
     cout << "Total loads: " << total_loads << endl;
-    cout << "Total stores: " << total_stores << endl;
+    cout << "Total store: " << total_stores << endl;
     cout << "Load hits: " << load_hits << endl; 
     cout << "Load misses: " << load_misses << endl; 
     cout << "Store hits: " << store_hits << endl; 
     cout << "Store misses: " << store_misses << endl; 
     cout << "Total cycles: " << total_cycles << endl;
-}
-
-bool Simulator::evict(string strategy) {
-    bool evictBlockDirty = false;
-    if (strategy == "lru") {
-        int access = INT_MAX;
-        vector<Block>::iterator least_used;
-        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-            if (it->access_ts < access) { //find the block with smallest access time
-                access = it->access_ts;
-                least_used = it;
-            }
-        }
-        if (least_used->dirty == true) evictBlockDirty = true; 
-        cache.at(index).erase(least_used); //remove least accessed
-    } else { //fifo
-        int load = -1;
-        vector<Block>::iterator first_in;
-        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
-            if (it->load_ts > load) { //find the block with the biggest load time
-                load = it->access_ts;
-                first_in = it;
-            }
-        }
-        if (first_in->dirty == true) evictBlockDirty = true; 
-        cache.at(index).erase(first_in);
-    }
-    return evictBlockDirty;
 }
 
 void Simulator::load(string address) {
@@ -125,30 +142,60 @@ void Simulator::load(string address) {
                 return;
             } 
         }
+
         //at this point, the mem block to be loaded is NOT in set
 
         //if set is full, evict a block
         if ((int)cache.at(index).size() == associativity) {
-            bool evictBlockDirty = evict(replace);
-            //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
-            if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
+            bool evictBlockDirty = false; 
+            if (replace == "lru") {
+                int access = INT_MAX;
+                vector<Block>::iterator least_used;
+                for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+                    if (it->access_ts < access) { //find the block with smallest access time
+                        access = it->access_ts;
+                        least_used = it;
+                    }
+                }
+<<<<<<< HEAD
+=======
+                if (least_used->dirty == true) {
+                    evictBlockDirty = true; 
+                }
+>>>>>>> bfa9c314f8a1772bf1061d922ffb89387689ceda
+                cache.at(index).erase(least_used); //remove least accessed
+            } else { //fifo
+                int load = -1;
+                vector<Block>::iterator first_in;
+                for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+                    if (it->load_ts > load) { //find the block with the biggest load time
+                        load = it->access_ts;
+                        first_in = it;
+                    }
+                }
+                if (first_in->dirty == true) {
+                    evictBlockDirty = true; 
+                }
+                cache.at(index).erase(first_in);
+            }
+            
+            //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty??
+            if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((2^num_offset)/4) + 1; 
         }
-
         //if there's no block in the set with the particular tag
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
         Block new_block = Block(tag, false); //create new block with specific tag
         cache.at(index).push_back(new_block);
-
-    } else { //if there's no set with the particulat index        
+    } else { //if there's no set with the particulat index
         vector<Block> new_set; //create new map element with new block
         Block new_block = Block(tag, false);
         new_set.push_back(new_block);
         cache.insert({index, new_set});
     }
-    cycle_main_mem += 100 * ((1<<num_offset)/4) + 1; //bring in memory block and load to CPI (+1)
     load_misses++;
+    cycle_main_mem += 100 * ((2^num_offset)/4); //bring in memory takes 100 cycles
 }
 
 void Simulator::store(string address) {
@@ -165,7 +212,7 @@ void Simulator::store(string address) {
                 if (write_hit == "write-back") {
                     it->dirty = true; //block and main memory different
                 } else { //write-through
-                    cycle_main_mem += 100 * ((1<<num_offset)/4); //write ONLY modified mem ref to main memory (100 cycles)
+                    cycle_main_mem += 100; //write ONLY modified mem ref to main memory (100 cycles)
                 }
                 return;
             } 
@@ -173,16 +220,52 @@ void Simulator::store(string address) {
 
         //at this point, block is not in set, so increment store_misses
         store_misses++;
+
+
         //write modified memory directly to main mem and we are DONE
         if (write_miss == "no-write-allocate") {
-            cycle_main_mem += 100 * ((1<<num_offset)/4); //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
+            cycle_main_mem += 100; //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
             return; 
         } else { //write-allocate
+
             //first, evict a block 
             if ((int)cache.at(index).size() == associativity) {
-                bool evictBlockDirty = evict(replace);
-                //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
-                if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
+
+                bool evictBlockDirty = false; 
+
+                if (replace == "lru") {
+                    int access = INT_MAX;
+                    vector<Block>::iterator least_used;
+                    for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+                        if (it->access_ts < access) {
+                            access = it->access_ts;
+                            least_used = it;
+                        }
+                    }
+
+                    if (least_used->dirty == true) {
+                        evictBlockDirty = true; 
+                    }
+                    cache.at(index).erase(least_used);
+
+                } else { //fifo
+                    int load = -1;
+                    vector<Block>::iterator first_in;
+                    for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+                        if (it->load_ts > load) {
+                            load = it->access_ts;
+                            first_in = it;
+                        }
+                    }
+
+                    if (first_in->dirty == true) {
+                        evictBlockDirty = true; 
+                    }
+                cache.at(index).erase(first_in);
+                }
+                
+                //only if DIRTY?
+                if (write_hit == "write-back" && evictBlockDirty == true) cycle_main_mem += 100 * ((2^num_offset)/4); //write memory takes 100 cycles
             }
 
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
@@ -199,11 +282,11 @@ void Simulator::store(string address) {
             new_set.push_back(new_block);
             cache.insert({index, new_set});
         } else { //no-write-allocate
-            cycle_main_mem += 100 * ((1<<num_offset)/4); //writes modified memory directly to memory 
+            cycle_main_mem += 100; //writes ONLY modified memory ( not ENTIRE block) directly to memory 
             return; 
         }
     }
-    cycle_main_mem += 100 * ((1<<num_offset)/4);
+    cycle_main_mem += 100 * ((2^num_offset)/4);
     //if index is present, tag is the same, we have a write hit
     //increment store_hits
 
