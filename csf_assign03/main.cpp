@@ -14,7 +14,9 @@ int main(int argc, char **argv) {
 	    cout << "Invalid number of arguments!" << endl;
 	    return 1;
     }
-
+    string write_miss = argv[4];
+    string write_hit = argv[5];
+    string replace = argv[6];
     if (atoi(argv[1]) <= 0 || !checkPowerTwo(atoi(argv[1]))) {
 	    cout << "Invalid number of sets in the cache!" << endl;
 	    return 1;
@@ -27,15 +29,15 @@ int main(int argc, char **argv) {
 	    cout << "Invalid size of blocks in the cache!" << endl;
 	    return 1;
     }
-    if (argv[4] != "write-allocate" && argv[4] != "no-write-allocate") {
+    if (write_miss != "write-allocate" && write_miss != "no-write-allocate") {
         cout << "Invalid write-miss strategy!" << endl;
 	    return 1;
     }
-    if (argv[5] != "write-through" && argv[5] != "write-back") {
+    if (write_hit != "write-through" && write_hit != "write-back") {
         cout << "Invalid write-hit strategy!" << endl;
 	    return 1;
     }
-    if (argv[6] != "lru" && argv[6] != "fifo") {
+    if (replace != "lru" && replace != "fifo") {
         cout << "Invalid replace strategy!" << endl;
 	    return 1;
     }
