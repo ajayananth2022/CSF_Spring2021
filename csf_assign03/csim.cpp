@@ -83,7 +83,7 @@ void Simulator::printSummary() {
     cout << "Total cycles: " << total_cycles << endl;
 }
 
-bool Simulator::evict(string strategy) {
+bool Simulator::evict(string strategy, string index) {
     bool evictBlockDirty = false;
     if (strategy == "lru") {
         int access = INT_MAX;
@@ -111,7 +111,7 @@ bool Simulator::evict(string strategy) {
     return evictBlockDirty;
 }
 
-void Simulator::load(string address, string index) {
+void Simulator::load(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
     //search for index (key in map)
