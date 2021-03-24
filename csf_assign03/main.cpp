@@ -41,6 +41,10 @@ int main(int argc, char **argv) {
         cout << "Invalid replace strategy!" << endl;
 	    return 1;
     }
+    if (write_miss == "no-write-allocate" && write_hit == "write-back") {
+        cout << "Invalid write-miss and write-hit stratgy combination!" << endl;
+        return 1;
+    }
     Simulator sim(argv);
     string mem_access;
     while (getline(cin, mem_access)) {

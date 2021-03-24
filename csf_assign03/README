@@ -4,3 +4,12 @@
 For Milestone1:
  Lucy: wrote Makefile, and laid down basic structure of cpp files
  Ajay: handled and checked command line arguments
+
+
+For Milestone2:
+ Lucy: wrote store function with lru and fifo
+ Ajay: wrote hexToBinary helper function, load function
+
+For Milestone3:
+ Lucy: wrote evict helper function
+ Ajay:

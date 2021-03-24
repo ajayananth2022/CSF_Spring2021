@@ -54,7 +54,6 @@ class Simulator {
         void load(std::string address);
         void store(std::string address);
         bool evict(std::string strategy, std::string index);
-        //Block* checkHit(std::string address);
 
 };
 
