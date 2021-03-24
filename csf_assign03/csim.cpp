@@ -166,7 +166,7 @@ void Simulator::store(string address) {
                 if (write_hit == "write-back") {
                     it->dirty = true; //block and main memory different
                 } else { //write-through
-                    cycle_main_mem += 100 * ((1<<num_offset)/4); //write ONLY modified mem ref to main memory (100 cycles)
+                    cycle_main_mem += 100; //write ONLY modified mem ref to main memory (100 cycles)
                 }
                 return;
             } 
@@ -176,7 +176,7 @@ void Simulator::store(string address) {
         store_misses++;
         //write modified memory directly to main mem and we are DONE
         if (write_miss == "no-write-allocate") {
-            cycle_main_mem += 100 * ((1<<num_offset)/4); //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
+            cycle_main_mem += 100; //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
             return; 
         } else { //write-allocate
             //first, evict a block 
@@ -200,7 +200,7 @@ void Simulator::store(string address) {
             new_set.push_back(new_block);
             cache.insert({index, new_set});
         } else { //no-write-allocate
-            cycle_main_mem += 100 * ((1<<num_offset)/4); //writes modified memory directly to memory 
+            cycle_main_mem += 100; //writes modified memory directly to memory 
             return; 
         }
     }
