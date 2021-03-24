@@ -206,7 +206,9 @@ void Simulator::store(string address) {
             return; 
         }
     }
-    cycle_main_mem += 100 * ((1<<num_offset)/4);
+    cycle_main_mem += 100 * ((1<<num_offset)/4) + 1;
+    if (write_hit == "write-through") cycle_main_mem += 100;
+    
     //if index is present, tag is the same, we have a write hit
     //increment store_hits
 
