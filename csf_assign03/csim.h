@@ -54,6 +54,7 @@ class Simulator {
         void load(std::string address);
         void store(std::string address);
         bool evict(std::string strategy, std::string index);
+        bool findBlock(std::string tag, std::string index); 
 
 };
 

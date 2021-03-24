@@ -150,14 +150,12 @@ void Simulator::load(string address) {
     load_misses++;
 }
 
-void Simulator::store(string address) {
-    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
-    string index = address.substr(num_tag, num_index);
-    //search for index (key in map)
-    if (cache.count(index) == 1) {
-        vector<Block>::iterator it; 
-        //search for particular tag in index
-        for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
+//helper function for store hits
+bool Simulator::findBlock(string tag, string index) { 
+
+    vector<Block>::iterator it; 
+
+    for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->tag == tag) { //load hit is found
                 store_hits++;
                 it->access_ts++;
@@ -167,18 +165,31 @@ void Simulator::store(string address) {
                 } else { //write-through
                     cycle_main_mem += 100; //write ONLY modified mem ref to main memory (100 cycles)
                 }
-                return;
+                return true;
             } 
         }
+    return false; 
+}
+
+
+void Simulator::store(string address) {
+    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
+    string index = address.substr(num_tag, num_index);
+    //search for index (key in map)
+    if (cache.count(index) == 1) {
+
+
+        if (findBlock(tag, index)) return;  //check for store hit
+        
         //at this point, block is not in set, so increment store_misses
         store_misses++;
-        //write modified memory directly to main mem and we are DONE
-        if (write_miss == "no-write-allocate") {
+        vector<Block>::iterator it; 
+
+        if (write_miss == "no-write-allocate") { //write modified memory directly to main mem and we are DONE
             cycle_main_mem += 100; //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
             return; 
         } else { //write-allocate
-            //first, evict a block 
-            if ((int)cache.at(index).size() == associativity) {
+            if ((int)cache.at(index).size() == associativity) { //first, evict a block if necessary
                 bool evictBlockDirty = evict(replace, index);
                 //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
                 if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
