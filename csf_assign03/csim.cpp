@@ -72,7 +72,7 @@ Simulator::Simulator(char *argv[]) {
 void Simulator::printSummary() {
     int total_loads = load_hits + load_misses;
     int total_stores = store_hits + store_misses;
-    int total_cycles = total_loads + total_stores + cycle_main_mem;
+    int total_cycles = cycle_main_mem;
 
     cout << "Total loads: " << total_loads << endl;
     cout << "Total stores: " << total_stores << endl;
@@ -123,6 +123,7 @@ void Simulator::load(string address) {
             if (it->tag == tag) { //load hit is found
                 load_hits++;
                 it->access_ts++; //update access time
+                cycle_main_mem++; //1 cycle: load from cache to CPU
                 return;
             } 
         }
@@ -162,7 +163,8 @@ void Simulator::store(string address) {
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->tag == tag) { //load hit is found
                 store_hits++;
-                it->access_ts++; 
+                it->access_ts++;
+                cycle_main_mem++; //1 cycle: write to cache from CPU 
                 if (write_hit == "write-back") {
                     it->dirty = true; //block and main memory different
                 } else { //write-through
