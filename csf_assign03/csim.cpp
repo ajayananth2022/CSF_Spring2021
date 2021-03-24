@@ -102,7 +102,7 @@ bool Simulator::evict(string strategy, string index) {
         vector<Block>::iterator first_in;
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->load_ts > load) { //find the block with the biggest load time
-                load = it->access_ts;
+                load = it->load_ts;
                 first_in = it;
             }
         }
@@ -128,21 +128,18 @@ void Simulator::load(string address) {
             } 
         }
         //at this point, the mem block to be loaded is NOT in set
-
         //if set is full, evict a block
         if ((int)cache.at(index).size() == associativity) {
             bool evictBlockDirty = evict(replace, index);
             //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
             if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
         }
-
         //if there's no block in the set with the particular tag
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
         Block new_block = Block(tag, false); //create new block with specific tag
         cache.at(index).push_back(new_block);
-
     } else { //if there's no set with the particulat index        
         vector<Block> new_set; //create new map element with new block
         Block new_block = Block(tag, false);
@@ -173,7 +170,6 @@ void Simulator::store(string address) {
                 return;
             } 
         }
-
         //at this point, block is not in set, so increment store_misses
         store_misses++;
         //write modified memory directly to main mem and we are DONE
@@ -187,7 +183,6 @@ void Simulator::store(string address) {
                 //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
                 if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
             }
-
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                 it->load_ts++; //increment load time for all old blocks
             }
@@ -208,24 +203,4 @@ void Simulator::store(string address) {
     }
     cycle_main_mem += 100 * ((1<<num_offset)/4) + 1;
     if (write_hit == "write-through") cycle_main_mem += 100;
-    
-    //if index is present, tag is the same, we have a write hit
-    //increment store_hits
-
-    //if index is not present, or index is present but tag is different
-    //we have a write miss
-    //increment store_misses
-
-    //write hit:
-    //write through: "write data" to memory 
-    //write back: "write data" to cache, update access_ts
-
-    //write miss:
-    //write-allocate: load into cache, update dirty bit, update access_ts, replace if needed
-    //no-write-allocate: "write data" to memory (dirty bit always false)
-
-    //replace:
-    //LRU: evict the least recently accessed
-    //FIFO: evict the first in (oldest)
-
 }
