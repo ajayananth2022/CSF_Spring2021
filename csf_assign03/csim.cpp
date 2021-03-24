@@ -85,6 +85,7 @@ void Simulator::printSummary() {
 
 bool Simulator::evict(string strategy, string index) {
     bool evictBlockDirty = false;
+    vector<Block>::iterator it; 
     if (strategy == "lru") {
         int access = INT_MAX;
         vector<Block>::iterator least_used;
