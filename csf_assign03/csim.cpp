@@ -175,16 +175,11 @@ bool Simulator::findBlock(string tag, string index) {
 void Simulator::store(string address) {
     string tag = address.substr(0, num_tag); //num_tag is number of tag bits
     string index = address.substr(num_tag, num_index);
-    //search for index (key in map)
-    if (cache.count(index) == 1) {
-
-
+    if (cache.count(index) == 1) { //search for index (key in map)
         if (findBlock(tag, index)) return;  //check for store hit
-        
         //at this point, block is not in set, so increment store_misses
         store_misses++;
         vector<Block>::iterator it; 
-
         if (write_miss == "no-write-allocate") { //write modified memory directly to main mem and we are DONE
             cycle_main_mem += 100; //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
             return; 

@@ -7,34 +7,58 @@
 #include <vector>
 #include <map>
 
+
+/*
+ * helper function that checks if a number is a power of 2
+ * @param num the number to be checked
+ * @return true if the number is power of 2, false otherwise
+ */
 bool checkPowerTwo(int num);
 
+
+/*
+ * helper function that converts a string of hexadecimal numbers to binary
+ * @param hex_string the string in hexadecimal to be converted
+ * @return a string with binary representation of the hex number
+ */
 std::string hexToBinary(std::string hex_string);
 
+
+/*
+ * A class to represent a block in cache
+ */
 class Block {
     public:
-        std::string tag;
-        bool dirty; //for it the cache is different from the main memory
+        std::string tag; //a string of binary numbers
+        bool dirty; //true if the cache is different from main memory
         int load_ts; //for fifo
         int access_ts; //for LRU
+
+        /*
+         * Constructor of the Block class
+         * @param t the tag of block
+         * @param d whether the cache is different from main memory
+         */
         Block(std::string t, bool d) {
             tag = t;
             dirty = d;
             load_ts = 0;
             access_ts = 0;
         }
-        friend bool operator<(const Block& l, const Block& r) {
-            return l.access_ts < r.access_ts;
-        }
-
 };
 
+
+/*
+ * A class that represents a cache simulator
+ * contains basic info about the cache
+ * stores the number of load and store hits/misses
+ */
 class Simulator {
     private:
         int associativity;
-        int num_offset;
-        int num_index;
-        int num_tag;
+        int num_offset; //number of offset bits
+        int num_index; //number of index bits
+        int num_tag; //number of tag bits
 
         int load_hits;
         int load_misses;
@@ -42,18 +66,60 @@ class Simulator {
         int store_misses;
         int cycle_main_mem;
 
-        std::string write_miss;
-        std::string write_hit;
-        std::string replace;
+        std::string write_miss; //write-miss strategy
+        std::string write_hit; //write-hit strategy
+        std::string replace; //replacement strategy
 
-        std::map<std::string, std::vector<Block>> cache; //key is index, value is a set of blocks
+        //key is index, value is a vector of blocks
+        std::map<std::string, std::vector<Block>> cache; 
 
     public:
-        Simulator(char *argv[]); //constructor
-        void printSummary(); //print number of loads, stores, etc
+        /*
+         * Constructor of the Simulator class from command line args
+         * @param argv contains the command line args that specifies
+         * the dimension and strategies used in the cache
+         */
+        Simulator(char *argv[]); 
+
+        /*
+         * prints the load and store hits/misses and total cycle number
+         */
+        void printSummary(); 
+
+        /*
+         * loads data at an address from cache to CPU
+         * if cache block doesn't exist, load from main memory
+         * if cache set is full, evict based on replacement strategy
+         * @param address the address we're trying to load from cache
+         */
         void load(std::string address);
+
+        /*
+         * stores/writes data from CPU to cache or main memory
+         * if cache block doesn't exist, load from main memory
+         * if cache set is full, evict based on replacement strategy
+         * writes to cache or main memory based on write-hit strategy
+         * modify cache or not based on write-miss strategy
+         * @param address the address we're trying to write to cache
+         */
         void store(std::string address);
+
+        /*
+         * a helper method for evicting a block when cache is full
+         * choose the block to evict based on replacement strategy
+         * @param strategy lru or fifo
+         * @param index the index of the set to evict a block from
+         * returns the dirty bit of the evicted block
+         */
         bool evict(std::string strategy, std::string index);
+
+        /*
+         * a helper method for evicting a block when cache is full
+         * choose the block to evict based on replacement strategy
+         * @param strategy lru or fifo
+         * @param index the index of the set to evict a block from
+         * returns the dirty bit of the evicted block
+         */
         bool findBlock(std::string tag, std::string index); 
 
 };
