@@ -24,7 +24,7 @@ bool checkPowerTwo(int num) {
 string hexToBinary(string hex_string) {
     string retString = "";
 	for (int i = 0; i < (int)hex_string.length(); ++i) {
-		switch (hex_string[i]){
+		switch (hex_string[i]){ //append the right binary code
 			case '0': retString.append ("0000"); break;
 			case '1': retString.append ("0001"); break;
 			case '2': retString.append ("0010"); break;
@@ -61,11 +61,13 @@ Simulator::Simulator(char *argv[]) {
     write_miss = argv[4];
     write_hit = argv[5]; 
     replace = argv[6]; 
+    //initialize all stats to 0
     load_hits = 0;
     load_misses = 0;
     store_hits = 0;
     store_misses = 0;
     cycle_main_mem = 0;
+    //declare an empty map
     map<string, vector<Block>> cache;
 }
 
@@ -87,19 +89,20 @@ bool Simulator::evict(string strategy, string index) {
     bool evictBlockDirty = false;
     vector<Block>::iterator it; 
     if (strategy == "lru") {
-        int access = INT_MAX;
-        vector<Block>::iterator least_used;
+        int access = INT_MAX; 
+        vector<Block>::iterator least_used; //store the block with least access_ts
+        //iterate through all the blocks in this set
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->access_ts < access) { //find the block with smallest access time
                 access = it->access_ts;
-                least_used = it;
+                least_used = it; 
             }
         }
         if (least_used->dirty == true) evictBlockDirty = true; 
         cache.at(index).erase(least_used); //remove least accessed
     } else { //fifo
         int load = -1;
-        vector<Block>::iterator first_in;
+        vector<Block>::iterator first_in; //store the oldest block
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             if (it->load_ts > load) { //find the block with the biggest load time
                 load = it->load_ts;
@@ -107,14 +110,14 @@ bool Simulator::evict(string strategy, string index) {
             }
         }
         if (first_in->dirty == true) evictBlockDirty = true; 
-        cache.at(index).erase(first_in);
+        cache.at(index).erase(first_in); //remove the oldest block
     }
     return evictBlockDirty;
 }
 
 void Simulator::load(string address) {
-    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
-    string index = address.substr(num_tag, num_index);
+    string tag = address.substr(0, num_tag); //tag bits
+    string index = address.substr(num_tag, num_index); //index bits
     //search for index (key in map)
     if (cache.count(index) == 1) { //if map element is found
         vector<Block>::iterator it; 
@@ -128,13 +131,11 @@ void Simulator::load(string address) {
             } 
         }
         //at this point, the mem block to be loaded is NOT in set
-        //if set is full, evict a block
-        if ((int)cache.at(index).size() == associativity) {
+        if ((int)cache.at(index).size() == associativity) { //if set is full
             bool evictBlockDirty = evict(replace, index);
             //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
-            if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
+            if (evictBlockDirty == true) cycle_main_mem += 100 * ((1 << num_offset) / 4); 
         }
-        //if there's no block in the set with the particular tag
         for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
             it->load_ts++; //increment load time for all old blocks
         }
@@ -150,7 +151,6 @@ void Simulator::load(string address) {
     load_misses++;
 }
 
-//helper function for store hits
 bool Simulator::findBlock(string tag, string index) { 
 
     vector<Block>::iterator it; 
@@ -173,21 +173,20 @@ bool Simulator::findBlock(string tag, string index) {
 
 
 void Simulator::store(string address) {
-    string tag = address.substr(0, num_tag); //num_tag is number of tag bits
+    string tag = address.substr(0, num_tag); 
     string index = address.substr(num_tag, num_index);
     if (cache.count(index) == 1) { //search for index (key in map)
         if (findBlock(tag, index)) return;  //check for store hit
         //at this point, block is not in set, so increment store_misses
         store_misses++;
         vector<Block>::iterator it; 
-        if (write_miss == "no-write-allocate") { //write modified memory directly to main mem and we are DONE
-            cycle_main_mem += 100; //writes ONLY modified memory (not ENTIRE block) directly to memory (no bringing into cache)  
+        if (write_miss == "no-write-allocate") { //write only the modified mem directly to main mem 
+            cycle_main_mem += 100;   
             return; 
         } else { //write-allocate
             if ((int)cache.at(index).size() == associativity) { //first, evict a block if necessary
                 bool evictBlockDirty = evict(replace, index);
-                //write back to main memory takes 100 * (block size/ 4) cycles , ONLY if dirty
-                if (evictBlockDirty == true) cycle_main_mem += 100 * ((1<<num_offset)/4); 
+                if (evictBlockDirty == true) cycle_main_mem += 100 * ((1 << num_offset) / 4); 
             }
             for (it = cache.at(index).begin(); it != cache.at(index).end(); it++) {
                 it->load_ts++; //increment load time for all old blocks
@@ -203,10 +202,10 @@ void Simulator::store(string address) {
             new_set.push_back(new_block);
             cache.insert({index, new_set});
         } else { //no-write-allocate
-            cycle_main_mem += 100; //writes modified memory directly to memory 
+            cycle_main_mem += 100; //writes only modified memory directly to memory 
             return; 
         }
     }
-    cycle_main_mem += 100 * ((1<<num_offset)/4) + 1;
-    if (write_hit == "write-through") cycle_main_mem += 100;
+    cycle_main_mem += 100 * ((1 << num_offset) / 4) + 1; //bring in memory block & load to CPI (+1)
+    if (write_hit == "write-through") cycle_main_mem += 100; //write only the modified mem to main mem 
 }

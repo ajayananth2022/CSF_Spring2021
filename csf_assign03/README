@@ -1,6 +1,8 @@
  //Lucy Zhang, Ajay Ananthakrishnan
  //wzhang99@jhu.edu, ajayananth@jhu.edu
 
+Contributions:
+
 For Milestone1:
  Lucy: wrote Makefile, and laid down basic structure of cpp files
  Ajay: handled and checked command line arguments
@@ -12,4 +14,27 @@ For Milestone2:
 
 For Milestone3:
  Lucy: wrote evict helper function
- Ajay:
+ Ajay: wrote findBlock helper function
+ We debugged and tested together. We did the analysis together.
+
+Analysis: 
+The purpose of our analysis was to test which cache configuration would be the most effective. We used the gcc.trace file to test our cache. In order to determine the best cache configuration, we did experiments and collected data on cache configurations of varying associativity, block size, number of sets, total cache size, write policies, and eviction policies. Our primary conclusion is that write policy is the predominant determinant of cache effectiveness; namely, write-allocate, write-back has the highest hit rate and lowest number of cycles (miss penalty) compared with no-write-allocate, write-through. 
+See our experimental results in pdf (CSF_Assignment3_Cache_Tests.pdf)
+
+Block Size: 
+We experimented with three different block sizes: 32, 64, and 128 bytes. We observed that the higher the block size, the higher the hit rate, total cycle counts (which correlates to higher miss penalty), and total cache size. We conclude that 64 byte block size is the best because it has a relatively high hit rate and the total cycle count is relatively low.
+
+Eviction Strategy: 
+Choice of eviction strategy (LRU vs. FIFO) did not seem to make a significant difference in total cycles, hit rates, and miss rates. However, we note that LRU may make a difference for particular traces that, for example, access particular memory addresses frequently. However, for our trace, it did not seem to matter. 
+
+Write Policy:
+We experimented with write-allocate+write through, write-allocate+write-back, and no-write-allocate+write-through. We conclude write-allocate+write-back is the best choice because it has the highest hit rates (~99.3%) and lowest total cycle count (~6M). Write-allocate+write-through also has high hit rates (99.3%) but the total cycle count is much higher (~25M). No-write-allocate+write-through has slightly lower cycle count (~23M) but the hit rates are lower (~94.9%).
+
+Associativity: 
+While we tested a fully associative cache and observed that it has the lowest number of total cycles, we note that it took a very long time for the program to run, and it is complex to practically implement. However, the data from the fully associative cache was used as a ‘theoretical’ maximum. We tested 1, 2, 4, and 8 way associativity, and determined that the 8-way associative cache is the closest to the theoretical in terms of maximum hit rate and number of cycles. 
+
+*Run time: 
+We tested the time for the different write policies to run, and observed no significant difference in run time of programs. We note that run time may be an inaccurate way to determine the effectiveness of the cache since other programs on our device might be affecting the run time. 
+
+Conclusion: 
+In conclusion, a write-allocate, write-back 8-way associative cache with 64 byte blocks is the most effective cache configuration (for 512KB cache). This is in agreement with the theory of write-back/write-allocate being faster than write-through/no-write allocate, as we don’t have to write to cache on every write miss, or write directly to main memory on every write-hit. 

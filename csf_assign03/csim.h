@@ -64,7 +64,7 @@ class Simulator {
         int load_misses;
         int store_hits;
         int store_misses;
-        int cycle_main_mem;
+        int cycle_main_mem; //total number of cycles
 
         std::string write_miss; //write-miss strategy
         std::string write_hit; //write-hit strategy
@@ -114,11 +114,11 @@ class Simulator {
         bool evict(std::string strategy, std::string index);
 
         /*
-         * a helper method for evicting a block when cache is full
-         * choose the block to evict based on replacement strategy
-         * @param strategy lru or fifo
-         * @param index the index of the set to evict a block from
-         * returns the dirty bit of the evicted block
+         * a helper method for to find the block to write to in a 
+         * particular set
+         * @param tag the tag of the address
+         * @param index the index of the set to find the block
+         * returns true on a hit, false otherwise
          */
         bool findBlock(std::string tag, std::string index); 
 
