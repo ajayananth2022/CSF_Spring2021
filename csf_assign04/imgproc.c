@@ -23,8 +23,13 @@ void print_usage() {
     printf("Usage: imgproc <command> [<command args...>]\nCommands are:\n  list\n  exec <plugin> <input img> <output img> [<plugin args...>]\n");
 }
 
-void print_plugins() {
-    printf("Loaded 5 plugin(s)\n mirrorh: mirror image horizontally\n mirrorv: mirroro image vertically\n swapbg: swap blue and green color component values\n tile: tile source image in an NxN arrangement\n expose: adjust the intensity of all pixels\n");
+void print_plugins(struct Plugin * plugins, int plugin_count) {
+    printf("Loaded %d plugin(s)", plugin_count);
+    const char *plugin_name = plugins[i].(*get_plugin_name)();
+    const char *plugin_desc = plugins[i].(*get_plugin_desc)();
+    for (int i = 0; i < plugin_count; i++) {
+        printf("%s: %s\n", plugin_name, plugin_desc);
+    }
 }
 
 int main(int argc, char **argv) {
@@ -53,21 +58,22 @@ int main(int argc, char **argv) {
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
             void *handle = dlopen(filename, RTLD_LAZY); //loads plugin dynamically
-            struct Plugin *p;
-            p->handle = handle;
+            struct Plugin plug;
+            plug.handle = handle;
+            struct Plugin *p = &plug; //pointer to plug
             //use dlsym to find addresses of loaded plugin
             *(void **) (&p->get_plugin_name) = dlsym(handle, "get_plugin_name");
             *(void **) (&p->get_plugin_desc) = dlsym(handle, "get_plugin_desc");
             *(void **) (&p->parse_arguments) = dlsym(handle, "parse_arguments");
             *(void **) (&p->transform_image) = dlsym(handle, "transform_image");
-            plugins[plugin_count++] = *p; 
+            plugins[plugin_count++] = plug; 
         }
     }
     closedir(dir);
 
 
     if (strcmp(argv[1], "list") == 0) {
-        print_plugins();
+        print_plugins(struct Plugin * plugins, int plugin_count);
         return 0;
     }
 
