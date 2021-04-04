@@ -27,7 +27,7 @@ imgproc.o: imgproc.c
 
 plugins/swapbg.so : swapbg.o
 	mkdir -p plugins
-	$(CC) -o swapbg.so shared swapbg.o
+	$(CC) -o swapbg.so -shared swapbg.o
 
 swapbg.o: swapbg.c
 	$(CC) $(CFLAGS) -c swapbg.c -o swapbg.o
