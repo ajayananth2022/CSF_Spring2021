@@ -53,14 +53,14 @@ int main(int argc, char **argv) {
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
             void *handle = dlopen(filename, RTLD_LAZY); //loads plugin dynamically
-            struct Plugin p;
-            p.handle = handle;
+            struct Plugin *p;
+            p->handle = handle;
             //use dlsym to find addresses of loaded plugin
-            *(void **) (p.get_plugin_name) = dlsym(handle, "get_plugin_name");
-            *(void **) (p.get_plugin_desc) = dlsym(handle, "get_plugin_desc");
+            *(void **) (&p->get_plugin_name) = dlsym(handle, "get_plugin_name");
+            *(void **) (&p->get_plugin_desc) = dlsym(handle, "get_plugin_desc");
             *(void **) (&p->parse_arguments) = dlsym(handle, "parse_arguments");
             *(void **) (&p->transform_image) = dlsym(handle, "transform_image");
-            plugins[plugin_count++] = p; 
+            plugins[plugin_count++] = *p; 
         }
     }
     closedir(dir);
