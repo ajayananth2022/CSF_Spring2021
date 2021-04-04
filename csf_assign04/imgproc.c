@@ -24,7 +24,7 @@ void print_usage() {
 }
 
 void print_plugins(struct Plugin * plugins, int plugin_count) {
-    printf("Loaded %d plugin(s)", plugin_count);
+    printf("Loaded %d plugin(s)\n", plugin_count);
     for (int i = 0; i < plugin_count; i++) {
         const char *plugin_name = (*plugins[i].get_plugin_name)();
         const char *plugin_desc = (*plugins[i].get_plugin_desc)();
@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
             *(void **) (&p.transform_image) = dlsym(handle, "transform_image");
             plugins[plugin_count] = p; 
             plugin_count++;
+            dlclose(handle);
         }
     }
     closedir(dir);
