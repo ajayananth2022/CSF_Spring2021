@@ -3,7 +3,8 @@
 CC = gcc
 CFLAGS = -g -Wall -Wextra -pedantic -std=c11 -fPIC
 
-PLUGIN_SRCS = swapbg.c mirrorh.c mirrorv.c tile.c expose.c
+#PLUGIN_SRCS = swapbg.c mirrorh.c mirrorv.c tile.c expose.c
+PLUGIN_SRCS = swapbg.c
 SRCS = imgproc.c pnglite.c $(PLUGIN_SRCS)
 
 OBJS = $(SRCS:%.c=%.o)
@@ -27,7 +28,7 @@ imgproc.o: imgproc.c
 
 plugins/swapbg.so : swapbg.o
 	mkdir -p plugins
-	$(CC) -o swapbg.so -shared swapbg.o
+	$(CC) -o plugins/swapbg.so -shared swapbg.o
 
 swapbg.o: swapbg.c
 	$(CC) $(CFLAGS) -c swapbg.c -o swapbg.o
