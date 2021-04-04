@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
             *(void **) (&p->parse_arguments) = dlsym(handle, "parse_arguments");
             *(void **) (&p->transform_image) = dlsym(handle, "transform_image");
             plugins[plugin_count] = plug; 
-            plugins++;
+            plugin_count++;
         }
     }
     closedir(dir);
