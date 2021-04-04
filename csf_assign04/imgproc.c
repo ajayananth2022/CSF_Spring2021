@@ -57,9 +57,12 @@ int main(int argc, char **argv) {
         int name_len = strlen(filename);
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
-            void *handle = dlopen(filename, RTLD_LAZY); //loads plugin dynamically
+            char *full_address;
+            strcpy(full_address, plugin_dir);
+            strcat(full_address, filename);
+            void *handle = dlopen(full_address, RTLD_LAZY); //loads plugin dynamically
             if (handle == NULL) {
-                printf("Error: cannot load plugin from %s.\n", filename);
+                printf("Error: cannot load plugin from %s.\n", full_address);
                 continue;
             }
             struct Plugin p;
