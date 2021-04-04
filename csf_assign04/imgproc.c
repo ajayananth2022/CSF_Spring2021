@@ -57,8 +57,9 @@ int main(int argc, char **argv) {
         int name_len = strlen(filename);
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
-            char full_address[strlen(plugin_dir) + 1];
+            char full_address[strlen(plugin_dir) + 2];
             strcpy(full_address, plugin_dir);
+            full_address[strlen(plugin_dir)] = '/';
             strcat(full_address, filename);
             void *handle = dlopen(full_address, RTLD_LAZY); //loads plugin dynamically
             if (handle == NULL) {
