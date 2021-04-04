@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         char filename_cpy[name_len + 1];
         memcpy(filename_cpy, filename, name_len + 1);
         //check if filename ends with .so
-        if (name_len > 3 && strcmp(filename_cpy + name_len - 3, ".so" == 0) {
+        if (name_len > 3 && strcmp(filename_cpy + name_len - 3, ".so") == 0) {
             void *handle = dlopen(filename, RTLD_LAZY); //loads plugin dynamically
             struct Plugin p;
             p.handle = handle;
