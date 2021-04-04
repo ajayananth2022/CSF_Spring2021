@@ -25,9 +25,9 @@ void print_usage() {
 
 void print_plugins(struct Plugin * plugins, int plugin_count) {
     printf("Loaded %d plugin(s)", plugin_count);
-    const char *plugin_name = plugins[i].(*get_plugin_name)();
-    const char *plugin_desc = plugins[i].(*get_plugin_desc)();
     for (int i = 0; i < plugin_count; i++) {
+        const char *plugin_name = plugins[i].(*get_plugin_name)();
+        const char *plugin_desc = plugins[i].(*get_plugin_desc)();
         printf("%s: %s\n", plugin_name, plugin_desc);
     }
 }
