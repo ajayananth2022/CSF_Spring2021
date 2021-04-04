@@ -9,14 +9,14 @@ SRCS = imgproc.c pnglite.c $(PLUGIN_SRCS)
 OBJS = $(SRCS:%.c=%.o)
 PLUGINS = $(PLUGIN_SRCS:%.c=plugins/%.so)
 
-all : imgproc $(PLUGINS)
-
 %.o : %.c
 	$(CC) $(CFLAGS) -c $*.c -o $*.o
 
 plugins/%.so : %.o
 	mkdir -p plugins
 	$(CC) -o plugins/$*.so -shared $*.o
+
+all : imgproc $(PLUGINS)
 
 imgproc : imgproc.o image.o pnglite.o
 	$(CC) -export-dynamic -o $@ imgproc.o image.o pnglite.o -lz -ldl
@@ -26,6 +26,12 @@ imgproc.o: imgproc.c
 
 
 plugins/swapbg.so : swapbg.o
+	mkdir -p plugins
+	$(CC) -o swapbg.so shared swapbg.o
+
+swapbg.o: swapbg.c
+	$(CC) $(CFLAGS) -c swapbg.c -o swapbg.o
+
 
 clean :
 	rm -f *.o imgproc plugins/*.so depend.mak
