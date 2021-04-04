@@ -1,3 +1,5 @@
+//Lucy Zhang, Ajay Ananthakrishnan
+//wzhang99@jhu.edu, ajayananth@jhu.edu
 /*  pnglite.h - Interface for pnglite library
 	Copyright (c) 2007 Daniel Karling
 

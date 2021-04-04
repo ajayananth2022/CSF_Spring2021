@@ -1,3 +1,5 @@
+//Lucy Zhang, Ajay Ananthakrishnan
+//wzhang99@jhu.edu, ajayananth@jhu.edu
 //
 // Example plugin: it just swaps the blue and green color component
 // values for each pixel in the source image.
