@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
 
     if (strcmp(argv[1], "list") == 0) {
-        print_plugins(struct Plugin * plugins, int plugin_count);
+        print_plugins(plugins, plugin_count);
         return 0;
     }
 
