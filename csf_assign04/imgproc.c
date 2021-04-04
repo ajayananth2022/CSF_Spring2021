@@ -25,8 +25,14 @@ void print_plugins() {
 }
 
 int main(int argc, char **argv) {
-    if (argc == 1) print_usage();
-    if (strcmp(argv[1], "list") == 0) print_plugins();
+    if (argc == 1) {
+        print_usage();
+        return 0;
+    }
+    if (strcmp(argv[1], "list") == 0) {
+        print_plugins();
+        return 0;
+    }
 
     return 0;
 
