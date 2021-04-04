@@ -57,7 +57,8 @@ int main(int argc, char **argv) {
         int name_len = strlen(filename);
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
-            char full_address[strlen(plugin_dir) + name_len + 2] = "";
+            char full_address[strlen(plugin_dir) + name_len + 2];
+            memset(full_address, 0, strlen(plugin_dir) + name_len + 2); //initialize to 0
             strcpy(full_address, plugin_dir);
             full_address[strlen(plugin_dir)] = '/';
             strcat(full_address, filename);
