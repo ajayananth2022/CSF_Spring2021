@@ -42,11 +42,25 @@ int main(int argc, char **argv) {
         printf("Error: cannot open plugin directory.\n");
         return 1;
     }
-    struct dirent *plugin_dirent;
-    while ((plugin_dirent = readdir(dir)) != NULL) {
-        printf("%s\n", plugin_dirent->d_name);
-        //if (plugin_dirent->d_name)
+    struct Plugin plugins[15];
+    int plugin_count = 0;
 
+    struct dirent *plugin_dirent; //read directory into dirent struct object
+    while ((plugin_dirent = readdir(dir)) != NULL) {
+        char *filename = plugin_dirent->d_name;
+        int name_len = strlen(filename);
+        //check if filename ends with .so
+        if (filename_len > 3 && strcmp(filename + name_len - 3, ".so" == 0) {
+            void *handle = dlopen(filename, RTLD_LAZY); //loads plugin dynamically
+            struct Plugin p;
+            p.handle = handle;
+            //use dlsym to find addresses of loaded plugin
+            *(void **) (&p->get_plugin_name) = dlsym(handle, "get_plugin_name");
+            *(void **) (&p->get_plugin_desc) = dlsym(handle, "get_plugin_desc");
+            *(void **) (&p->parse_arguments) = dlsym(handle, "parse_arguments");
+            *(void **) (&p->transform_image) = dlsym(handle, "transform_image");
+            plugins[plugin_count++] = p; 
+        }
     }
     closedir(dir);
 
