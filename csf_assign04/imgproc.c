@@ -17,15 +17,11 @@ struct Plugin {
 };
 
 void print_usage() {
-    printf("Usage: imgproc <command> [<command args...>]\nCommands are:
-        \n  list\n  exec <plugin> <input img> <output img> [<plugin args...>]\n");
+    printf("Usage: imgproc <command> [<command args...>]\nCommands are:\n  list\n  exec <plugin> <input img> <output img> [<plugin args...>]\n");
 }
 
 void print_plugins() {
-    printf("Loaded 5 plugin(s)\n mirrorh: mirror image horizontally
-    \n mirrorv: mirroro image vertically\n swapbg: swap blue and green color 
-    component values\n tile: tile source image in an NxN arrangement
-    \n expose: adjust the intensity of all pixels\n");
+    printf("Loaded 5 plugin(s)\n mirrorh: mirror image horizontally\n mirrorv: mirroro image vertically\n swapbg: swap blue and green color component values\n tile: tile source image in an NxN arrangement\n expose: adjust the intensity of all pixels\n");
 }
 
 int main(int argc, char **argv) {
