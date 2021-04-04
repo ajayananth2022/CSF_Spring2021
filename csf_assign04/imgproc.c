@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
 
 struct Plugin {
     void *handle;
@@ -25,10 +26,29 @@ void print_plugins() {
 }
 
 int main(int argc, char **argv) {
-    if (argc == 1) {
+    if (argc == 1) { //if no command line arguments entered
         print_usage();
         return 0;
     }
+    //check if PLUGIN_DIR is set
+    const char *plugin_dir = getenv("PLUGIN_DIR");
+    if (plugin_dir == NULL) {
+        // use default plugin directory
+        plugin_dir = "./plugins";
+    }
+    dir = opendir(plugin_dir); //open the plugin directory
+    if (dir == NULL) {
+        printf("Error: cannot open plugin directory.\n");
+        return 1;
+    }
+    while (plugin_dirent = readdir(dir) != NULL) {
+        printf("%s\n", plugin_dirent->d_name);
+        //if (plugin_dirent->d_name)
+
+    }
+    closedir(dir);
+
+
     if (strcmp(argv[1], "list") == 0) {
         print_plugins();
         return 0;
