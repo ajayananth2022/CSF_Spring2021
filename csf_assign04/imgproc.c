@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     struct dirent *plugin_dirent;
-    while (plugin_dirent = readdir(dir) != NULL) {
+    while ((plugin_dirent = readdir(dir)) != NULL) {
         printf("%s\n", plugin_dirent->d_name);
         //if (plugin_dirent->d_name)
 
