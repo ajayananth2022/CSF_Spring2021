@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
+#include <stdlib.h>
 
 struct Plugin {
     void *handle;
@@ -36,11 +37,12 @@ int main(int argc, char **argv) {
         // use default plugin directory
         plugin_dir = "./plugins";
     }
-    dir = opendir(plugin_dir); //open the plugin directory
+    DIR *dir = opendir(plugin_dir); //open the plugin directory
     if (dir == NULL) {
         printf("Error: cannot open plugin directory.\n");
         return 1;
     }
+    struct dirent *plugin_dirent;
     while (plugin_dirent = readdir(dir) != NULL) {
         printf("%s\n", plugin_dirent->d_name);
         //if (plugin_dirent->d_name)
