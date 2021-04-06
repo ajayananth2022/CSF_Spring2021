@@ -26,7 +26,7 @@ void print_usage() {
 void print_plugins(struct Plugin * plugins, int plugin_count) {
     printf("Loaded %d plugin(s)\n", plugin_count);
     for (int i = 0; i < plugin_count; i++) {
-        //idk how to properly run these functions from function pointers
+        //idk how to properly run these functions from function pointers3
         const char *plugin_name = (*(plugins[i].get_plugin_name))();
         const char *plugin_desc = (*(plugins[i].get_plugin_desc))();
         printf("%s: %s\n", plugin_name, plugin_desc);
@@ -44,6 +44,8 @@ int main(int argc, char **argv) {
         // use default plugin directory
         plugin_dir = "./plugins";
     }
+
+
     DIR *dir = opendir(plugin_dir); //open the plugin directory
     if (dir == NULL) {
         printf("Error: cannot open plugin directory.\n");
@@ -77,7 +79,6 @@ int main(int argc, char **argv) {
             *(void **) (&p.transform_image) = dlsym(handle, "transform_image");
             plugins[plugin_count] = p; 
             plugin_count++;
-            dlclose(handle);
         }
     }
     closedir(dir);
@@ -86,6 +87,11 @@ int main(int argc, char **argv) {
     if (strcmp(argv[1], "list") == 0) {
         print_plugins(plugins, plugin_count);
         return 0;
+    }
+
+    //CLEAN UP: dlclose() all dynamically loaded shared libraries
+    for (int i = 0; i < plugin_count; i++) {
+        dlclose(plugins[i].handle); 
     }
 
     return 0;
