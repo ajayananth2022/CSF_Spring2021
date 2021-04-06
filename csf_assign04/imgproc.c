@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 
+#include "image_plugin.h"
+#include "image.h"
+
 struct Plugin {
     void *handle;
     const char *(*get_plugin_name)(void);
@@ -26,7 +29,6 @@ void print_usage() {
 void print_plugins(struct Plugin * plugins, int plugin_count) {
     printf("Loaded %d plugin(s)\n", plugin_count);
     for (int i = 0; i < plugin_count; i++) {
-        //idk how to properly run these functions from function pointers3
         const char *plugin_name = (*(plugins[i].get_plugin_name))();
         const char *plugin_desc = (*(plugins[i].get_plugin_desc))();
         printf("%s: %s\n", plugin_name, plugin_desc);
@@ -83,10 +85,50 @@ int main(int argc, char **argv) {
     }
     closedir(dir);
 
+    //dynamic loading complete at this point
 
-    if (strcmp(argv[1], "list") == 0) {
+    //print loaded plugins if "list" in command args. 
+    if (strcmp(argv[1], "list") == 0) {b
         print_plugins(plugins, plugin_count);
-        return 0;
+    }
+
+    // ./imgproc exec swapbg data/kitten.png kitten_swapbg.png
+
+    //carry out specified plugin if "exec" in command args. 
+    if (strcmp(argv[1], "exec") == 0) {
+        
+        // find a plugin whose name matches the specified plugin name
+        for (int i = 0; i < plugin_count; i++) {
+            //if plugin name equals specified plugin command argument, 
+            if (strcmp((*(plugins[i].get_plugin_name))(), argv[2]) == 0) {
+                //load the specified input image (using img_read_png)
+                struct Image *inputImg = img_read_png(argv[3]); 
+
+                //pass any command line arguments (past the input and output filenames) to the plugin’s parse_arguments function to produce an argument object
+                struct Arguments *parsedArgs = plugins[i].parse_arguments(argc - 5, argv+5); 
+
+                if (parsedArgs == NULL) {
+                    printf("Error: Invalid Plugin Arguments.\n");
+                    return 1;
+                }
+
+                //call the plugin’s transform_image function to perform the image transformation (passing the argument object returned by parse_arguments)
+                struct Image *resultImg = plugins[i].transform_image(inputImg, parsedArgs); 
+
+                //save the resulting image to the named output file (using img_write_png)
+                if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0 (false), failed. 
+                    printf("Error: Failed to save transformed image to named output file.\n");
+                    return 1;
+                }
+                break; 
+            }
+
+            //if this point is reached on last iteration of loop, invalid specified plugin name. 
+            if (i == plugin_count - 1) {
+                printf("Error: Specified Plugin Name Not Found.\n");
+                return 1; 
+            }
+        }
     }
 
     //CLEAN UP: dlclose() all dynamically loaded shared libraries
@@ -94,6 +136,7 @@ int main(int argc, char **argv) {
         dlclose(plugins[i].handle); 
     }
 
+    //end reached
     return 0;
 
 }
