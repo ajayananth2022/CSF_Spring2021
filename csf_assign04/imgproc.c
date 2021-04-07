@@ -106,8 +106,8 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
 //helper function that builds full address 
 void build_address(char* full_address, const char * plugin_dir, char* filename, int name_len) {
     memset(full_address, 0, strlen(plugin_dir) + name_len + 2); //initialize to 0
-    strcpy(full_address, plugin_dir);
-    full_address[strlen(plugin_dir)] = '/';
+    strcpy(full_address, plugin_dir); //copies directory to full address
+    full_address[strlen(plugin_dir)] = '/'; //append "/" after directory
     strcat(full_address, filename);
 }
 
