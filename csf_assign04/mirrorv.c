@@ -54,7 +54,7 @@ struct Image *transform_image(struct Image *source, void *arg_data) {
 			row++; 
 		}
 		//reverse pixels vertically
-		out->data[col + row * width] = source->data[(height - 1 - row) * width + col; 
+		out->data[col + row * width] = source->data[(height - 1 - row) * width + col]; 
 		col++; 
 	}
 
