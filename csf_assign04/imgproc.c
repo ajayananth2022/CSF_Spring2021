@@ -68,6 +68,7 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
             if (parsedArgs == NULL) {
                 printf("Error: Invalid Plugin Arguments.\n");
                 clean_up(plugins, plugin_count);
+                img_destroy(resultImg);
                 exit(1);
             }
 
@@ -78,8 +79,10 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
             if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0, failed. 
                 printf("Error: Failed to save transformed image to named output file.\n");
                 clean_up(plugins, plugin_count);
+                img_destroy(resultImg);
                 exit(1);
             }
+            img_destroy(resultImg);
             break; 
         }
 
@@ -87,6 +90,7 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
         if (i == plugin_count - 1) {
             printf("Error: Specified Plugin Name Not Found.\n");
             clean_up(plugins, plugin_count);
+            img_destroy(resultImg);
             exit(1); 
         }
     }
