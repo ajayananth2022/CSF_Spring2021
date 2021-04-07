@@ -64,7 +64,7 @@ struct Image *transform_image(struct Image *source, void *arg_data) {
 	for (unsigned r = 0; r < source_height; r++) {
 		unsigned tile_r = tiles * tile_idx(height_excess, height_bound, tile_height, r);
 		for (unsigned c = 0; c < source_width; c++) {
-			unsigned tile_w = tiles * tile_idx(width_excess, width_bound, tile_width, c);
+			unsigned tile_c = tiles * tile_idx(width_excess, width_bound, tile_width, c);
 			out->data[c + r * source_width] = source->data[tile_c + tile_r * source_width];
 		}
 	}
