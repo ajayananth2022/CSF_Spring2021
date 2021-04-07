@@ -62,6 +62,7 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
             //load the specified input image (using img_read_png)
             struct Image *inputImg = img_read_png(argv[3]); 
             if (inputImg == NULL) {
+                printf("Error: Cannot read from input file %s.\n", argv[3]);
                 clean_up(plugins, plugin_count);
                 exit(1);
             }
