@@ -35,11 +35,12 @@ void *parse_arguments(int num_args, char *args[]) {
 	return (void *)arguments;
 }
 
-unsigned calculate_tile_len(unsigned source_len, unsigned total_tiles, unsigned index) {
-	unsigned tile_len = source_len / total_tiles;
-	unsigned excess = source_len % total_tiles; //number of excess pixels
-	if (index < excess) return tile_len + 1;
-	return tile_len;
+unsigned tile_idx(unsigned excess, unsigned bound, unsigned tile_len, unsigned idx) {
+	if (excess != 0) {
+		if (idx < bound) return idx % (tile_len + 1);
+		return (idx - bound) % tile_len;
+	} 
+	return idx % tile_len;
 }
 
 struct Image *transform_image(struct Image *source, void *arg_data) {
@@ -50,18 +51,23 @@ struct Image *transform_image(struct Image *source, void *arg_data) {
 		free(args);
 		return NULL;
 	}
-	unsigned num_pixels = source->width * source->height;
 	unsigned tiles = args->num_tiles;
+	unsigned source_width = source->width;
+	unsigned source_height = source->height;
+	unsigned tile_width = source_width / tiles;
+	unsigned tile_height = source_height / tiles;
+	unsigned width_excess = source_width % tiles;
+	unsigned height_excess = source_height % tiles;
+	unsigned width_bound = (tile_width + 1) * width_excess;
+	unsigned height_bound = (tile_height + 1) * height_excess;
 
-
-	unsigned row_num = 0; 
-	unsigned column_num = 0; 
-
-	for (unsigned i = 0; i < num_pixels; i++) {
-		//out->data[i] = swap_bg(source->data[i]);
+	for (unsigned r = 0; r < source_height; r++) {
+		unsigned tile_r = tiles * tile_idx(height_excess, height_bound, tile_height, r);
+		for (unsigned c = 0; c < source_width; c++) {
+			unsigned tile_w = tiles * tile_idx(width_excess, width_bound, tile_width, c);
+			out->data[c + r * source_width] = source->data[tile_c + tile_r * source_width];
+		}
 	}
-
 	free(args);
-
 	return out;
 }
