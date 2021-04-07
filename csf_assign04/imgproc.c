@@ -35,6 +35,63 @@ void print_plugins(struct Plugin * plugins, int plugin_count) {
     }
 }
 
+//helper function that executes plugin
+int exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
+    // find a plugin whose name matches the specified plugin name
+    for (int i = 0; i < plugin_count; i++) {
+        //if plugin name equals specified plugin command argument, 
+        if (strcmp((*(plugins[i].get_plugin_name))(), argv[2]) == 0) {
+            //load the specified input image (using img_read_png)
+            struct Image *inputImg = img_read_png(argv[3]); 
+
+            //pass any command line arguments (past the input and output filenames) to the plugin’s parse_arguments function to produce an argument object
+            struct Arguments *parsedArgs = plugins[i].parse_arguments(argc - 5, argv+5); 
+            if (parsedArgs == NULL) {
+                printf("Error: Invalid Plugin Arguments.\n");
+                return 1;
+            }
+
+            //call the plugin’s transform_image function to perform the image transformation (passing the argument object returned by parse_arguments)
+            struct Image *resultImg = plugins[i].transform_image(inputImg, parsedArgs); 
+
+            //save the resulting image to the named output file (using img_write_png)
+            if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0 (false), failed. 
+                printf("Error: Failed to save transformed image to named output file.\n");
+                return 1;
+            }
+            break; 
+        }
+
+        //if this point is reached on last iteration of loop, invalid specified plugin name. 
+        if (i == plugin_count - 1) {
+            printf("Error: Specified Plugin Name Not Found.\n");
+            return 1; 
+        }
+    }
+    return 0; 
+}
+
+//helper function that builds full address 
+void buildAddress(char* full_address, const char * plugin_dir, char* filename, int name_len) {
+    memset(full_address, 0, strlen(plugin_dir) + name_len + 2); //initialize to 0
+    strcpy(full_address, plugin_dir);
+    full_address[strlen(plugin_dir)] = '/';
+    strcat(full_address, filename);
+}
+
+//helper function that builds plugins and populates plugins[] 
+void makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
+    struct Plugin p;
+    p.handle = handle;
+    //use dlsym to find addresses of loaded plugin
+    *(void **) (&p.get_plugin_name) = dlsym(handle, "get_plugin_name");
+    *(void **) (&p.get_plugin_desc) = dlsym(handle, "get_plugin_desc");
+    *(void **) (&p.parse_arguments) = dlsym(handle, "parse_arguments");
+    *(void **) (&p.transform_image) = dlsym(handle, "transform_image");
+    plugins[*plugin_count] = p; 
+    (*plugin_count)++;
+}
+
 int main(int argc, char **argv) {
     if (argc == 1) { //if no command line arguments entered
         print_usage();
@@ -47,7 +104,6 @@ int main(int argc, char **argv) {
         plugin_dir = "./plugins";
     }
 
-
     DIR *dir = opendir(plugin_dir); //open the plugin directory
     if (dir == NULL) {
         printf("Error: cannot open plugin directory.\n");
@@ -55,32 +111,24 @@ int main(int argc, char **argv) {
     }
     struct Plugin plugins[15];
     int plugin_count = 0;
-
     struct dirent *plugin_dirent; //read directory into dirent struct object
+    
     while ((plugin_dirent = readdir(dir)) != NULL) {
         char *filename = plugin_dirent->d_name;
         int name_len = strlen(filename);
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
+
             char full_address[strlen(plugin_dir) + name_len + 2];
-            memset(full_address, 0, strlen(plugin_dir) + name_len + 2); //initialize to 0
-            strcpy(full_address, plugin_dir);
-            full_address[strlen(plugin_dir)] = '/';
-            strcat(full_address, filename);
+            buildAddress(full_address, plugin_dir, filename, name_len); 
+
             void *handle = dlopen(full_address, RTLD_LAZY); //loads plugin dynamically
             if (handle == NULL) {
                 printf("Error: cannot load plugin from %s.\n", full_address);
                 continue;
             }
-            struct Plugin p;
-            p.handle = handle;
-            //use dlsym to find addresses of loaded plugin
-            *(void **) (&p.get_plugin_name) = dlsym(handle, "get_plugin_name");
-            *(void **) (&p.get_plugin_desc) = dlsym(handle, "get_plugin_desc");
-            *(void **) (&p.parse_arguments) = dlsym(handle, "parse_arguments");
-            *(void **) (&p.transform_image) = dlsym(handle, "transform_image");
-            plugins[plugin_count] = p; 
-            plugin_count++;
+            //makePlugin increments plugin_count
+            makePlugin(handle, plugins, &plugin_count); 
         }
     }
     closedir(dir);
@@ -92,43 +140,10 @@ int main(int argc, char **argv) {
         print_plugins(plugins, plugin_count);
     }
 
-    // ./imgproc exec swapbg data/kitten.png kitten_swapbg.png
-
+    int retVal; 
     //carry out specified plugin if "exec" in command args. 
     if (strcmp(argv[1], "exec") == 0) {
-        
-        // find a plugin whose name matches the specified plugin name
-        for (int i = 0; i < plugin_count; i++) {
-            //if plugin name equals specified plugin command argument, 
-            if (strcmp((*(plugins[i].get_plugin_name))(), argv[2]) == 0) {
-                //load the specified input image (using img_read_png)
-                struct Image *inputImg = img_read_png(argv[3]); 
-
-                //pass any command line arguments (past the input and output filenames) to the plugin’s parse_arguments function to produce an argument object
-                struct Arguments *parsedArgs = plugins[i].parse_arguments(argc - 5, argv+5); 
-
-                if (parsedArgs == NULL) {
-                    printf("Error: Invalid Plugin Arguments.\n");
-                    return 1;
-                }
-
-                //call the plugin’s transform_image function to perform the image transformation (passing the argument object returned by parse_arguments)
-                struct Image *resultImg = plugins[i].transform_image(inputImg, parsedArgs); 
-
-                //save the resulting image to the named output file (using img_write_png)
-                if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0 (false), failed. 
-                    printf("Error: Failed to save transformed image to named output file.\n");
-                    return 1;
-                }
-                break; 
-            }
-
-            //if this point is reached on last iteration of loop, invalid specified plugin name. 
-            if (i == plugin_count - 1) {
-                printf("Error: Specified Plugin Name Not Found.\n");
-                return 1; 
-            }
-        }
+        retVal = exec(plugins, plugin_count, argc, argv); 
     }
 
     //CLEAN UP: dlclose() all dynamically loaded shared libraries
@@ -137,6 +152,5 @@ int main(int argc, char **argv) {
     }
 
     //end reached
-    return 0;
-
+    return retVal;
 }
