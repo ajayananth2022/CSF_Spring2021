@@ -96,7 +96,7 @@ void buildAddress(char* full_address, const char * plugin_dir, char* filename, i
 }
 
 //helper function that builds plugins and populates plugins[] 
-void makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
+int makePlugin(void *handle, struct Plugin *plugins, int *plugin_count, DIR *dir) {
     struct Plugin p;
     p.handle = handle;
     //use dlsym to find addresses of loaded plugin
@@ -104,8 +104,14 @@ void makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
     *(void **) (&p.get_plugin_desc) = dlsym(handle, "get_plugin_desc");
     *(void **) (&p.parse_arguments) = dlsym(handle, "parse_arguments");
     *(void **) (&p.transform_image) = dlsym(handle, "transform_image");
+    if (&p.get_plugin_name == NULL || &p.get_plugin_desc == NULL || 
+        &p.parse_arguments == NULL || &p.transform_image == NULL) {
+        printf("Required API function can’t be found within a loaded plugin.\n");
+        return 1;
+    }
     plugins[*plugin_count] = p; 
     (*plugin_count)++;
+    return 0;
 }
 
 //helper function to set the plugin directory
@@ -158,7 +164,7 @@ int main(int argc, char **argv) {
                 printf("Error: cannot load plugin from %s.\n", full_address);
                 continue;
             }
-            makePlugin(handle, plugins, &plugin_count); 
+            if (makePlugin(handle, plugins, &plugin_count, dir) != 0) continue; 
         }
     }
     closedir(dir);
@@ -166,14 +172,15 @@ int main(int argc, char **argv) {
     //print loaded plugins if "list" in command args. 
     if (strcmp(argv[1], "list") == 0) {
         print_plugins(plugins, plugin_count);
-    }
-
-    //carry out specified plugin if "exec" in command args. 
-    if (strcmp(argv[1], "exec") == 0) {
+    } else if (strcmp(argv[1], "exec") == 0) {
+        //carry out specified plugin if "exec" in command args.
         exec(plugins, plugin_count, argc, argv); 
+    } else {
+        printf("Error: unknown command name.\n");
+        clean_up(plugins, plugin_count);
+        return 1;
     }
 
     clean_up(plugins, plugin_count);
-
     return 0;
 }
