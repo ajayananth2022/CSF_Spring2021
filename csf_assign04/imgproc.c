@@ -124,7 +124,7 @@ const char* set_dir() {
 void grow_plugins(struct Plugin *plugins, int count, int capacity) {
     if (count == capacity) {
         capacity *= 2;
-        plugins = realloc(plugins, capacity * sizeof(struct Plugins));
+        plugins = realloc(plugins, capacity * sizeof(struct Plugin));
     }
 }
 
