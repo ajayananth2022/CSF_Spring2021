@@ -1,8 +1,8 @@
 //Lucy Zhang, Ajay Ananthakrishnan
 //wzhang99@jhu.edu, ajayananth@jhu.edu
 //
-// Example plugin: it just swaps the blue and green color component
-// values for each pixel in the source image.
+// mirrorv plugin: generates a mirror image of the input image,
+// with all pixels being reflected vertically
 //
 
 #include <stdlib.h>
@@ -42,25 +42,22 @@ struct Image *transform_image(struct Image *source, void *arg_data) {
 	}
 
 	unsigned num_pixels = source->width * source->height;
-
-	int row_num = 0; 
-	int column_num = 0; 
-
+	int row = 0; //row index
+	int col = 0; //column index
 	int height = source->height; 
 	int width = source->width; 
 
-
-	for (int i = 0; i < (int)num_pixels; i++) {
-
-		if (column_num > width - 1) {
-			column_num = 0; 
-			row_num++; 
+	//loop through all pixels
+	for (unsigned i = 0; i < num_pixels; i++) {
+		if (col > width - 1) { //change to a new row
+			col = 0; 
+			row++; 
 		}
-		out->data[column_num + row_num * width] = source->data[(height - 1 - row_num) * width + column_num]; 
-		column_num++; 
+		//reverse pixels vertically
+		out->data[col + row * width] = source->data[(height - 1 - row) * width + col; 
+		col++; 
 	}
 
 	free(args);
-
 	return out;
 }

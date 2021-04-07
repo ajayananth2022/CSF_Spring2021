@@ -1,0 +1,6 @@
+Lucy Zhang, Ajay Ananthakrishnan
+wzhang99@jhu.edu, ajayananth@jhu.edu
+
+Assignment 4 Distribution:
+Lucy: loaded plugins and wrote "list" in imgproc.c, wrote tile plugin, cleaned up plugins and added comments
+Ajay: wrote "exec" command in improc.c, wrote mirrorh, mirrorv, expose plugins, cleaned up improc.c and added comments

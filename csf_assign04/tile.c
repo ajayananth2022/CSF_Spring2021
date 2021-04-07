@@ -1,16 +1,16 @@
 //Lucy Zhang, Ajay Ananthakrishnan
 //wzhang99@jhu.edu, ajayananth@jhu.edu
 //
-// Example plugin: it just swaps the blue and green color component
-// values for each pixel in the source image.
+// tile plugin: generates an image containing an N x N arrangement 
+// of tiles, each tile being a smaller version of the original image, and 
+// the overall result image having the same dimensions as the original image
 //
 
 #include <stdlib.h>
 #include "image_plugin.h"
 
 struct Arguments {
-	// This plugin doesn't accept any command line arguments;
-	// just define a single dummy field.
+	//accepts single argument, tile factor
 	int num_tiles;
 };
 
@@ -23,11 +23,11 @@ const char *get_plugin_desc(void) {
 }
 
 void *parse_arguments(int num_args, char *args[]) {
-	if (num_args != 1) {
+	if (num_args != 1) { //tile takes in 1 argument
 		return NULL;
 	}
 	int tiles = atoi(args[0]);
-	if (tiles <= 0) {
+	if (tiles <= 0) { //number of tile has to be a positive integer
 		return NULL;
 	}
 	struct Arguments *arguments = malloc(sizeof(struct Arguments));
@@ -35,12 +35,16 @@ void *parse_arguments(int num_args, char *args[]) {
 	return (void *)arguments;
 }
 
+//helper function to find the corresponding tile index in source from
+//a given index in the output image
 unsigned tile_idx(unsigned excess, unsigned bound, unsigned tile_len, unsigned idx) {
-	if (excess != 0) {
-		if (idx < bound) return idx % (tile_len + 1);
+	if (excess != 0) { // if not divisible
+		//pixels within the bound that have excess
+		if (idx < bound) return idx % (tile_len + 1); 
+		//pixels outside the bound (no excess)
 		return (idx - bound) % tile_len;
 	} 
-	return idx % tile_len;
+	return idx % tile_len; // if divisible (no excess pixels)
 }
 
 struct Image *transform_image(struct Image *source, void *arg_data) {
@@ -52,20 +56,25 @@ struct Image *transform_image(struct Image *source, void *arg_data) {
 		return NULL;
 	}
 	unsigned tiles = args->num_tiles;
-	unsigned source_width = source->width;
-	unsigned source_height = source->height;
-	unsigned tile_width = source_width / tiles;
-	unsigned tile_height = source_height / tiles;
-	unsigned width_excess = source_width % tiles;
-	unsigned height_excess = source_height % tiles;
-	unsigned width_bound = (tile_width + 1) * width_excess;
-	unsigned height_bound = (tile_height + 1) * height_excess;
-
-	for (unsigned r = 0; r < source_height; r++) {
-		unsigned tile_r = tiles * tile_idx(height_excess, height_bound, tile_height, r);
-		for (unsigned c = 0; c < source_width; c++) {
-			unsigned tile_c = tiles * tile_idx(width_excess, width_bound, tile_width, c);
-			out->data[c + r * source_width] = source->data[tile_c + tile_r * source_width];
+	unsigned width = source->width;
+	unsigned height = source->height;
+	unsigned tile_w = width / tiles; //width of each tile
+	unsigned tile_h = height / tiles; //height of each tile
+	
+	//excess pixels in the width and height
+	unsigned width_excess = width % tiles; 
+	unsigned height_excess = height % tiles;
+	
+	//the bound between tiles that have excess pixels
+	unsigned width_bound = (tile_w + 1) * width_excess;
+	unsigned height_bound = (tile_h + 1) * height_excess;
+	
+	//loop through out's rows and cols and find corresponding rows and cols in source
+	for (unsigned r = 0; r < height; r++) {
+		unsigned tile_r = tiles * tile_idx(height_excess, height_bound, tile_h, r);
+		for (unsigned c = 0; c < width; c++) {
+			unsigned tile_c = tiles * tile_idx(width_excess, width_bound, tile_w, c);
+			out->data[c + r * width] = source->data[tile_c + tile_r * width];
 		}
 	}
 	free(args);
