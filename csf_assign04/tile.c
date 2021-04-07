@@ -35,15 +35,30 @@ void *parse_arguments(int num_args, char *args[]) {
 	return (void *)arguments;
 }
 
+unsigned calculate_tile_len(unsigned source_len, unsigned total_tiles, unsigned index) {
+	unsigned tile_len = source_len / total_tiles;
+	unsigned excess = source_len % total_tiles; //number of excess pixels
+	if (index < excess) return tile_len + 1;
+	return tile_len;
+}
 
 struct Image *transform_image(struct Image *source, void *arg_data) {
 	struct Arguments *args = arg_data;
-
 	// Allocate a result Image
 	struct Image *out = img_create(source->width, source->height);
 	if (!out) {
 		free(args);
 		return NULL;
+	}
+	unsigned num_pixels = source->width * source->height;
+	unsigned tiles = args->num_tiles;
+
+
+	unsigned row_num = 0; 
+	unsigned column_num = 0; 
+
+	for (unsigned i = 0; i < num_pixels; i++) {
+		//out->data[i] = swap_bg(source->data[i]);
 	}
 
 	free(args);

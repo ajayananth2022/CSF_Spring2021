@@ -9,51 +9,87 @@
 #include "image_plugin.h"
 
 struct Arguments {
-	// This plugin doesn't accept any command line arguments;
-	// just define a single dummy field.
-	int dummy;
+        //accepts single argument, exposure factor
+        float factor;
 };
 
 const char *get_plugin_name(void) {
-	return "expose";
+        return "expose";
 }
 
 const char *get_plugin_desc(void) {
-	return "adjust the intensity of all pixels";
+        return "adjust the intensity of all pixels";
 }
 
 void *parse_arguments(int num_args, char *args[]) {
-	(void) args; // this is just to avoid a warning about an unused parameter
+        (void) args; // this is just to avoid a warning about an unused parameter
 
-	if (num_args != 0) {
-		return NULL;
-	}
-	return calloc(1, sizeof(struct Arguments));
+        if (num_args != 1) {
+                return NULL;
+        }
+        struct Arguments *arg = malloc(sizeof(struct Arguments));
+        arg->factor = (atof)(args[0]);
+
+        if (arg->factor < 0) {
+                return NULL;
+        }
+
+        //UNSURE of this below line
+        return arg;
 }
 
-// Helper function to swap the blue and green color component values.
-static uint32_t swap_bg(uint32_t pix) {
-	uint8_t r, g, b, a;
-	img_unpack_pixel(pix, &r, &g, &b, &a);
-	return img_pack_pixel(r, b, g, a);
+// Helper function to change red/green/blue color component values by specified factor
+static uint32_t expose(uint32_t pix, float factor) {
+        uint8_t r, g, b, a;
+        img_unpack_pixel(pix, &r, &g, &b, &a);
+
+        uint8_t prodr, prodg, prodb;
+
+        prodr = r * factor;
+        prodb = b * factor;
+        prodg = g * factor;
+
+        if (factor > 1)
+        if (r == prodr/factor) {
+                r = prodr;
+        } else {
+                r = 255;
+        }
+
+        if (b == prodb/factor) {
+                b = prodb;
+        } else {
+                b = 255;
+        }
+
+        if (g == prodg/factor) {
+                g = prodg;
+        } else {
+                g = 255;
+        }
+
+
+        return img_pack_pixel(r, g, b, a);
 }
 
 struct Image *transform_image(struct Image *source, void *arg_data) {
-	struct Arguments *args = arg_data;
+        struct Arguments *args = arg_data;
 
-	// Allocate a result Image
-	struct Image *out = img_create(source->width, source->height);
-	if (!out) {
-		free(args);
-		return NULL;
-	}
+        // Allocate a result Image
+        struct Image *out = img_create(source->width, source->height);
+        if (!out) {
+                free(args);
+                return NULL;
+        }
 
-	unsigned num_pixels = source->width * source->height;
-	for (unsigned i = 0; i < num_pixels; i++) {
-		out->data[i] = swap_bg(source->data[i]);
-	}
+        unsigned num_pixels = source->width * source->height;
+        for (unsigned i = 0; i < num_pixels; i++) {
+                out->data[i] = expose(source->data[i], args->factor);
+        }
 
-	free(args);
+        free(args);
 
-	return out;
+        return out;
 }
+
+
