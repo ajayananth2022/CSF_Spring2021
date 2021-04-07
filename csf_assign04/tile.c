@@ -30,7 +30,7 @@ void *parse_arguments(int num_args, char *args[]) {
 	if (tiles <= 0) {
 		return NULL;
 	}
-	struct Arguments *arguments = malloc(sizeof(Arguments));
+	struct Arguments *arguments = malloc(sizeof(struct Arguments));
 	arguments->num_tiles = tiles;
 	return (void *)arguments;
 }
