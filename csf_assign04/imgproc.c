@@ -22,12 +22,25 @@ struct Plugin {
     struct Image *(*transform_image)(struct Image *source, void *arg_data);
 };
 
-void print_usage() {
-    printf("Usage: imgproc <command> [<command args...>]\nCommands are:\n  list\n  exec <plugin> <input img> <output img> [<plugin args...>]\n");
+//helper function that dlclose() all dynamically loaded shared libraries 
+//and free plugins array
+void clean_up(struct Plugin *plugins, int count) {
+    for (int i = 0; i < count; i++) {
+        dlclose(plugins[i].handle); 
+    }
+    free(plugins);
 }
 
+//helper function that prints usage of imgproc program
+void print_usage() {
+    printf("Usage: imgproc <command> [<command args...>]\nCommands are:\n  list\n");
+    printf("  exec <plugin> <input img> <output img> [<plugin args...>]\n");
+}
+
+//helper function that prints info about loaded plugins
 void print_plugins(struct Plugin * plugins, int plugin_count) {
     printf("Loaded %d plugin(s)\n", plugin_count);
+    //loop through all the plugins and print out name and description
     for (int i = 0; i < plugin_count; i++) {
         const char *plugin_name = (*(plugins[i].get_plugin_name))();
         const char *plugin_desc = (*(plugins[i].get_plugin_desc))();
@@ -36,7 +49,7 @@ void print_plugins(struct Plugin * plugins, int plugin_count) {
 }
 
 //helper function that executes plugin
-int exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
+void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
     // find a plugin whose name matches the specified plugin name
     for (int i = 0; i < plugin_count; i++) {
         //if plugin name equals specified plugin command argument, 
@@ -44,20 +57,23 @@ int exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
             //load the specified input image (using img_read_png)
             struct Image *inputImg = img_read_png(argv[3]); 
 
-            //pass any command line arguments (past the input and output filenames) to the plugin’s parse_arguments function to produce an argument object
+            //pass any command line arguments (past the input and output filenames) to 
+            //the plugin’s parse_arguments function to produce an argument object
             struct Arguments *parsedArgs = plugins[i].parse_arguments(argc - 5, argv+5); 
             if (parsedArgs == NULL) {
                 printf("Error: Invalid Plugin Arguments.\n");
-                return 1;
+                clean_up(plugins, plugin_count);
+                exit(1);
             }
 
-            //call the plugin’s transform_image function to perform the image transformation (passing the argument object returned by parse_arguments)
+            //call the plugin’s transform_image function to perform the image transformation 
             struct Image *resultImg = plugins[i].transform_image(inputImg, parsedArgs); 
 
-            //save the resulting image to the named output file (using img_write_png)
-            if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0 (false), failed. 
+            //save the resulting image to the named output file 
+            if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0, failed. 
                 printf("Error: Failed to save transformed image to named output file.\n");
-                return 1;
+                clean_up(plugins, plugin_count);
+                exit(1);
             }
             break; 
         }
@@ -65,10 +81,10 @@ int exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
         //if this point is reached on last iteration of loop, invalid specified plugin name. 
         if (i == plugin_count - 1) {
             printf("Error: Specified Plugin Name Not Found.\n");
-            return 1; 
+            clean_up(plugins, plugin_count);
+            exit(1); 
         }
     }
-    return 0; 
 }
 
 //helper function that builds full address 
@@ -92,33 +108,48 @@ void makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
     (*plugin_count)++;
 }
 
-int main(int argc, char **argv) {
-    if (argc == 1) { //if no command line arguments entered
-        print_usage();
-        return 0;
-    }
+//helper function to set the plugin directory
+const char* set_dir() {
     //check if PLUGIN_DIR is set
     const char *plugin_dir = getenv("PLUGIN_DIR");
     if (plugin_dir == NULL) {
         // use default plugin directory
         plugin_dir = "./plugins";
     }
+    return plugin_dir;
 
+}
+
+//helper function to grow dynamically allocated plugins array if necessary
+void grow_plugins(struct Plugin *plugins, int count, int capacity) {
+    if (count == capacity) {
+        capacity *= 2;
+        plugins = realloc(plugins, capacity * sizeof(struct Plugins));
+    }
+}
+
+int main(int argc, char **argv) {
+    if (argc == 1) { //if no command line arguments entered
+        print_usage();
+        return 0;
+    }
+    const char *plugin_dir = set_dir(); //sets plugin directory
     DIR *dir = opendir(plugin_dir); //open the plugin directory
     if (dir == NULL) {
         printf("Error: cannot open plugin directory.\n");
         return 1;
     }
-    struct Plugin plugins[15];
+    int plugins_capacity = 15;
+    struct Plugin *plugins = malloc(sizeof(struct Plugin) * plugins_capacity);
     int plugin_count = 0;
     struct dirent *plugin_dirent; //read directory into dirent struct object
     
     while ((plugin_dirent = readdir(dir)) != NULL) {
+        grow_plugins(plugins, plugin_count, plugins_capacity);
         char *filename = plugin_dirent->d_name;
         int name_len = strlen(filename);
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
-
             char full_address[strlen(plugin_dir) + name_len + 2];
             buildAddress(full_address, plugin_dir, filename, name_len); 
 
@@ -127,30 +158,22 @@ int main(int argc, char **argv) {
                 printf("Error: cannot load plugin from %s.\n", full_address);
                 continue;
             }
-            //makePlugin increments plugin_count
             makePlugin(handle, plugins, &plugin_count); 
         }
     }
     closedir(dir);
-
-    //dynamic loading complete at this point
 
     //print loaded plugins if "list" in command args. 
     if (strcmp(argv[1], "list") == 0) {
         print_plugins(plugins, plugin_count);
     }
 
-    int retVal; 
     //carry out specified plugin if "exec" in command args. 
     if (strcmp(argv[1], "exec") == 0) {
-        retVal = exec(plugins, plugin_count, argc, argv); 
+        exec(plugins, plugin_count, argc, argv); 
     }
 
-    //CLEAN UP: dlclose() all dynamically loaded shared libraries
-    for (int i = 0; i < plugin_count; i++) {
-        dlclose(plugins[i].handle); 
-    }
+    clean_up(plugins, plugin_count);
 
-    //end reached
-    return retVal;
+    return 0;
 }
