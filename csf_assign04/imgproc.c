@@ -61,6 +61,10 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
         if (strcmp((*(plugins[i].get_plugin_name))(), argv[2]) == 0) {
             //load the specified input image (using img_read_png)
             struct Image *inputImg = img_read_png(argv[3]); 
+            if (inputImg == NULL) {
+                clean_up(plugins, plugin_count);
+                exit(1);
+            }
 
             //pass any command line arguments (past the input and output filenames) to 
             //the plugin’s parse_arguments function to produce an argument object
