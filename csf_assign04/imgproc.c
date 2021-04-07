@@ -90,7 +90,6 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
         if (i == plugin_count - 1) {
             printf("Error: Specified Plugin Name Not Found.\n");
             clean_up(plugins, plugin_count);
-            img_destroy(resultImg);
             exit(1); 
         }
     }
@@ -105,7 +104,7 @@ void buildAddress(char* full_address, const char * plugin_dir, char* filename, i
 }
 
 //helper function that builds plugins and populates plugins[] 
-int makePlugin(void *handle, struct Plugin *plugins, int *plugin_count, DIR *dir) {
+int makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
     struct Plugin p;
     p.handle = handle;
     //use dlsym to find addresses of loaded plugin
@@ -173,7 +172,7 @@ int main(int argc, char **argv) {
                 printf("Error: cannot load plugin from %s.\n", full_address);
                 continue;
             }
-            if (makePlugin(handle, plugins, &plugin_count, dir) != 0) continue; 
+            if (makePlugin(handle, plugins, &plugin_count) != 0) continue; 
         }
     }
     closedir(dir);
