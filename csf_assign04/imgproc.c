@@ -48,12 +48,18 @@ void print_plugins(struct Plugin * plugins, int plugin_count) {
     }
 }
 
+//helper function that prints out error message, clean up (free memory)
+//and exit with 1
+void fatal_error(const char *message, struct Plugin * plugins, int plugin_count) {
+    printf("Error: %s\n", message);
+    clean_up(plugins, plugin_count);
+    exit(1);
+}
+
 //helper function that executes plugin
 void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
     if (argc < 3) {
-        printf("Error: No Plugin Name entered.\n");
-        clean_up(plugins, plugin_count);
-        exit(1);
+        fatal_error("No Plugin Name entered.");
     }
     // find a plugin whose name matches the specified plugin name
     for (int i = 0; i < plugin_count; i++) {
@@ -71,10 +77,8 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
             //the plugin’s parse_arguments function to produce an argument object
             struct Arguments *parsedArgs = plugins[i].parse_arguments(argc - 5, argv+5); 
             if (parsedArgs == NULL) {
-                printf("Error: Invalid Plugin Arguments.\n");
-                clean_up(plugins, plugin_count);
+                fatal_error("Invalid Plugin Arguments.");
                 img_destroy(inputImg);
-                exit(1);
             }
 
             //call the plugin’s transform_image function to perform the image transformation 
@@ -82,11 +86,9 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
 
             //save the resulting image to the named output file 
             if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0, failed. 
-                printf("Error: Failed to save transformed image to named output file.\n");
-                clean_up(plugins, plugin_count);
+                fatal_error("Failed to save transformed image to named output file.");
                 img_destroy(inputImg);
                 img_destroy(resultImg);
-                exit(1);
             }
             img_destroy(inputImg);
             img_destroy(resultImg);
@@ -95,15 +97,13 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
 
         //if this point is reached on last iteration of loop, invalid specified plugin name. 
         if (i == plugin_count - 1) {
-            printf("Error: Specified Plugin Name Not Found.\n");
-            clean_up(plugins, plugin_count);
-            exit(1); 
+            fatal_error("Specified Plugin Name Not Found.");
         }
     }
 }
 
 //helper function that builds full address 
-void buildAddress(char* full_address, const char * plugin_dir, char* filename, int name_len) {
+void build_address(char* full_address, const char * plugin_dir, char* filename, int name_len) {
     memset(full_address, 0, strlen(plugin_dir) + name_len + 2); //initialize to 0
     strcpy(full_address, plugin_dir);
     full_address[strlen(plugin_dir)] = '/';
@@ -111,7 +111,7 @@ void buildAddress(char* full_address, const char * plugin_dir, char* filename, i
 }
 
 //helper function that builds plugins and populates plugins[] 
-int makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
+void make_plugin(void *handle, struct Plugin *plugins, int *plugin_count) {
     struct Plugin p;
     p.handle = handle;
     //use dlsym to find addresses of loaded plugin
@@ -121,12 +121,12 @@ int makePlugin(void *handle, struct Plugin *plugins, int *plugin_count) {
     *(void **) (&p.transform_image) = dlsym(handle, "transform_image");
     if (&p.get_plugin_name == NULL || &p.get_plugin_desc == NULL || 
         &p.parse_arguments == NULL || &p.transform_image == NULL) {
+        //if we can't find required API function, don't add plugin to array
         printf("Required API function can’t be found within a loaded plugin.\n");
-        return 1;
+        return;
     }
     plugins[*plugin_count] = p; 
     (*plugin_count)++;
-    return 0;
 }
 
 //helper function to set the plugin directory
@@ -172,14 +172,14 @@ int main(int argc, char **argv) {
         //check if filename ends with .so
         if (name_len > 3 && strcmp(filename + name_len - 3, ".so") == 0) {
             char full_address[strlen(plugin_dir) + name_len + 2];
-            buildAddress(full_address, plugin_dir, filename, name_len); 
+            build_address(full_address, plugin_dir, filename, name_len); 
 
             void *handle = dlopen(full_address, RTLD_LAZY); //loads plugin dynamically
-            if (handle == NULL) {
+            if (handle == NULL) { //if loading fails, skip this iteration
                 printf("Error: cannot load plugin from %s.\n", full_address);
                 continue;
             }
-            if (makePlugin(handle, plugins, &plugin_count) != 0) continue; 
+            make_plugin(handle, plugins, &plugin_count); 
         }
     }
     closedir(dir);
@@ -191,9 +191,7 @@ int main(int argc, char **argv) {
         //carry out specified plugin if "exec" in command args.
         exec(plugins, plugin_count, argc, argv); 
     } else {
-        printf("Error: unknown command name.\n");
-        clean_up(plugins, plugin_count);
-        return 1;
+        fatal_error("unknown command name.");
     }
 
     clean_up(plugins, plugin_count);
