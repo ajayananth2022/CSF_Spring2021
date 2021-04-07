@@ -38,7 +38,7 @@ void print_usage() {
 }
 
 //helper function that prints info about loaded plugins
-void print_plugins(struct Plugin * plugins, int plugin_count) {
+void print_plugins(struct Plugin *plugins, int plugin_count) {
     printf("Loaded %d plugin(s)\n", plugin_count);
     //loop through all the plugins and print out name and description
     for (int i = 0; i < plugin_count; i++) {
@@ -50,7 +50,7 @@ void print_plugins(struct Plugin * plugins, int plugin_count) {
 
 //helper function that prints out error message, clean up (free memory)
 //and exit with 1
-void fatal_error(const char *message, struct Plugin * plugins, int plugin_count) {
+void fatal_error(const char *message, struct Plugin *plugins, int plugin_count) {
     printf("Error: %s\n", message);
     clean_up(plugins, plugin_count);
     exit(1);
@@ -59,7 +59,7 @@ void fatal_error(const char *message, struct Plugin * plugins, int plugin_count)
 //helper function that executes plugin
 void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
     if (argc < 3) {
-        fatal_error("No Plugin Name entered.");
+        fatal_error("No Plugin Name entered.", plugins, plugin_count);
     }
     // find a plugin whose name matches the specified plugin name
     for (int i = 0; i < plugin_count; i++) {
@@ -77,7 +77,7 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
             //the plugin’s parse_arguments function to produce an argument object
             struct Arguments *parsedArgs = plugins[i].parse_arguments(argc - 5, argv+5); 
             if (parsedArgs == NULL) {
-                fatal_error("Invalid Plugin Arguments.");
+                fatal_error("Invalid Plugin Arguments.", plugins, plugin_count);
                 img_destroy(inputImg);
             }
 
@@ -97,7 +97,7 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
 
         //if this point is reached on last iteration of loop, invalid specified plugin name. 
         if (i == plugin_count - 1) {
-            fatal_error("Specified Plugin Name Not Found.");
+            fatal_error("Specified Plugin Name Not Found.", plugins, plugin_count);
         }
     }
 }
@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
         //carry out specified plugin if "exec" in command args.
         exec(plugins, plugin_count, argc, argv); 
     } else {
-        fatal_error("unknown command name.");
+        fatal_error("unknown command name.", plugins, plugin_count);
     }
 
     clean_up(plugins, plugin_count);
