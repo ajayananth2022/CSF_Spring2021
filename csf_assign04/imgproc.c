@@ -53,6 +53,7 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
     if (argc < 3) {
         printf("Error: No Plugin Name entered.\n");
         clean_up(plugins, plugin_count);
+        exit(1);
     }
     // find a plugin whose name matches the specified plugin name
     for (int i = 0; i < plugin_count; i++) {
