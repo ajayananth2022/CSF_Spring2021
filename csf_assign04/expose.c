@@ -34,7 +34,6 @@ void *parse_arguments(int num_args, char *args[]) {
                 return NULL;
         }
 
-        //UNSURE of this below line
         return arg;
 }
 
@@ -43,31 +42,24 @@ static uint32_t expose(uint32_t pix, float factor) {
         uint8_t r, g, b, a;
         img_unpack_pixel(pix, &r, &g, &b, &a);
 
-        uint8_t prodr, prodg, prodb;
-
-        prodr = r * factor;
-        prodb = b * factor;
-        prodg = g * factor;
-
-        if (factor > 1)
-        if (r == prodr/factor) {
-                r = prodr;
+        //check to make sure pixel rgb values are not 'overexposed'
+        if (r * factor >255) {
+                r = 255; 
         } else {
-                r = 255;
+                r= r * factor;
         }
 
-        if (b == prodb/factor) {
-                b = prodb;
+        if (g * factor >255) {
+                g = 255; 
         } else {
-                b = 255;
+                g= g * factor;
         }
 
-        if (g == prodg/factor) {
-                g = prodg;
+        if (b * factor >255) {
+                b = 255; 
         } else {
-                g = 255;
+                b= b * factor;
         }
-
 
         return img_pack_pixel(r, g, b, a);
 }
