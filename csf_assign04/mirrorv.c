@@ -10,7 +10,6 @@
 
 struct Arguments {
 	// This plugin doesn't accept any command line arguments;
-	// just define a single dummy field.
 	int dummy;
 };
 
@@ -23,7 +22,7 @@ const char *get_plugin_desc(void) {
 }
 
 void *parse_arguments(int num_args, char *args[]) {
-	(void) args; // this is just to avoid a warning about an unused parameter
+	(void) args; 
 
 	if (num_args != 0) {
 		return NULL;
@@ -31,12 +30,6 @@ void *parse_arguments(int num_args, char *args[]) {
 	return calloc(1, sizeof(struct Arguments));
 }
 
-// Helper function to swap the blue and green color component values.
-static uint32_t swap_bg(uint32_t pix) {
-	uint8_t r, g, b, a;
-	img_unpack_pixel(pix, &r, &g, &b, &a);
-	return img_pack_pixel(r, b, g, a);
-}
 
 struct Image *transform_image(struct Image *source, void *arg_data) {
 	struct Arguments *args = arg_data;
@@ -49,8 +42,22 @@ struct Image *transform_image(struct Image *source, void *arg_data) {
 	}
 
 	unsigned num_pixels = source->width * source->height;
-	for (unsigned i = 0; i < num_pixels; i++) {
-		out->data[i] = swap_bg(source->data[i]);
+
+	int row_num = 0; 
+	int column_num = 0; 
+
+	int height = source->height; 
+	int width = source->width; 
+
+
+	for (int i = 0; i < (int)num_pixels; i++) {
+
+		if (column_num > width - 1) {
+			column_num = 0; 
+			row_num++; 
+		}
+		out->data[column_num + row_num * width] = source->data[(height - 1 - row_num) * width + column_num]; 
+		column_num++; 
 	}
 
 	free(args);

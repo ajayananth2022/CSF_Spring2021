@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     //dynamic loading complete at this point
 
     //print loaded plugins if "list" in command args. 
-    if (strcmp(argv[1], "list") == 0) {b
+    if (strcmp(argv[1], "list") == 0) {
         print_plugins(plugins, plugin_count);
     }
 
