@@ -86,7 +86,8 @@ void exec(struct Plugin * plugins, int plugin_count, int argc, char **argv) {
 
             //save the resulting image to the named output file 
             if (!img_write_png(resultImg, argv[4])) {  //if img_write_png returns 0, failed. 
-                fatal_error("Failed to save transformed image to named output file.");
+                fatal_error("Failed to save transformed image to named output file.", 
+                    plugins, plugin_count);
                 img_destroy(inputImg);
                 img_destroy(resultImg);
             }
