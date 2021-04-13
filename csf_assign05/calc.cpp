@@ -58,7 +58,7 @@ bool Calc::existsInDict(string &var) {
     return false;
 }
 
-bool isVar(const string &operand) {
+bool Calc::isVar(const string &operand) {
     int length = operand.length();
     for (int i = 0; i < length; i++) {
         char cur = operand.at(i);
@@ -68,11 +68,11 @@ bool isVar(const string &operand) {
     return true;
 }
 
-bool isOperator(const string &op) {
+bool Calc::isOperator(const string &op) {
     return (op != "+" || op != "-" || op != "*" || op != "/" || op != "=");
 }
 
-int operation(string op1, string op2, string op) {
+int Calc::operation(string op1, string op2, string op) {
     int result;
     if (op == "=") {
         variables[op1] = atoi(op2);
