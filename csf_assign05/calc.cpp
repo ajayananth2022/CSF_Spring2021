@@ -75,16 +75,16 @@ bool Calc::isOperator(const string &op) {
 int Calc::operation(string op1, string op2, string op) {
     int result;
     if (op == "=") {
-        variables[op1] = atoi(op2);
-        result = atoi(op2);
+        variables[op1] = stoi(op2);
+        result = stoi(op2);
     } else if (op == "+") {
-        result = atoi(op1) + atoi(op2);
+        result = stoi(op1) + stoi(op2);
     } else if (op == "-") {
-        result = atoi(op1) - atoi(op2);
+        result = stoi(op1) - stoi(op2);
     } else if (op == "*") {
-        result = atoi(op1) * atoi(op2);
+        result = stoi(op1) * stoi(op2);
     } else {
-        result = atoi(op1) / atoi(op2);
+        result = stoi(op1) / stoi(op2);
     }
     return result;
 }
@@ -116,7 +116,7 @@ int Calc::evalExpr(const string &expr, int &result) {
                 }
             }
             if (isNum(operand1) && op == "=") return 0;
-            if (op == "/" && atoi(operand2) == 0) return 0;
+            if (op == "/" && stoi(operand2) == 0) return 0;
             vec.push_back(operation(operand1, operand2, op));
         } else {
             return 0;
