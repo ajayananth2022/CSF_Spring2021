@@ -16,8 +16,8 @@ struct Calc {
         std::map<std::string, int> variables;
 
     public:
-        Calc();
-        ~Calc();
+        //Calc();
+        //~Calc();
         int evalExpr(const string &expr, int &result);
 
     private:
@@ -27,7 +27,7 @@ struct Calc {
         bool existsInDict(string &var);
         bool isVar(const string &operand);
         bool isOperator(const string &op);
-        //bool isValidOperation(string &op1, string &op2, string &op);
+        bool isValidOperation(string &operand1, string &operand2, string &op);
 
 };
 
@@ -89,6 +89,23 @@ int Calc::operation(string op1, string op2, string op) {
     return result;
 }
 
+bool isValidOperation(string &operand1, string &operand2, string &op) {
+    if (!isNum(operand2)) { 
+        if (!isVar(operand2) || !existsInDict(operand2)) return false;
+        operand2 = to_string(variables[operand2]);
+    }
+    if (!isNum(operand1)) {
+        if (!isVar(operand2)) return false;
+        if (!existsInDict(operand1)) {
+            if (op != "=" || !vec.empty()) return false;
+        } else {
+            operand1 = to_string(variables[operand1]);
+        }
+    }
+    if (isNum(operand1) && op == "=") return false;
+    if (op == "/" && stoi(operand2) == 0) return false;
+    return true;
+}
 
 int Calc::evalExpr(const string &expr, int &result) {
     vector<string> vec = tokenize(expr);
@@ -106,20 +123,7 @@ int Calc::evalExpr(const string &expr, int &result) {
             vec.pop_back();
             string operand1 = vec.back();
             vec.pop_back();
-            if (!isNum(operand2)) { 
-                if (!isVar(operand2) || !existsInDict(operand2)) return 0;
-                operand2 = to_string(variables[operand2]);
-            }
-            if (!isNum(operand1)) {
-                if (!isVar(operand2)) return 0;
-                if (!existsInDict(operand1)) {
-                    if (op != "=" || !vec.empty()) return 0;
-                } else {
-                    operand1 = to_string(variables[operand1]);
-                }
-            }
-            if (isNum(operand1) && op == "=") return 0;
-            if (op == "/" && stoi(operand2) == 0) return 0;
+            if (!isValidOperation(operand1, operand2, op)) return 0;
             vec.push_back(to_string(operation(operand1, operand2, op)));
         } else {
             return 0;
