@@ -95,7 +95,7 @@ bool Calc::isValidOperation(string &operand1, string &operand2, string &op, vect
         operand2 = to_string(variables[operand2]);
     }
     if (!isNum(operand1)) {
-        if (!isVar(operand2)) return false;
+        if (!isVar(operand1)) return false;
         if (!existsInDict(operand1)) {
             if (op != "=" || !vec.empty()) return false;
         } else {
