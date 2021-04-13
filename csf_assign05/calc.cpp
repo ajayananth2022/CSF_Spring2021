@@ -96,13 +96,16 @@ int Calc::evalExpr(const string &expr, int &result) {
     while (!vec.empty()) {
         int size = vec.size();
         if (size == 1) {
-            result = vec.pop_back();
+            result = vec.back();
             return 1;
         } else if (size == 3) {
-            string operand2 = vec.pop_back();
-            string op = vec.pop_back();
+            string operand2 = vec.back();
+            vec.pop_back();
+            string op = vec.back();
             if (!isOperator(op)) return 0;
-            string operand1 = vec.pop_back();
+            vec.pop_back();
+            string operand1 = vec.back();
+            vec.pop_back();
             if (!isNum(operand2)) { 
                 if (!isVar(operand2) || !existsInDict(operand2)) return 0
                 operand2 = to_string(variables[operand2]);
