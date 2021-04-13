@@ -3,7 +3,7 @@
 #include "calc.h"
 #include <map>
 #include <vector>
-#include <stringstream>
+#include <sstream>
 
 using std::map;
 using std::string;
