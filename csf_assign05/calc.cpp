@@ -99,7 +99,7 @@ bool Calc::isValidOperation(string &operand1, string &operand2, string &op, vect
         if (!existsInDict(operand1)) {
             if (op != "=" || !vec.empty()) return false;
         } else {
-            operand1 = to_string(variables[operand1]);
+            if (op != "=") operand1 = to_string(variables[operand1]);
         }
     }
     if (isNum(operand1) && op == "=") return false;
