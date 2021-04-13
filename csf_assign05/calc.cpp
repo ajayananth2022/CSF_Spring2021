@@ -107,7 +107,7 @@ int Calc::evalExpr(const string &expr, int &result) {
             string operand1 = vec.back();
             vec.pop_back();
             if (!isNum(operand2)) { 
-                if (!isVar(operand2) || !existsInDict(operand2)) return 0
+                if (!isVar(operand2) || !existsInDict(operand2)) return 0;
                 operand2 = to_string(variables[operand2]);
             }
             if (!isNum(operand1)) {
@@ -120,7 +120,7 @@ int Calc::evalExpr(const string &expr, int &result) {
             }
             if (isNum(operand1) && op == "=") return 0;
             if (op == "/" && stoi(operand2) == 0) return 0;
-            vec.push_back(operation(operand1, operand2, op));
+            vec.push_back(to_string(operation(operand1, operand2, op)));
         } else {
             return 0;
         }
