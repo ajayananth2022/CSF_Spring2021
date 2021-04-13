@@ -16,8 +16,8 @@ struct Calc {
         std::map<std::string, int> variables;
 
     public:
-        Calc();
-        ~Calc();
+        Calc() {}
+        ~Calc() {}
         int evalExpr(const string &expr, int &result);
 
     private:
