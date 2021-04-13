@@ -1,5 +1,6 @@
 //Lucy Zhang, Ajay Ananthakrishnan
 //wzhang99@jhu.edu, ajayananth@jhu.edu
+
 #ifndef CALC_H
 #define CALC_H
 

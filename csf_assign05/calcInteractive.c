@@ -1,3 +1,6 @@
+//Lucy Zhang, Ajay Ananthakrishnan
+//wzhang99@jhu.edu, ajayananth@jhu.edu
+
 /*
  * Interactive calculator program
  *
