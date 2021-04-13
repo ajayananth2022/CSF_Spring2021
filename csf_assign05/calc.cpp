@@ -96,9 +96,9 @@ int Calc::evalExpr(const string &expr, int &result) {
     while (!vec.empty()) {
         int size = vec.size();
         if (size == 1) {
-            result = vec.back();
+            result = stoi(vec.back());
             return 1;
-        } else if (size == 3) {
+        } else if (size >= 3) {
             string operand2 = vec.back();
             vec.pop_back();
             string op = vec.back();
