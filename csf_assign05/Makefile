@@ -38,12 +38,12 @@ calcServer : calcServer.o calc.o csapp.o
 # Note that no commands are needed because of the pattern rules above.
 
 # This one is appropriate if you used C++ for the calculator implementation
-calc.o : calc.cpp calc.h
+# calc.o : calc.cpp calc.h
 
 # This one is appropriate if you used C for the calculator implementation
 #calc.o : calc.c calc.h
 
-calcTest.o : calcTest.c tctest.h
+calcTest.o : calcTest.c tctest.h calc.h
 
 tctest.o : tctest.c tctest.h
 
