@@ -27,7 +27,7 @@ struct Calc {
         bool existsInDict(string &var);
         bool isVar(const string &operand);
         bool isOperator(const string &op);
-        bool isValidOperation(string &operand1, string &operand2, string &op);
+        bool isValidOperation(string &operand1, string &operand2, string &op, vector<string> vec);
 
 };
 
@@ -123,7 +123,7 @@ int Calc::evalExpr(const string &expr, int &result) {
             vec.pop_back();
             string operand1 = vec.back();
             vec.pop_back();
-            if (!isValidOperation(operand1, operand2, op)) return 0;
+            if (!isValidOperation(operand1, operand2, op, vec)) return 0;
             vec.push_back(to_string(operation(operand1, operand2, op)));
         } else {
             return 0;
