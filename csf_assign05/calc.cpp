@@ -113,7 +113,13 @@ int Calc::evalExpr(const string &expr, int &result) {
     while (!vec.empty()) {
         int size = vec.size();
         if (size == 1) {
-            result = stoi(vec.back());
+            string cur = vec.back();
+            if (!isNum(cur)) {
+                if (!existsInDict(cur)) return 0;
+                result = variables[cur];
+            } else {
+                result = stoi(cur);
+            }
             return 1;
         } else if (size >= 3) {
             string operand2 = vec.back();
