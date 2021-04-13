@@ -89,7 +89,7 @@ int Calc::operation(string op1, string op2, string op) {
     return result;
 }
 
-bool Calc::isValidOperation(string &operand1, string &operand2, string &op) {
+bool Calc::isValidOperation(string &operand1, string &operand2, string &op, vector<string> vec) {
     if (!isNum(operand2)) { 
         if (!isVar(operand2) || !existsInDict(operand2)) return false;
         operand2 = to_string(variables[operand2]);
