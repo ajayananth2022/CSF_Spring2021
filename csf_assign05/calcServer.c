@@ -5,9 +5,11 @@
 #include "csapp.h"
 #include "calc.h"
 
+/* buffer size for reading lines of input from user */
+#define LINEBUF_SIZE 1024
 
 //modify this function for part 2
-void chat_with_client(struct Calc *calc, int infd, int outfd) {
+int chat_with_client(struct Calc *calc, int infd, int outfd) {
 	rio_t in;
 	char linebuf[LINEBUF_SIZE];
 
@@ -19,16 +21,20 @@ void chat_with_client(struct Calc *calc, int infd, int outfd) {
 	 * and (if evaluation was successful) print the result of each
 	 * expression.  Quit when "quit" command is received.
 	 */
-	int done = 0;
-	while (!done) {
+	int status = 0;
+	while (!status) {
 		ssize_t n = rio_readlineb(&in, linebuf, LINEBUF_SIZE);
 		if (n <= 0) {
 			/* error or end of input */
-			done = 1;
+			status = 1;
 		} else if (strcmp(linebuf, "quit\n") == 0 || strcmp(linebuf, "quit\r\n") == 0) {
 			/* quit command */
-			done = 1;
-		} else {
+			status = 1;
+		} else if (strcmp(linebuf, "shutdown\n") == 0 || strcmp(linebuf, "shutdown\r\n") == 0) {
+			/* shutdown command */
+			status = 2;
+		}
+		else {
 			/* process input line */
 			int result;
 			if (calc_eval(calc, linebuf, &result) == 0) {
@@ -43,10 +49,51 @@ void chat_with_client(struct Calc *calc, int infd, int outfd) {
 			}
 		}
 	}
+	return status; 
+}
+
+void fatal(const char *msg) {
+  fprintf(stderr, "%s\n", msg);
+  exit(1);
 }
 
 int main(int argc, char **argv) {
-	/* TODO: implement this program */
+
+	
+	// has three  input args and argv[1] is actual port num??
+
+
+	if (argc != 2) {
+    	fatal("Usage: ./calcServer <port>");
+  	}
+
+	struct Calc *calc = calc_create();
+
+	//open a server socket given port name as string
+	int server_fd = open_listenfd(argv[1]);
+  		if (server_fd < 0) {
+    	fatal("Couldn't open server socket\n");
+  	}
+
+	int keep_going = 1;
+
+  	while (keep_going) {
+    	int client_fd = Accept(server_fd, NULL, NULL);
+    	if (client_fd > 0) {
+      		keep_going = chat_with_client(calc,client_fd,client_fd);
+      		// close the connection
+      		close(client_fd);
+    	}
+
+		//shutdown server
+		if (keep_going == 2) {
+			// close server socket
+  			close(server_fd);
+			break; 
+		}
+  	}
+
+	calc_destroy(calc);
 
 	return 0;
 }
