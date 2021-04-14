@@ -46,6 +46,12 @@ vector<string> Calc::tokenize(const string &expr) {
 bool Calc::isNum(const string &operand) {
     int length = operand.length();
     for (int i = 0; i < length; i++) {
+
+        //check if negative num
+        if (i == 0 && operand.at(0) == '-') {
+            continue; 
+        }
+
         if (!isdigit(operand.at(i))) return false;
     }
     return true;
