@@ -8,7 +8,11 @@
 /* buffer size for reading lines of input from user */
 #define LINEBUF_SIZE 1024
 
-//modify this function for part 2
+
+//helper function that takes in a Calc struct object, in&out file descriptor,
+// and evaluate the input expression
+//Returns 1 if client sends "quit" message or if end of input/error encounted
+//Returns 2 if client sends "shutdown" message
 int chat_with_client(struct Calc *calc, int infd, int outfd) {
 	rio_t in;
 	char linebuf[LINEBUF_SIZE];
@@ -33,8 +37,7 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 		} else if (strcmp(linebuf, "shutdown\n") == 0 || strcmp(linebuf, "shutdown\r\n") == 0) {
 			/* shutdown command */
 			status = 2;
-		}
-		else {
+		} else {
 			/* process input line */
 			int result;
 			if (calc_eval(calc, linebuf, &result) == 0) {
@@ -52,17 +55,14 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 	return status; 
 }
 
+//helper function that prints out error message and
+//exit the program
 void fatal(const char *msg) {
-  fprintf(stderr, "%s\n", msg);
-  exit(1);
+    fprintf(stderr, "%s\n", msg);
+    exit(1);
 }
 
 int main(int argc, char **argv) {
-
-	
-	// has three  input args and argv[1] is actual port num??
-
-
 	if (argc != 2) {
     	fatal("Usage: ./calcServer <port>");
   	}
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 
 	//open a server socket given port name as string
 	int server_fd = open_listenfd(argv[1]);
-  		if (server_fd < 0) {
+  	if (server_fd < 0) {
     	fatal("Couldn't open server socket\n");
   	}
 
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   	while (keep_going) {
     	int client_fd = Accept(server_fd, NULL, NULL);
     	if (client_fd > 0) {
-      		keep_going = chat_with_client(calc,client_fd,client_fd);
+      		keep_going = chat_with_client(calc, client_fd, client_fd);
       		// close the connection
       		close(client_fd);
     	}
