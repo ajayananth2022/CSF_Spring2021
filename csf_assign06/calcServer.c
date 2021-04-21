@@ -9,6 +9,17 @@
 #define LINEBUF_SIZE 1024
 
 
+//struct data type encapsulating the data needed for a client connection
+struct ConnInfo {
+	//client socket file descriptor
+	int client_fd;
+	//server socket file descriptor
+	int server_fd;
+	//pointer to the shared struct Calc object
+	struct Calc *calc;
+};
+
+
 //helper function that takes in a Calc struct object, in&out file descriptor,
 // and evaluate the input expression
 //Returns 1 if client sends "quit" message or if end of input/error encounted
@@ -62,6 +73,33 @@ void fatal(const char *msg) {
     exit(1);
 }
 
+//thread start function
+void *worker(void *arg) {
+
+	int keep_going = 1;
+
+	struct ConnInfo *info = arg;
+
+	//thread detaches itself
+	pthread_detach(pthread_self());
+
+	//now chat with client
+	keep_going = chat_with_client(info->calc,info->client_fd, info->client_fd);
+	
+	//shutdown server
+	if (keep_going == 2) {
+		// close server socket
+  		close(info->server_fd);
+	}
+
+	// close the connection
+	close(info->client_fd);
+	free(info);
+
+	//do we need return for a void function??
+	return NULL;
+}
+
 int main(int argc, char **argv) {
 	if (argc != 2) {
     	fatal("Usage: ./calcServer <port>");
@@ -101,43 +139,4 @@ int main(int argc, char **argv) {
 	calc_destroy(calc);
 
 	return 0;
-}
-
-
-//struct data type encapsulating the data needed for a client connection
-struct ConnInfo {
-	//client socket file descriptor
-	int client_fd;
-	//server socket file descriptor
-	int server_fd;
-	//pointer to the shared struct Calc object
-	struct Calc *calc;
-};
-
-
-//thread start function
-void *worker(void *arg) {
-
-	int keep_going = 1;
-
-	struct ConnInfo *info = arg;
-
-	//thread detaches itself
-	pthread_detach(pthread_self());
-
-	//now chat with client
-	keep_going = chat_with_client(info->calc,info->client_fd, info->client_fd);
-	
-	//shutdown server
-	if (keep_going == 2) {
-		// close server socket
-  		close(info->server_fd);
-	}
-
-	// close the connection
-	close(info->client_fd);
-	free(info);
-
-	//do we need return for a void function??
-	return NULL;
 }
