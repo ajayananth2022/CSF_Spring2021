@@ -75,25 +75,69 @@ int main(int argc, char **argv) {
     	fatal("Couldn't open server socket\n");
   	}
 
-	int keep_going = 1;
-
-  	while (keep_going) {
+  	while (1) {
     	int client_fd = Accept(server_fd, NULL, NULL);
-    	if (client_fd > 0) {
-      		keep_going = chat_with_client(calc, client_fd, client_fd);
-      		// close the connection
-      		close(client_fd);
-    	}
 
-		//shutdown server
-		if (keep_going == 2) {
-			// close server socket
-  			close(server_fd);
-			break; 
+		if (client_fd < 0) { 
+			fatal("Error accepting client connection");
+		} else {
+			
+			//dynamically-allocated instance of ConnInfo
+			struct ConnInfo *info = malloc(sizeof(struct ConnInfo));
+			info->client_fd = client_fd;
+			info->server_fd = server_fd;
+			info->calc = calc;
+
+
+			pthread_t thr_id;
+
+			//create a thread for each accepted client connection
+			if (pthread_create(&thr_id, NULL, worker, info) != 0) {
+				fatal("pthread_create failed");
+			}
 		}
   	}
 
 	calc_destroy(calc);
 
 	return 0;
+}
+
+
+//struct data type encapsulating the data needed for a client connection
+struct ConnInfo {
+	//client socket file descriptor
+	int client_fd;
+	//server socket file descriptor
+	int server_fd;
+	//pointer to the shared struct Calc object
+	struct Calc *calc;
+};
+
+
+//thread start function
+void *worker(void *arg) {
+
+	int keep_going = 1;
+
+	struct ConnInfo *info = arg;
+
+	//thread detaches itself
+	pthread_detach(pthread_self());
+
+	//now chat with client
+	keep_going = chat_with_client(info->calc,info->client_fd, info->client_fd);
+	
+	//shutdown server
+	if (keep_going == 2) {
+		// close server socket
+  		close(info->server_fd);
+	}
+
+	// close the connection
+	close(info->client_fd);
+	free(info);
+
+	//do we need return for a void function??
+	return NULL;
 }
