@@ -261,6 +261,7 @@ extern "C" struct Calc *calc_create(void) {
  * deallocating its memory
  * @param calc the Calc struct to be destroyed
  */
+//TODO: make sure mutex is destroyed. We probably need to figure out what to do on a shutdown. 
 extern "C" void calc_destroy(struct Calc *calc) {
     delete calc;
 }

@@ -8,6 +8,7 @@
 /* buffer size for reading lines of input from user */
 #define LINEBUF_SIZE 1024
 
+//TODO: see if we need this...
 //global var that keeps track of shutdown requests
 int shutdown_request = 0; 
 
@@ -99,8 +100,6 @@ void *worker(void *arg) {
 		shutdown_request = 1; 
 	}
 
-
-
 	//do we need return for a void function??
 	return NULL;
 }
@@ -118,6 +117,7 @@ int main(int argc, char **argv) {
     	fatal("Couldn't open server socket\n");
   	}
 
+	//not working...shutdown_request not getting updated...
   	while (shutdown_request == 0) {
     	int client_fd = Accept(server_fd, NULL, NULL);
 
