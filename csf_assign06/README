@@ -1,9 +1,10 @@
 Lucy Zhang, Ajay Ananthakrishnan
 wzhang99@jhu.edu, ajayananth@jhu.edu
 
-Assignment 5 Contributions
+Assignment 6 Contributions
 
-Lucy Zhang: implemented all of Part 1: calc.cpp data structure. 
-Ajaykarthik Ananthakrishnan: implemented all of Part 2: server integration. 
+Lucy Zhang: tested synchronization, wrote manual review of synchronization
+Ajaykarthik Ananthakrishnan: wrote thread starter function, handled synchronization by adding mutex locks
 
-Both of us debugged. 
+Manual review of synchronization:
+We made the calculator instance's shared data (variables map) safe by using a pthread_mutex_t object as a private field of the Calc struct. We determined the critical section as the function evalExpr (and the helper functions it uses) so we locked the mutex at the beginning of this function and unlocked it at the end before we return the result. Thus, only one thread is allowed to execute this function at a time and the variables map would not be mutated by multiple threads at once. 
