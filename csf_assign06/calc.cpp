@@ -150,6 +150,7 @@ bool Calc::isOperator(const string &op) {
 }
 
 int Calc::operation(string op1, string op2, string op) {
+    pthread_mutex_lock(&lock); 
     int result;
 
     if (op == "=") {
@@ -166,6 +167,7 @@ int Calc::operation(string op1, string op2, string op) {
     } else {
         result = stoi(op1) / stoi(op2);
     }
+    pthread_mutex_unlock(&lock); 
     return result;
 }
 
