@@ -22,8 +22,12 @@ struct Calc {
         std::map<std::string, int> variables; 
         pthread_mutex_t lock; 
     public:
-        Calc() {}
-        ~Calc() {}
+        Calc() {
+            pthread_mutex_init(&lock, NULL);
+        }
+        ~Calc() {
+            pthread_mutex_destroy(&lock);
+        }
 
         /*
          * a public function used by calc_eval that evaluates the expr and
