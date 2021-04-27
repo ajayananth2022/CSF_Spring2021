@@ -8,6 +8,8 @@
 /* buffer size for reading lines of input from user */
 #define LINEBUF_SIZE 1024
 
+//global var that keeps track of shutdown requests
+int shutdown_request = 0; 
 
 //struct data type encapsulating the data needed for a client connection
 struct ConnInfo {
@@ -86,15 +88,18 @@ void *worker(void *arg) {
 	//now chat with client
 	keep_going = chat_with_client(info->calc,info->client_fd, info->client_fd);
 	
+	// close the connection
+	close(info->client_fd);
+	free(info);
+
 	//shutdown server
 	if (keep_going == 2) {
 		// close server socket
   		close(info->server_fd);
+		shutdown_request = 1; 
 	}
 
-	// close the connection
-	close(info->client_fd);
-	free(info);
+
 
 	//do we need return for a void function??
 	return NULL;
@@ -113,7 +118,7 @@ int main(int argc, char **argv) {
     	fatal("Couldn't open server socket\n");
   	}
 
-  	while (1) {
+  	while (shutdown_request == 0) {
     	int client_fd = Accept(server_fd, NULL, NULL);
 
 		if (client_fd < 0) { 

@@ -17,9 +17,10 @@ using std::to_string;
  * a struct that contains a dictionary that maps variables to their values
  */
 struct Calc {
+
     private:
         std::map<std::string, int> variables; 
-
+        pthread_mutex_t lock; 
     public:
         Calc() {}
         ~Calc() {}
@@ -195,7 +196,12 @@ bool Calc::isValidOperation(string &op1, string &op2, string &op, vector<string>
 }
 
 int Calc::evalExpr(const string &expr, int &result) {
+
+    pthread_mutex_lock(&lock); 
+
     vector<string> vec = tokenize(expr);
+
+    int returnVal = 1; 
     
     //read in three strings from vector until it's empty
     while (!vec.empty()) {
@@ -204,28 +210,41 @@ int Calc::evalExpr(const string &expr, int &result) {
             string cur = vec.back();
             if (!isNum(cur)) {
                 //invalid if the variable doesn't exist in dictionary
-                if (!existsInDict(cur)) return 0;
+                if (!existsInDict(cur)) {
+                    returnVal = 0; 
+                    break; 
+                } 
                 result = variables[cur];
             } else {
                 result = stoi(cur);
             }
-            return 1;
+            returnVal = 1; 
+            break; 
         } else if (size >= 3) {
             string operand2 = vec.back();
             vec.pop_back();
             string op = vec.back();
             //invalid if operator is not valid
-            if (!isOperator(op)) return 0;
+            if (!isOperator(op)) {
+                returnVal = 0; 
+                break; 
+            }
             vec.pop_back();
             string operand1 = vec.back();
             vec.pop_back();
-            if (!isValidOperation(operand1, operand2, op, vec)) return 0;
+            if (!isValidOperation(operand1, operand2, op, vec)) {
+                returnVal = 0; 
+                break; 
+            }
             vec.push_back(to_string(operation(operand1, operand2, op)));
         } else {
-            return 0;
+            returnVal = 0; 
+            break; 
         }
     }
-    return 1;
+
+    pthread_mutex_unlock(&lock); 
+    return returnVal;
 }
 
 
@@ -256,5 +275,4 @@ extern "C" void calc_destroy(struct Calc *calc) {
  */
 extern "C" int calc_eval(struct Calc *calc, const char *expr, int *result) {
     return calc->evalExpr(expr, *result);
-
 }
