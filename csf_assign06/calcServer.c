@@ -12,6 +12,7 @@
 //global var that keeps track of shutdown requests
 int volatile shutdown_request = 0; 
 int MAX_NUM_THREADS = 5;
+int TIMEOUT = 10;
 
 //struct data type encapsulating the data needed for a client connection
 struct ConnInfo {
@@ -113,21 +114,20 @@ int main(int argc, char **argv) {
 	int server_fd = open_listenfd(argv[1]);
   	if (server_fd < 0) fatal("Couldn't open server socket\n");
 
-	sem_t threads;
+	sem_t threads; //create semaphore
 	sem_init(&threads, 0, MAX_NUM_THREADS);
 
 	fd_set readfds;
 	FD_ZERO(&readfds);
 	FD_SET(MAX_NUM_THREADS, &readfds);
+	struct timeval tv = {TIMEOUT, 0}; //wait 10 sec until timeout
 
   	while (shutdown_request == 0) {
-		int retval = select(MAX_NUM_THREADS + 1, &readfds, NULL, NULL, NULL);
+		//int retval = select(MAX_NUM_THREADS + 1, &readfds, NULL, NULL, tv);
+		int retval = select(1, &readfds, NULL, NULL, &tv);
 
 		if (retval == -1) fatal("select error");
 		if (retval) {
-			//if the number of threads is less than max, will proceed
-			//if the number of threads reaeches max, will wait
-			sem_wait(&threads);
     		int client_fd = Accept(server_fd, NULL, NULL);
 			if (client_fd < 0) fatal("Error accepting client connection");
 
@@ -146,11 +146,13 @@ int main(int argc, char **argv) {
 			if (pthread_create(&thr_id, NULL, worker, info) != 0) {
 				fatal("pthread_create failed");
 			}
-			sem_post(&threads);
+		} else { //retval == 0, timeout
+			sem_wait(&threads);
+
+			
 		}
 	}
-	//shutdown requested
-	sem_wait(&threads);
+
 
 		
 		
