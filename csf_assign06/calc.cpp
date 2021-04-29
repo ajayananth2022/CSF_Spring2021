@@ -30,7 +30,7 @@ struct Calc {
         }
         ~Calc() {
             pthread_mutex_destroy(&lock);
-            sem_destroy(&threads);
+            //sem_destroy(&threads);
         }
 
         /*
