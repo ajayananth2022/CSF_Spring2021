@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 #include <sstream>
-#include <semaphore.h>
 
 using std::map;
 using std::string;
@@ -22,11 +21,11 @@ struct Calc {
     private:
         std::map<std::string, int> variables; 
         pthread_mutex_t lock; 
-        sem_t threads;
+        //sem_t threads;
     public:
         Calc() {
             pthread_mutex_init(&lock, NULL);
-            sem_init(&threads, 0, 5); //temporary max thread number 5
+            //sem_init(&threads, 0, 5); //temporary max thread number 5
         }
         ~Calc() {
             pthread_mutex_destroy(&lock);

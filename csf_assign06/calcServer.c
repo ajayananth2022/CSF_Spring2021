@@ -119,6 +119,10 @@ int main(int argc, char **argv) {
     	fatal("Couldn't open server socket\n");
   	}
 
+	sem_t threads;
+
+	sem_init(&threads, 0, 5);
+
 	//not working...shutdown_request not getting updated...
   	while (shutdown_request == 0) {
     	int client_fd = Accept(server_fd, NULL, NULL);
@@ -144,6 +148,7 @@ int main(int argc, char **argv) {
   	}
 
 	calc_destroy(calc);
+	sem_destroy(&threads);
 
 	return 0;
 }
