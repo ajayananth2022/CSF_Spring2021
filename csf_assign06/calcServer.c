@@ -4,15 +4,14 @@
 #include <stdio.h>      /* for snprintf */
 #include "csapp.h"
 #include "calc.h"
-#include <stdbool.h>
+#include <sys/select.h>
 
 /* buffer size for reading lines of input from user */
 #define LINEBUF_SIZE 1024
 
-//TODO: see if we need this...
 //global var that keeps track of shutdown requests
-int shutdown_request = 0; 
-bool volatile = false;
+int volatile shutdown_request = 0; 
+int MAX_NUM_THREADS = 5;
 
 //struct data type encapsulating the data needed for a client connection
 struct ConnInfo {
@@ -107,29 +106,30 @@ void *worker(void *arg) {
 }
 
 int main(int argc, char **argv) {
-	if (argc != 2) {
-    	fatal("Usage: ./calcServer <port>");
-  	}
+	if (argc != 2) fatal("Usage: ./calcServer <port>");
 
 	struct Calc *calc = calc_create();
 
 	//open a server socket given port name as string
 	int server_fd = open_listenfd(argv[1]);
-  	if (server_fd < 0) {
-    	fatal("Couldn't open server socket\n");
-  	}
+  	if (server_fd < 0) fatal("Couldn't open server socket\n");
 
 	sem_t threads;
+	sem_init(&threads, 0, MAX_NUM_THREADS);
 
-	sem_init(&threads, 0, 5);
+	fd_set readfds;
+	FD_ZERO(&readfds);
+	FD_SET(MAX_NUM_THREADS, &readfds);
 
-	//not working...shutdown_request not getting updated...
   	while (shutdown_request == 0) {
-    	int client_fd = Accept(server_fd, NULL, NULL);
+		int retval = select(MAX_NUM_THREADS + 1, &readfds, NULL, NULL, NULL);
 
-		if (client_fd < 0) { 
-			fatal("Error accepting client connection");
-		} else {
+		if (retval == -1) fatal("select error");
+		if (retval) {
+    		int client_fd = Accept(server_fd, NULL, NULL);
+			if (client_fd < 0) fatal("Error accepting client connection");
+
+			FD_SET(client_fd, &readfds);
 			
 			//dynamically-allocated instance of ConnInfo
 			struct ConnInfo *info = malloc(sizeof(struct ConnInfo));
@@ -145,10 +145,15 @@ int main(int argc, char **argv) {
 				fatal("pthread_create failed");
 			}
 		}
-  	}
+	}
+	  
+		
+		
 
 	calc_destroy(calc);
 	sem_destroy(&threads);
 
 	return 0;
 }
+
+
