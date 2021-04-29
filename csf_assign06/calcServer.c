@@ -4,6 +4,7 @@
 #include <stdio.h>      /* for snprintf */
 #include "csapp.h"
 #include "calc.h"
+#include <stdbool.h>
 
 /* buffer size for reading lines of input from user */
 #define LINEBUF_SIZE 1024
@@ -11,6 +12,7 @@
 //TODO: see if we need this...
 //global var that keeps track of shutdown requests
 int shutdown_request = 0; 
+bool volatile = false;
 
 //struct data type encapsulating the data needed for a client connection
 struct ConnInfo {
