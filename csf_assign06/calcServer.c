@@ -12,7 +12,8 @@
 //global var that keeps track of shutdown requests
 int volatile shutdown_request = 0; 
 int MAX_NUM_THREADS = 5;
-int TIMEOUT = 10;
+int TIMEOUT = 1;
+sem_t threads;
 
 //struct data type encapsulating the data needed for a client connection
 struct ConnInfo {
@@ -98,10 +99,9 @@ void *worker(void *arg) {
 	//shutdown server
 	if (keep_going == 2) {
 		// close server socket
-  		close(info->server_fd);
 		shutdown_request = 1; //update global variable
 	}
-
+	sem_post(&threads);
 	return NULL;
 }
 
@@ -114,16 +114,15 @@ int main(int argc, char **argv) {
 	int server_fd = open_listenfd(argv[1]);
   	if (server_fd < 0) fatal("Couldn't open server socket\n");
 
-	sem_t threads; //create semaphore
 	sem_init(&threads, 0, MAX_NUM_THREADS);
 
 	fd_set readfds;
-	FD_ZERO(&readfds);
-	FD_SET(MAX_NUM_THREADS, &readfds);
-	struct timeval tv = {TIMEOUT, 0}; //wait 10 sec until timeout
 
   	while (shutdown_request == 0) {
-		int retval = select(1, &readfds, NULL, NULL, &tv); // is this right?
+		FD_ZERO(&readfds);
+		FD_SET(server_fd, &readfds);
+		struct timeval tv = {TIMEOUT, 0}; //wait 1 sec until timeout
+		int retval = select(server_fd + 1, &readfds, NULL, NULL, &tv); // is this right?
 
 		if (retval == -1) fatal("select error");
 		if (retval) {
@@ -131,7 +130,7 @@ int main(int argc, char **argv) {
     		int client_fd = Accept(server_fd, NULL, NULL);
 			if (client_fd < 0) fatal("Error accepting client connection");
 
-			FD_SET(client_fd, &readfds);
+			//FD_SET(client_fd, &readfds);
 			
 			//dynamically-allocated instance of ConnInfo
 			struct ConnInfo *info = malloc(sizeof(struct ConnInfo));
@@ -146,18 +145,15 @@ int main(int argc, char **argv) {
 			if (pthread_create(&thr_id, NULL, worker, info) != 0) {
 				fatal("pthread_create failed");
 			}
-			sem_post(&threads);
 		} else { //retval == 0, timeout, check shutdown_request
 			if (shutdown_request == 1) break;
 		}
 	}
 	//shutting down
+	close(info->server_fd);
 	for (int i = 0; i < MAX_NUM_THREADS; i++) {
 		sem_wait(&threads);
 	}
-
-		
-		
 
 	calc_destroy(calc);
 	sem_destroy(&threads);
