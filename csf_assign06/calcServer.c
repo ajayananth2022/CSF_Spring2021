@@ -101,7 +101,6 @@ void *worker(void *arg) {
 		shutdown_request = 1; 
 	}
 
-	//do we need return for a void function??
 	return NULL;
 }
 
@@ -126,6 +125,9 @@ int main(int argc, char **argv) {
 
 		if (retval == -1) fatal("select error");
 		if (retval) {
+			//if the number of threads is less than max, will proceed
+			//if the number of threads reaeches max, will wait
+			sem_wait(&threads);
     		int client_fd = Accept(server_fd, NULL, NULL);
 			if (client_fd < 0) fatal("Error accepting client connection");
 
@@ -144,9 +146,12 @@ int main(int argc, char **argv) {
 			if (pthread_create(&thr_id, NULL, worker, info) != 0) {
 				fatal("pthread_create failed");
 			}
+			sem_post(&threads);
 		}
 	}
-	  
+	//shutdown requested
+	sem_wait(&threads);
+
 		
 		
 
