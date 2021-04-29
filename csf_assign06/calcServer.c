@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	//shutting down
-	close(info->server_fd);
+	close(server_fd);
 	for (int i = 0; i < MAX_NUM_THREADS; i++) {
 		sem_wait(&threads);
 	}
