@@ -99,7 +99,7 @@ void *worker(void *arg) {
 	if (keep_going == 2) {
 		// close server socket
   		close(info->server_fd);
-		shutdown_request = 1; 
+		shutdown_request = 1; //update global variable
 	}
 
 	return NULL;
@@ -123,11 +123,11 @@ int main(int argc, char **argv) {
 	struct timeval tv = {TIMEOUT, 0}; //wait 10 sec until timeout
 
   	while (shutdown_request == 0) {
-		//int retval = select(MAX_NUM_THREADS + 1, &readfds, NULL, NULL, tv);
-		int retval = select(1, &readfds, NULL, NULL, &tv);
+		int retval = select(1, &readfds, NULL, NULL, &tv); // is this right?
 
 		if (retval == -1) fatal("select error");
 		if (retval) {
+			sem_wait(&threads);
     		int client_fd = Accept(server_fd, NULL, NULL);
 			if (client_fd < 0) fatal("Error accepting client connection");
 
@@ -146,13 +146,15 @@ int main(int argc, char **argv) {
 			if (pthread_create(&thr_id, NULL, worker, info) != 0) {
 				fatal("pthread_create failed");
 			}
-		} else { //retval == 0, timeout
-			sem_wait(&threads);
-
-			
+			sem_post(&threads);
+		} else { //retval == 0, timeout, check shutdown_request
+			if (shutdown_request == 1) break;
 		}
 	}
-
+	//shutting down
+	for (int i = 0; i < MAX_NUM_THREADS; i++) {
+		sem_wait(&threads);
+	}
 
 		
 		
