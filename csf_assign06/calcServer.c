@@ -13,6 +13,8 @@
 int volatile shutdown_request = 0; 
 int MAX_NUM_THREADS = 5;
 int TIMEOUT = 1;
+
+//semaphore to keep track of number of threads
 sem_t threads;
 
 //struct data type encapsulating the data needed for a client connection
@@ -82,15 +84,13 @@ void fatal(const char *msg) {
 //thread start function
 void *worker(void *arg) {
 
-	int keep_going = 1;
-
 	struct ConnInfo *info = arg;
 
 	//thread detaches itself
 	pthread_detach(pthread_self());
 
 	//now chat with client
-	keep_going = chat_with_client(info->calc,info->client_fd, info->client_fd);
+	int keep_going = chat_with_client(info->calc,info->client_fd, info->client_fd);
 	
 	// close the connection
 	close(info->client_fd);
@@ -98,10 +98,12 @@ void *worker(void *arg) {
 
 	//shutdown server
 	if (keep_going == 2) {
-		// close server socket
 		shutdown_request = 1; //update global variable
 	}
-	sem_post(&threads);
+	
+	//increment semaphore count when client connection is done
+	sem_post(&threads); 
+
 	return NULL;
 }
 
@@ -114,23 +116,22 @@ int main(int argc, char **argv) {
 	int server_fd = open_listenfd(argv[1]);
   	if (server_fd < 0) fatal("Couldn't open server socket\n");
 
-	sem_init(&threads, 0, MAX_NUM_THREADS);
+	//semaphore initialized to the max number of threads
+	sem_init(&threads, 0, MAX_NUM_THREADS); 
 
-	fd_set readfds;
+	fd_set readfds; //create file descriptor set
 
   	while (shutdown_request == 0) {
-		FD_ZERO(&readfds);
-		FD_SET(server_fd, &readfds);
+		FD_ZERO(&readfds); //clears file descriptor set
+		FD_SET(server_fd, &readfds); //adds server socket fd to set
 		struct timeval tv = {TIMEOUT, 0}; //wait 1 sec until timeout
-		int retval = select(server_fd + 1, &readfds, NULL, NULL, &tv); // is this right?
+		int retval = select(server_fd + 1, &readfds, NULL, NULL, &tv); 
 
 		if (retval == -1) fatal("select error");
-		if (retval) {
-			sem_wait(&threads);
+		if (retval) { // file descriptor available, create threads
+			sem_wait(&threads); //decrement semaphore count
     		int client_fd = Accept(server_fd, NULL, NULL);
 			if (client_fd < 0) fatal("Error accepting client connection");
-
-			//FD_SET(client_fd, &readfds);
 			
 			//dynamically-allocated instance of ConnInfo
 			struct ConnInfo *info = malloc(sizeof(struct ConnInfo));
@@ -150,9 +151,9 @@ int main(int argc, char **argv) {
 		}
 	}
 	//shutting down
-	close(server_fd);
+	close(server_fd); //don't accept more client connections
 	for (int i = 0; i < MAX_NUM_THREADS; i++) {
-		sem_wait(&threads);
+		sem_wait(&threads); //wait for the client threads to finish
 	}
 
 	calc_destroy(calc);

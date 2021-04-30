@@ -21,15 +21,12 @@ struct Calc {
     private:
         std::map<std::string, int> variables; 
         pthread_mutex_t lock; 
-        //sem_t threads;
     public:
         Calc() {
             pthread_mutex_init(&lock, NULL);
-            //sem_init(&threads, 0, 5); //temporary max thread number 5
         }
         ~Calc() {
             pthread_mutex_destroy(&lock);
-            //sem_destroy(&threads);
         }
 
         /*
@@ -245,12 +242,11 @@ int Calc::evalExpr(const string &expr, int &result) {
                 break; 
             }
             vec.push_back(to_string(operation(operand1, operand2, op)));
-        } else {
+        } else { // invalid number of operands in vec
             returnVal = 0; 
             break; 
         }
     }
-
     pthread_mutex_unlock(&lock); 
     return returnVal;
 }
